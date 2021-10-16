@@ -1,12 +1,23 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view />
+    <router-view/>
   </div>
 </template>
+<script>
+
+import Vue from 'vue'; 
+
+export default Vue.extend({
+  name: 'Login',
+  data: function() {
+    return {}
+  },
+  methods: {},
+  /*mounted(){
+    //eslint-disable-line no-debugger
+  }*/
+})
+</script>
 
 <style>
 #app {
@@ -15,6 +26,7 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  margin-top: 60px;
 }
 
 #nav {

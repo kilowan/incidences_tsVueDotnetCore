@@ -280,4 +280,11 @@ export default Vue.extend({
     permissions: Array<string>;
   }
 </script>
-<style></style>
+<style>
+td {
+	font-size: 100%;
+	text-align: center;
+	border: 1px dashed gray;
+	color: black;
+}
+</style>

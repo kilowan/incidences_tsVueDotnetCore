@@ -48,10 +48,10 @@
         <div v-if="pieces">
           <label>¿Que pieza/s crees que falla/n?:</label> <br /> 
           <b-form-select v-model="selectedPiece" name="pieza">
-            <b-form-select-option :value="null">Selecciona las piezas que fallan</b-form-select-option>
+            <b-form-select-option :value="'other'">Selecciona las piezas que fallan</b-form-select-option>
             <b-form-select-option :value="piece.name" v-for="(piece) in pieces" :key="piece.id">{{ piece.name }}</b-form-select-option>
           </b-form-select>
-          <b-button v-if="selectedPiece" @click="addPiece()">Añadir</b-button>
+          <b-button v-if="selectedPiece !== 'other'" @click="addPiece()">Añadir</b-button>
           <b-button v-if="selectedPieces.length>0" @click="reset()">Reiniciar</b-button><br />
         </div>
         <b-form-textarea placeholder="Descripción del problema" v-model="description"/><br />
@@ -105,14 +105,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import axios from 'axios';
 import statistics from './statistics.vue';
 import employeeList from './employeeList.vue';
 import incidences from './incidences.vue';
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'main',
   props: {
     /*message: {
@@ -129,8 +130,29 @@ export default {
     return {
       page: 'Login',
       mod: 'Main',
-      user: undefined,
-      incidences: undefined,
+      user: {
+        id: new Number(),
+        name: '',
+        surname1: '',
+        surname2: '',
+        tipo: new String(),
+        dni: '',
+        permissions: new Array<string>(),
+      },
+      userData: {
+        id: new Number(),
+        name: '',
+        surname1: '',
+        surname2: '',
+        tipo: '',
+        dni: '',
+        permissions: new Array<string>(),
+      },
+      form: {
+        username: undefined,
+        pass: undefined,
+      },
+      incidences: new Array<Incidence>(),
       incidencesCount: 0,
       reload: false,
       username: undefined,
@@ -139,15 +161,15 @@ export default {
       checked: false,
       choosen: '--',
       description: undefined,
-      selectedPiece: null,
-      selectedPieces: [],
-      PieceIdsSelected: [],
+      selectedPiece: 'other',
+      selectedPieces: new Array<string>(),
+      PieceIdsSelected: new Array<number>(),
       edit: false,
-      name: undefined,
-      surname1: undefined,
-      surname2: undefined,
-      fields: [],
-      values: [],
+      name: '',
+      surname1: '',
+      surname2: '',
+      fields: new Array<string>(),
+      values:new Array<string>(),
       options: [
         { value: null, text: 'Tipo', default: true},
         { value: 'Limpiador', text: 'Un limpiador' },
@@ -167,7 +189,7 @@ export default {
       this.checked = false;
       this.choosen = '--';
       this.description = undefined;
-      this.selectedPiece = null;
+      this.selectedPiece = 'other';
       this.selectedPieces = [];
       this.PieceIdsSelected = [];
    },
@@ -177,7 +199,7 @@ export default {
           this.reset();
         }
         this.selectedPieces.push(this.selectedPiece);
-        let piece = this.pieces.filter(data =>{
+        let piece: Piece = this.pieces.filter((data: any) =>{
           return data.name == this.selectedPiece;
         })[0];
         this.PieceIdsSelected.push(piece.id);
@@ -196,9 +218,9 @@ export default {
           issueDesc: this.description,
           pieces: this.PieceIdsSelected,
         },
-      headers:[]
+      headers: undefined
       })
-      .then(
+      .then(() =>
         this.$emit('closeForm')
       );
     },
@@ -206,43 +228,43 @@ export default {
       return this.selected && this.description? true:false;
     },
     getPiece: function() {
-      return this.pieces.filter(piece => {
+      return this.pieces.filter((piece: Piece) => {
         return piece.name == this.selected;
       })[0];
     },
     concatPieces: function() {
       return this.selectedPieces.join(', ');
     },
-    check: function(data) {
+    check: function(data: any) {
       return this.mod == data? true: false;
     },
     reloading: function() {
         axios.get("http://localhost:8082/newMenu.php?funcion=getAllincidences")
-        .then( datas => {
+        .then((datas: any) => {
           this.incidences = datas.data;
           this.reload = true;
         });
     },
-    logedIn: function(data) {
+    logedIn: function(data: any) {
       axios.get("http://localhost:8082/employee.php?funcion=getEmployeeByUsername&username="+ data)
-      .then( datas => {
+      .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
         this.page = 'Menu';
         axios.get("http://localhost:8082/newMenu.php?funcion=getAllincidences")
-        .then( datas => {
+        .then((datas: any)  => {
           this.incidences = datas.data;
           this.showIncidences();
         });
       });
     },
-    reloadUser: function(data) {
+    reloadUser: function(data: any) {
       axios.get("http://localhost:8082/employee.php?funcion=getEmployeeByUsername&username="+ data)
-      .then( datas => {
+      .then((datas: any) => {
         this.user = datas.data;
       });
     },
-    add: function(data) {
+    add: function(data: any) {
       if (data == 'incidences' && this.mod =='incidences') {
         this.reloading();
       }
@@ -251,8 +273,7 @@ export default {
 
     showIncidences: function() {
       let new_array = undefined;
-      if(this.user.permissions.includes("7") && this.user.permissions.includes("8") && this.user.permissions.includes("9"))
-      {
+      if(this.user.permissions.includes("7") && this.user.permissions.includes("8") && this.user.permissions.includes("9")) {
           new_array = this.incidences.filter(array => {
               return (array.owner.id == this.user.id && array.state != 5);
           });
@@ -277,11 +298,19 @@ export default {
         username: undefined,
         pass: undefined,
       };
-      this.user = undefined;
-      this.incidences = undefined;
+      this.user = {
+        id: new Number(),
+        name: '',
+        surname1: '',
+        surname2: '',
+        tipo: '',
+        dni: '',
+        permissions: new Array<string>(),
+      };
+      this.incidences = new Array<Incidence>();
       this.incidencesCount = 0;
     },
-    pushField(data, parity, name)
+    pushField(data: any, parity: any, name: any)
     {
       if(this.checkField(data, parity))
       {
@@ -295,12 +324,11 @@ export default {
       this.surname1 = this.user.surname1;
       this.surname2 = this.user.surname2;
     },
-    checkField(field, field2)
+    checkField(field: any, field2: any)
     {
       return field && field != field2? true: false
     },
-    fillData(data)
-    {
+    fillData(data: any) {
       this.pushField(data[0], this.user.name, "nombre");
       this.pushField(data[1], this.user.surname1, "apellido1");
       this.pushField(data[2], this.user.surname2, "apellido2");
@@ -319,8 +347,8 @@ export default {
             fields: this.fields,
             values: this.values,
           },
-          headers:[],
-        }).then(
+          headers: undefined,
+        }).then(() =>
           this.$emit('reload')
         );        
       }
@@ -330,31 +358,29 @@ export default {
         this.reloadUserData();
       }
     },
-    resetUser: function()
-    {
+    resetUser: function() {
       this.edit = false;
-      this.name = undefined;
-      this.surname1 = undefined;
-      this.surname2 = undefined;
+      this.name = '';
+      this.surname1 = '';
+      this.surname2 = '';
       this.fields = [];
       this.values = [];
     },
-    reloadUserData: function()
-    {
+    reloadUserData: function() {
       axios.get("http://localhost:8082/newMenu.php?funcion=getEmployeeByUsername&username="+ this.username)
-      .then( datas => {
+      .then((datas: any) => {
         this.user = datas.data;
       });
     },
     close: function() {
       this.$bvModal.hide('user-info');
-      this.startevent();
+      this.closeEvent();
     },
     closeEvent: function() {
       this.edit = false;
-      this.name = undefined;
-      this.surname1 = undefined;
-      this.surname2 = undefined;
+      this.name = '';
+      this.surname1 = '';
+      this.surname2 = '';
       this.fields = [];
       this.values = [];
     },
@@ -362,11 +388,51 @@ export default {
   mounted() {
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
     axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
-      .then( data => {
+      .then((data: any) => {
         this.pieces = data.data;
     });
   }
-}
+})
+  interface Employee {
+    id: number;
+    name: string;
+    surname1: string;
+    surname2: string;
+    tipo: string;
+    dni: string;
+    permissions: Array<string>;
+  }
+  interface Piece {
+    type: PieceType;
+    name: string;
+    price: string;
+    quantity: number;
+    description: number;
+    id: number;
+  }
+  interface PieceType {
+    name: string;
+    description: number;
+  }
+  interface Incidence {
+    initDateTime: string;
+    finishDate: string;
+    finishTime: string;
+    issueDesc: string;
+    owner: Employee;
+    solver: Employee;
+    state: number;
+    pieces: Array<Piece>;
+    id: number;
+    notes: Array<Note>;
+  }
+  interface Note {
+    date: string;
+    noteStr: string;
+    noteType: string;
+    incidence: number;
+    employee: number;
+  }
 </script>
 <style>
   .cabecera {

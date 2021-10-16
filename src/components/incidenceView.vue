@@ -127,19 +127,20 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import axios from 'axios';
 import notesModule from './notesModule.vue';
 import piecesModule from './piecesModule.vue';
-export default {
+import Vue from 'vue';
+export default Vue.extend({
   name: 'incidencesView',
   props: ['incidence', 'user'],
   components: {
     notesModule,
     piecesModule,
   },
-  data:function() {
+  data: function() {
     return {
       menu: 'main',
       issueDesc: undefined,
@@ -162,7 +163,7 @@ export default {
       axios({
         method: 'get',
         url: 'http://localhost:8082/newMenu.php?funcion=getIncidenceById&id_part=' + this.incidence.id,
-      }).then(data => {
+      }).then((data: any) => {
         this.issueDesc = data.data.issueDesc;
       });
     },
@@ -178,7 +179,7 @@ export default {
       axios({
         method: 'get',
         url: 'http://localhost:8082/newMenu.php?funcion=showIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
-      }).then(data => {
+      }).then((data: any) => {
         this.$emit('reload', data);
       });
     },
@@ -189,16 +190,16 @@ export default {
       axios({
           method: 'get',
           url: 'http://localhost:8082/newMenu.php?funcion=deleteIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
-        }).then(
+        }).then(() =>
           this.$emit('reload')
         );
     },
     reload:function() {
-      this.manu='main';
+      this.menu = 'main';
       this.$emit('reload');
     },
     reloadoff:function() {
-      this.manu='main';
+      this.menu = 'main';
     },
     editIncidence: function() {
       if (this.incidence.issueDesc != this.issueDesc) {
@@ -211,9 +212,9 @@ export default {
             incidenceDesc: this.issueDesc,
             employeeId: this.user.id,
           },
-          headers: [],
+          headers: undefined,
         })
-        .then(this.$emit('reload'));
+        .then(() => this.$emit('reload'));
       } else this.$emit('reloadoff');
       
     },
@@ -232,13 +233,51 @@ export default {
             pieces: this.PieceIdsSelected,
             close: this.close,
           },
-          headers: [],
-        }).then(this.$emit('reload'));
+          headers: undefined,
+        })
+        .then(() => this.$emit('reload'));
       },
   },
   mounted() {
     this.load();
   }
-}
+})
+  interface Incidence {
+    initDateTime: string;
+    issueDesc: string;
+    owner: Employee;
+    solver: Employee;
+    state: number;
+    pieces: Array<Piece>;
+    id: number;
+    notes: Array<Note>;
+  }
+  interface Note {
+    date: string;
+    noteStr: string;
+    noteType: string;
+    incidence: number;
+    employee: number;
+  }
+  interface Piece {
+    type: PieceType;
+    name: string;
+    price: string;
+    quantity: number;
+    description: number;
+  }
+  interface PieceType {
+    name: string;
+    description: number;
+  }
+  interface Employee {
+    id: number;
+    name: string;
+    surname1: string;
+    surname2: string;
+    tipo: string;
+    dni: string;
+    permissions: Array<string>;
+  }
 </script>
 <style></style>

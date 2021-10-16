@@ -7,7 +7,7 @@
         <b-link v-if="attendedOwnIncidences.length >0 || attendedIncidences.length >0"  @click="selectTab('current')">Atendidos</b-link>{{ ' ' }}
         <b-link v-if="closedOwnIncidences.length >0 || closedIncidences.length >0" @click="selectTab('old')">Cerrados</b-link>{{ ' ' }}
         <b-link v-if="hiddenOwnIncidences.length >0" @click="selectTab('hidden')">Ocultos</b-link><br/>
-      </nav>
+      </nav><br />
       <div v-if="checkPermissions(user.permissions, ['6', '7', '8', '9'])">
         <!-- new -->
         <incidences-view v-if="newOwnIncidences && tab=='new'"
@@ -83,12 +83,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import incidencesView from './incidencesView.vue';
 import incidenceView from './incidenceView.vue';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'incidences',
   props: ['user', 'incidences', 'admin', 'reload'],
   components: {
@@ -106,7 +107,7 @@ export default {
       attendedIncidences: [],
       newIncidences: [],
       incidence: undefined,
-      tab: undefined,
+      tab: '',
       style: {
         boxShadow: '5px 5px 10px #999',
         border: '1px solid white',
@@ -119,13 +120,13 @@ export default {
     }
   },
   methods: {
-    linked: function(incidence) {
+    linked: function(incidence: any) {
       this.incidence = incidence;
       this.$emit('linked');
     },
-    checkPermissions: function(permissions, permissionNumbers) {
+    checkPermissions: function(permissions: Array<string>, permissionNumbers: Array<string>) {
       let result = true;
-      permissionNumbers.forEach(element => {
+      permissionNumbers.forEach((element: string) => {
         if (!permissions.includes(element)) {
           result = false;
         }
@@ -148,7 +149,7 @@ export default {
         return false;
       }
     },
-    selectTab: function(tab) {
+    selectTab: function(tab: string) {
       this.tab = tab;
     },
     back: function() {
@@ -157,49 +158,90 @@ export default {
     handle: function() {
       this.incidence = undefined;
       if (this.checkPermissions(this.user.permissions, ['6', '7', '8', '9'])) {
-        this.newOwnIncidences = this.incidences.filter(data => {
+        this.newOwnIncidences = this.incidences.filter((data: Incidence) => {
 
           return data.owner.dni == this.user.dni && data.state == 1;
         });
-        this.attendedOwnIncidences = this.incidences.filter(data => {
+        this.attendedOwnIncidences = this.incidences.filter((data: Incidence)  => {
 
           return data.owner.dni == this.user.dni && data.state == 2;
         });
-        this.closedOwnIncidences = this.incidences.filter(data => {
+        this.closedOwnIncidences = this.incidences.filter((data: Incidence)  => {
 
           return data.owner.dni == this.user.dni && data.state == 3;
         });
-        this.hiddenOwnIncidences = this.incidences.filter(data => {
+        this.hiddenOwnIncidences = this.incidences.filter((data: Incidence)  => {
 
           return data.owner.dni == this.user.dni && data.state == 4;
         });
       }
       if (this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
-        this.newIncidences = this.incidences.filter(data => {
+        this.newIncidences = this.incidences.filter((data: Incidence)  => {
 
           return data.state == 1 && data.owner.id != this.user.id;
         });
-        this.attendedIncidences = this.incidences.filter(data => {
+        this.attendedIncidences = this.incidences.filter((data: Incidence)  => {
 
           return data.solver.dni == this.user.dni && data.state == 2;
         });
-        this.closedIncidences = this.incidences.filter(data => {
+        this.closedIncidences = this.incidences.filter((data: Incidence)  => {
 
           return data.solver.dni == this.user.dni && data.state == 3;
         });
       }
     },
-    manageIncidences: function(input){
+    manageIncidences: function(input: string){
       this.tab = input;
       this.countTypes++;
     },
   },
   mounted() {
     this.handle();
-    this.newOwnIncidences.lwngth > 0 || this.newIncidences.length > 0? this.manageIncidences('new') :  
-    this.attendedOwnIncidences.length > 0 || this.attendedIncidences.length > 0? this.manageIncidences('current'): 
-    this.closedOwnIncidences.length > 0 || this.closedIncidences.length > 0? this.manageIncidences('old'): this.hiddenOwnIncidences.length > 0? this.manageIncidences('hidden'): this.tab = undefined;
+    this.newOwnIncidences.length > 0 || this.newIncidences.length > 0? this.manageIncidences('new') :  this.tab = '';
+    this.attendedOwnIncidences.length > 0 || this.attendedIncidences.length > 0? this.manageIncidences('current'): this.tab = ''
+    this.closedOwnIncidences.length > 0 || this.closedIncidences.length > 0? this.manageIncidences('old'): this.hiddenOwnIncidences.length > 0? this.manageIncidences('hidden'): this.tab = '';
   }
-}
+})
+
+  interface Incidence {
+    initDateTime: string;
+    finishDate: string;
+    finishTime: string;
+    issueDesc: string;
+    owner: Employee;
+    solver: Employee;
+    state: number;
+    pieces: Array<Piece>;
+    id: number;
+    notes: Array<Note>;
+  }
+  interface Note {
+    date: string;
+    noteStr: string;
+    noteType: string;
+    incidence: number;
+    employee: number;
+  }
+  interface Piece {
+    type: PieceType;
+    name: string;
+    price: string;
+    quantity: number;
+    description: number;
+    id: number;
+  }
+  interface PieceType {
+    name: string;
+    description: number;
+  }
+  interface Employee {
+    id: number;
+    name: string;
+    surname1: string;
+    surname2: string;
+    tipo: string;
+    dni: string;
+    permissions: Array<string>;
+  }
 </script>
 <style></style>

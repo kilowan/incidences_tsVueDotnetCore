@@ -32,30 +32,24 @@
 export default {
   name: 'incidencesView',
   props: ['incidences', 'user', 'title', 'admin'],
-  components: {
-  },
-  data:function()
-  {
+  components: {},
+  data: function() {
     return {
       menu: 'incidences',
       incidenceData: undefined,
     }
   },
   methods: {
-    dateFormat: function(startTimeISOString)
-    {
+    dateFormat: function(startTimeISOString) {
       return new Date(startTimeISOString).toLocaleDateString();
     },
-    check: function()
-    {
+    check: function() {
       return Object.keys(this.incidences).length >0;
     },
-    checkMenu: function(data)
-    {
+    checkMenu: function(data) {
       return this.menu == data ? true : false;
     },
-    detail: function(incidence)
-    {
+    detail: function(incidence) {
       this.menu = 'detail';
       this.incidenceData = incidence;
       this.$emit('linked', incidence);

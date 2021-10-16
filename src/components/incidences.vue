@@ -91,7 +91,24 @@ import Vue from 'vue';
 
 export default Vue.extend({
   name: 'incidences',
-  props: ['user', 'incidences', 'admin', 'reload'],
+  props: {
+    user: {
+      type: Object,
+      required: true
+    },
+    incidences: {
+      type: Object,
+      required: true
+    },
+    admin: {
+      type: Boolean,
+      required: true
+    },
+    reload: {
+      type: Boolean,
+      required: true
+    },
+  },
   components: {
     incidencesView,
     incidenceView,

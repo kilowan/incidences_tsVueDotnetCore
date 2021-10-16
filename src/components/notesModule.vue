@@ -20,29 +20,37 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
-export default {
+import Vue from 'vue';
+
+export default Vue.extend({
   name: 'notesModule',
-  props: ['notes', 'edit'],
+  props: {
+    notes: {
+      type: Object,
+      required: true
+    },
+    edit: {
+      type: Boolean,
+      required: true
+    },
+  },
   components: {
   },
-  data:function()
-  {
+  data: function() {
     return {
       note: undefined,
       addNote: false,
-      notesData: [],
+      notesData: new Array<any>(),
       added: false,
     }
   },
   methods: {
-    addOn: function()
-    {
+    addOn: function() {
       this.addNote = true;
     },
-    addNotes: function()
-    {
+    addNotes: function() {
       let date = new Date();
       let note = { noteStr: this.note, date: date.toISOString() };
       this.notesData.push(note);
@@ -60,6 +68,6 @@ export default {
       this.notesData = this.notes;
     }
   }
-}
+})
 </script>
 <style></style>

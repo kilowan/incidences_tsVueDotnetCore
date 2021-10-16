@@ -24,22 +24,21 @@
 </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import axios from 'axios';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'Login',
-  props:{
+  props: {
     message: {
       type: String,
       required: false
     },
   },
-  components: {
-  },
-  data:function()
-  {
+  components: {},
+  data: function() {
     return {
       form: {
         username: undefined,
@@ -47,20 +46,20 @@ export default {
       },
       user: undefined,
       incidences: undefined,
+      response: undefined
     }
   },
   methods: {
-    onSubmit: function()
-    {
+    onSubmit: function() {
       axios.get("http://localhost:8082/newMenu.php?funcion=checkCredentials&username="+ this.form.username+"&pass="+this.form.pass)
-      .then( data => {
+      .then((data: any) => {
         this.response = data.data;
         this.$emit('logedIn', data.data)
       });
     },
   },
   //mounted(){}
-}
+})
 </script>
 <style>
 .cabecera

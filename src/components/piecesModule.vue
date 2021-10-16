@@ -23,47 +23,54 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import axios from 'axios';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'piecesModule',
-  props: ['pieces', 'edit'],
+  props: {
+    pieces: {
+      type: Object,
+      required: true
+    },
+    edit: {
+      type: Boolean,
+      required: true
+    },
+  },
   components: {
   },
-  data:function()
-  {
+  data:function() {
     return {
-      selectedPiece: undefined,
-      piecesData: undefined,
-      piecesList: [],
+      selectedPiece: '',
+      piecesData: new Array<Piece>(),
+      piecesList: new Array<Piece>(),
+      addNote: false,
     }
   },
   mounted: function() {
     this.piecesData = this.pieces;
     axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
-    .then( data => {
+    .then((data: any) => {
       this.piecesList = data.data;
     });
   },
   methods: {
-    back: function()
-    {
+    back: function() {
       this.$emit('stepBack');
     },
-    addOn: function()
-    {
+    addOn: function() {
       this.addNote = true;
     },
-    addPiece: function()
-    {
-      let piece = this.piecesList.filter(data =>{
+    addPiece: function() {
+      let piece: Piece = this.piecesList.filter((data: Piece) =>{
         return data.name == this.selectedPiece;
       })[0];
       
       let boolean = false;
-      this.piecesData.forEach(element => {
+      this.piecesData.forEach((element: Piece) => {
         if (element.id == piece.id) {
           boolean = true;
         }
@@ -74,6 +81,18 @@ export default {
       }
     },
   },
-}
+})
+  interface Piece {
+    type: PieceType;
+    name: string;
+    price: string;
+    quantity: number;
+    description: number;
+    id: number;
+  }
+  interface PieceType {
+    name: string;
+    description: number;
+  }
 </script>
 <style></style>

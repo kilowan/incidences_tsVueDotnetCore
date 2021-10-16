@@ -27,35 +27,94 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
-export default {
+import Vue from 'vue';
+
+export default Vue.extend({
   name: 'incidencesView',
-  props: ['incidences', 'user', 'title', 'admin'],
+  props: {
+    incidences: {
+      type: Object,
+      required: true
+    },
+    user: {
+      type: Object,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true
+    },
+    admin: {
+      type: Boolean,
+      required: true
+    },
+  },
   components: {},
   data: function() {
     return {
       menu: 'incidences',
-      incidenceData: undefined,
+      incidenceData: {},
     }
   },
   methods: {
-    dateFormat: function(startTimeISOString) {
+    dateFormat: function(startTimeISOString: string) {
       return new Date(startTimeISOString).toLocaleDateString();
     },
     check: function() {
       return Object.keys(this.incidences).length >0;
     },
-    checkMenu: function(data) {
+    checkMenu: function(data: string) {
       return this.menu == data ? true : false;
     },
-    detail: function(incidence) {
+    detail: function(incidence: Incidence) {
       this.menu = 'detail';
       this.incidenceData = incidence;
       this.$emit('linked', incidence);
     }
   },
   //mounted(){}
-}
+})
+  interface Incidence {
+    initDateTime: string;
+    finishDate: string;
+    finishTime: string;
+    issueDesc: string;
+    owner: Employee;
+    solver: Employee;
+    state: number;
+    pieces: Array<Piece>;
+    id: number;
+    notes: Array<Note>;
+  }
+  interface Employee {
+    id: number;
+    name: string;
+    surname1: string;
+    surname2: string;
+    tipo: string;
+    dni: string;
+    permissions: Array<string>;
+  }
+  interface Piece {
+    type: PieceType;
+    name: string;
+    price: string;
+    quantity: number;
+    description: number;
+    id: number;
+  }
+  interface PieceType {
+    name: string;
+    description: number;
+  }
+  interface Note {
+    date: string;
+    noteStr: string;
+    noteType: string;
+    incidence: number;
+    employee: number;
+  }
 </script>
 <style></style>

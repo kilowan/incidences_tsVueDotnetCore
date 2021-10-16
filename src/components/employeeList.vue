@@ -100,7 +100,16 @@ import Vue from 'vue';
 
 export default Vue.extend({
   name: 'employeeList',
-  props: ['user', 'incidences'],
+  props: {
+    user: {
+      type: Object,
+      required: true
+    },
+    incidences: {
+      type: Object,
+      required: true
+    },
+  },
   components: {
     UserPanel,
   },
@@ -116,7 +125,7 @@ export default Vue.extend({
         dni: new String(),
         permissions: new Array<string>(),
       },
-      employeSelected:{
+      employeSelected: {
         id: Number,
         name: new String(),
         surname1: new String(),

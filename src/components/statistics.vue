@@ -55,55 +55,73 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import axios from 'axios';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'statistics',
-  props: ['user'],
-  components: {
+  props: {
+    user: {
+      type: Object,
+      required: true
+    },
   },
-  data:function()
-  {
+  components: {},
+  data: function() {
     return {
-      pieces: undefined,
+      pieces: new Array<Piece>(),
       globalStatistics: undefined,
-      statistics: undefined,
+      statistics: {
+        average: '',
+        solvedIncidences: undefined,
+      },
     }
   },
   methods: {
-    checkStatistics: function()
-    {
+    checkStatistics: function() {
       return this.statistics.average? true: false;
     },
   },
-  mounted(){
+  mounted() {
     if(this.user.permissions.includes('2'))
     {
       axios({
         method: 'get',
         url: 'http://localhost:8082/newMenu.php?funcion=getStatistics&id='+ this.user.id,
       })
-      .then(data =>
+      .then((data: any) =>
         this.statistics = data.data
       );
       axios({
         method: 'get',
         url: 'http://localhost:8082/newMenu.php?funcion=getReportedPieces',
       })
-      .then(data =>
+      .then((data: any) =>
         this.pieces = data.data
       );
       axios({
         method: 'get',
         url: 'http://localhost:8082/newMenu.php?funcion=getGlobalStatistics',
       })
-      .then(data =>
+      .then((data: any) =>
         this.globalStatistics = data.data
       );
     }
   }
-}
+})
+  interface Piece {
+    type: PieceType;
+    name: string;
+    price: string;
+    quantity: number;
+    description: number;
+    id: number;
+  }
+  interface PieceType {
+    name: string;
+    description: number;
+  }
 </script>
 <style></style>

@@ -42,25 +42,40 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import axios from 'axios';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'userInfo',
-  props: ['username', 'userData'],
+  props: {
+    username: {
+      type: String,
+      required: true
+    },
+    userData: {
+      type: Object,
+      required: true
+    },
+  },
   components: {
   },
   data:function()
   {
     return {
-      user: undefined,
+      user: {
+        name: '',
+        surname1: '',
+        surname2: '',
+        dni: ''
+      },
       edit: false,
-      name: undefined,
-      surname1: undefined,
-      surname2: undefined,
-      fields: [],
-      values: [],
+      name: '',
+      surname1: '',
+      surname2: '',
+      fields: new Array<string>(),
+      values: new Array<string>(),
       style: {
         //boxShadow: '5px 5px 10px #999',
         border: '1px dotted black',
@@ -73,7 +88,7 @@ export default {
     }
   },
   methods: {
-    pushField(data, parity, name)
+    pushField(data: string, parity: string, name: string)
     {
       if(this.checkField(data, parity))
       {
@@ -87,21 +102,18 @@ export default {
       this.surname1 = this.user.surname1;
       this.surname2 = this.user.surname2;
     },
-    checkField(field, field2)
-    {
+    checkField(field: string, field2: string) {
       return field && field != field2? true: false
     },
-    fillData(data)
+    fillData(data: Array<string>)
     {
       this.pushField(data[0], this.user.name, "nombre");
       this.pushField(data[1], this.user.surname1, "apellido1");
       this.pushField(data[2], this.user.surname2, "apellido2");
     },
-    saveData: function()
-    {
+    saveData: function() {
       this.fillData([this.name, this.surname1, this.surname2]);
-      if (this.fields.length >0) 
-      {
+      if (this.fields.length >0) {
         axios({
           method: 'post',
           url: 'http://localhost:8082/newMenu.php',
@@ -111,8 +123,8 @@ export default {
             fields: this.fields,
             values: this.values,
           },
-          headers:[],
-        }).then(
+          headers: undefined,
+        }).then(() =>
           this.$emit('reload')
         );        
       }
@@ -125,16 +137,16 @@ export default {
     reset: function()
     {
       this.edit = false;
-      this.name = undefined;
-      this.surname1 = undefined;
-      this.surname2 = undefined;
+      this.name = '';
+      this.surname1 = '';
+      this.surname2 = '';
       this.fields = [];
       this.values = [];
     },
     reloadUser: function()
     {
       axios.get("http://localhost:8082/newMenu.php?funcion=getEmployeeByUsername&username="+ this.username)
-      .then( datas => {
+      .then((datas: any) => {
         this.user = datas.data;
       });
     },
@@ -142,13 +154,13 @@ export default {
   mounted(){
     if (!this.userData) {
       axios.get("http://localhost:8082/newMenu.php?funcion=getEmployeeByUsername&username="+ this.username)
-      .then( datas => {
+      .then((datas: any) => {
         this.user = datas.data;
       });
     } else {
       this.user = this.userData;
     }
   }
-}
+})
 </script>
 <style></style>

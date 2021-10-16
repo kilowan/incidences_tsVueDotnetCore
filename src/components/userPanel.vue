@@ -9,15 +9,25 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import userInfo from './userInfo.vue';
 import statistics from './statistics.vue';
 import incidences from './incidences.vue';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'userPanel',
-  props: ['user', 'incidences'],
+  props: {
+    user: {
+      type: Object,
+      required: true,
+    },
+    incidences: {
+      type: Object,
+      required: true,
+    },
+  },
   components: {
     userInfo,
     statistics,
@@ -28,6 +38,6 @@ export default {
   },
   methods: {},
   //mounted(){}
-}
+})
 </script>
 <style></style>

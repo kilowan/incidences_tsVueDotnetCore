@@ -2,26 +2,72 @@
     <div>
       <br />
       <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-        <b-link v-if="counter.new >0"  @click="state = 1">Nuevos</b-link>{{ ' ' }}
-        <b-link v-if="counter.attended >0"  @click="state = 2">Atendidos</b-link>{{ ' ' }}
-        <b-link v-if="counter.closed >0" @click="state = 3">Cerrados</b-link>{{ ' ' }}
-        <b-link v-if="counter.hidden >0" @click="state = 4">Ocultos</b-link>
+        <b-link v-if="counter.new >0"  @click="changeState(1)">Nuevos</b-link>{{ ' ' }}
+        <b-link v-if="counter.attended >0"  @click="changeState(2)">Atendidos</b-link>{{ ' ' }}
+        <b-link v-if="counter.closed >0" @click="changeState(3)">Cerrados</b-link>{{ ' ' }}
+        <b-link v-if="counter.hidden >0" @click="changeState(4)">Ocultos</b-link>
       </nav><br />
-       <incidences-view
-        :incidences="filterState(state, filterType('Technician'))"
-        :incidencesOwn="filterState(state, filterType('Employee'))"
-        :user="user"
-        :admin="admin"
-        :title="getTitle(state, 'Technician')"
-        :titleown="getTitle(state, 'Employee')"
-        @reload="$emit('reload')"
+    <!-- incidenceView -->
+    <div v-if="!incidenceSelected && checkPermissions(user.permissions, ['6', '7', '8', '9']) && filterState(state, filterType('Employee')).length > 0">
+      <table>
+          <tr>
+              <th colspan="10">{{ getTitle(state, 'Employee') }}</th>
+          </tr>
+      </table>
+      <table>
+        <tr>
+          <th>Fecha de creación</th>
+          <th>Información</th>
+        </tr>
+        <tr v-for="(incidence, index) in filterState(state, filterType('Employee'))" v-bind:key="index">
+          <td @click="!admin? detail(incidence): null">
+            <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
+            <div v-else>--</div>
+          </td>
+          <td @click="!admin? detail(incidence): null">
+            <div v-if="incidence.issueDesc">{{incidence.issueDesc}}</div>
+            <div v-else>--</div>
+          </td>
+        </tr>
+      </table><br />
+    </div>
+    <div v-if="!incidenceSelected && (checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])) && filterState(state, filterType('Technician')).length > 0">
+      <table>
+          <tr>
+              <th colspan="10">{{ getTitle(state, 'Technician') }}</th>
+          </tr>
+      </table>
+      <table>
+        <tr>
+          <th>Fecha de creación</th>
+          <th>Información</th>
+        </tr>
+        <tr v-for="(incidence, index) in filterState(state, filterType('Technician'))" v-bind:key="index">
+          <td @click="!admin? detail(incidence): null">
+            <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
+            <div v-else>--</div>
+          </td>
+          <td @click="!admin? detail(incidence): null">
+            <div v-if="incidence.issueDesc">{{incidence.issueDesc}}</div>
+            <div v-else>--</div>
+          </td>
+        </tr>
+      </table><br />
+    </div>
+    <div v-if="incidenceSelected">
+      <incidence-view 
+        :user="user" 
+        :incidence="incidenceData"
+        @reload="reloading()"
+        @stepBack="back()"
       />
     </div>
+  </div>
 </template>
 
 <script lang="ts">
 
-import incidencesView from './incidencesView.vue';
+import incidenceView from './incidenceView.vue';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -45,7 +91,7 @@ export default Vue.extend({
     },
   },
   components: {
-    incidencesView,
+    incidenceView,
   },
   data:function() {
     return {
@@ -67,7 +113,9 @@ export default Vue.extend({
         width: '80%',
         position: 'relative',
         borderSpacing: '0px'
-      }
+      },
+      incidenceData: {},
+      incidenceSelected: false,
     }
   },
   methods: {
@@ -121,6 +169,33 @@ export default Vue.extend({
     manageIncidences: function(state: number){
       if(!this.state) this.state = state;
       this.countTypes++;
+    },
+    changeState: function(state: number){
+      this.state = state;
+      this.incidenceData = {};
+      this.$nextTick(() => {
+        this.incidenceSelected = false;
+        
+      });
+    },
+    dateFormat: function(startTimeISOString: string) {
+      return new Date(startTimeISOString).toLocaleDateString();
+    },
+    detail: function(incidence: Incidence) {
+      this.incidenceData = incidence;
+      this.$nextTick(() => {
+        this.incidenceSelected = true;
+      });
+    },
+    back: function() {
+      this.incidenceData = {};
+      this.$nextTick(() => {
+        this.incidenceSelected = false;
+      });
+    },
+    reloading: function() {
+      this.back();
+      this.$emit('reload');
     },
   },
   mounted() {

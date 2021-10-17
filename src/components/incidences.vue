@@ -3,70 +3,27 @@
     <!-- own incidences -->
     <br /><div v-if="!incidence">
       <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-        <b-link v-if="newOwnIncidences.length >0 || newIncidences.length >0"  @click="selectTab('new')">Nuevos</b-link>{{ ' ' }}
-        <b-link v-if="attendedOwnIncidences.length >0 || attendedIncidences.length >0"  @click="selectTab('current')">Atendidos</b-link>{{ ' ' }}
-        <b-link v-if="closedOwnIncidences.length >0 || closedIncidences.length >0" @click="selectTab('old')">Cerrados</b-link>{{ ' ' }}
-        <b-link v-if="hiddenOwnIncidences.length >0" @click="selectTab('hidden')">Ocultos</b-link><br/>
+        <b-link v-if="counter.new >0"  @click="tab = 1">Nuevos</b-link>{{ ' ' }}
+        <b-link v-if="counter.attended >0"  @click="tab = 2">Atendidos</b-link>{{ ' ' }}
+        <b-link v-if="counter.closed >0" @click="tab = 3">Cerrados</b-link>{{ ' ' }}
+        <b-link v-if="counter.hidden >0" @click="tab = 4">Ocultos</b-link>
       </nav><br />
       <div v-if="checkPermissions(user.permissions, ['6', '7', '8', '9'])">
-        <!-- new -->
-        <incidences-view v-if="newOwnIncidences && tab=='new'"
-        :incidences="newOwnIncidences"
+        <employee-incidences-view
+        :incidences="filterState(state, filterType('Employee'))"
         :user="user"
         :admin="admin"
-        :title="'Partes nuevos propios'"
-        @linked="linked($event)"/>
-
-        <!-- attended -->
-        <incidences-view v-if="attendedOwnIncidences && tab=='current'"
-        :incidences="attendedOwnIncidences"
-        :user="user"
-        :admin="admin"
-        :title="'Partes atendidos propios'"
-        @linked="linked($event)"/>
-
-        <!-- closed -->
-        <incidences-view v-if="closedOwnIncidences && tab=='old'"
-        :incidences="closedOwnIncidences"
-        :user="user"
-        :admin="admin"
-        :title="'Partes cerrados propios'"
-        @linked="linked($event)"/>
-
-        <!-- hidden -->
-        <incidences-view v-if="hiddenOwnIncidences && tab=='hidden'"
-        :incidences="hiddenOwnIncidences"
-        :user="user"
-        :admin="admin"
-        :title="'Partes ocultos propios'"
+        :title="getTitle(state, 'Employee')"
         @linked="linked($event)"/>
       </div>
       <!-- other incidences -->
       <div v-if="checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])">
         <!-- new -->
-        <incidences-view v-if="newIncidences && tab=='new'"
-        :incidences="newIncidences"
+       <incidences-view
+        :incidences="filterState(state, filterType('Technician'))"
         :user="user"
         :admin="admin"
-        :title="'Partes nuevos'"
-        @linked="linked($event)"
-        @reload="reloading()"/>
-
-        <!-- attended -->
-        <incidences-view v-if="attendedIncidences && tab=='current'"
-        :incidences="attendedIncidences"
-        :user="user"
-        :admin="admin"
-        :title="'Partes atendidos'"
-        @linked="linked($event)"
-        @reload="reloading()"/>
-
-        <!-- closed -->
-        <incidences-view v-if="closedIncidences && tab=='old'"
-        :incidences="closedIncidences"
-        :user="user"
-        :admin="admin"
-        :title="'Partes cerrados'"
+        :title="getTitle(state, 'Technician')"
         @linked="linked($event)"
         @reload="reloading()"/>
       </div>
@@ -87,6 +44,7 @@
 
 import incidencesView from './incidencesView.vue';
 import incidenceView from './incidenceView.vue';
+import employeeIncidencesView from './employeeIncidencesView.vue';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -112,19 +70,19 @@ export default Vue.extend({
   components: {
     incidencesView,
     incidenceView,
+    employeeIncidencesView,
   },
   data:function() {
     return {
       countTypes: 0,
-      newOwnIncidences: [],
-      attendedOwnIncidences: [],
-      closedOwnIncidences: [],
-      hiddenOwnIncidences: [],
-      closedIncidences: [],
-      attendedIncidences: [],
-      newIncidences: [],
       incidence: undefined,
-      tab: '',
+      state: 0,
+      counter: {
+        new: 0,
+        attended: 0,
+        closed: 0,
+        hidden: 0,
+      },
       style: {
         boxShadow: '5px 5px 10px #999',
         border: '1px solid white',
@@ -153,7 +111,7 @@ export default Vue.extend({
     },
     reloading: function() {
       this.incidence = undefined;
-      this.tab = 'new';
+      this.state = 1;
       this.$emit('reload');
     },
     checkreload: function() {
@@ -166,60 +124,56 @@ export default Vue.extend({
         return false;
       }
     },
-    selectTab: function(tab: string) {
-      this.tab = tab;
-    },
     back: function() {
       this.incidence = undefined;
     },
     handle: function() {
       this.incidence = undefined;
-      if (this.checkPermissions(this.user.permissions, ['6', '7', '8', '9'])) {
-        this.newOwnIncidences = this.incidences.filter((data: Incidence) => {
-
-          return data.owner.dni == this.user.dni && data.state == 1;
-        });
-        this.attendedOwnIncidences = this.incidences.filter((data: Incidence)  => {
-
-          return data.owner.dni == this.user.dni && data.state == 2;
-        });
-        this.closedOwnIncidences = this.incidences.filter((data: Incidence)  => {
-
-          return data.owner.dni == this.user.dni && data.state == 3;
-        });
-        this.hiddenOwnIncidences = this.incidences.filter((data: Incidence)  => {
-
-          return data.owner.dni == this.user.dni && data.state == 4;
-        });
-      }
-      if (this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
-        this.newIncidences = this.incidences.filter((data: Incidence)  => {
-
-          return data.state == 1 && data.owner.id != this.user.id;
-        });
-        this.attendedIncidences = this.incidences.filter((data: Incidence)  => {
-
-          return data.solver.dni == this.user.dni && data.state == 2;
-        });
-        this.closedIncidences = this.incidences.filter((data: Incidence)  => {
-
-          return data.solver.dni == this.user.dni && data.state == 3;
-        });
-      }
+      this.getCounters();
+      this.counter.new > 0? this.manageIncidences(1) :  this.state = 0;
+      this.counter.attended > 0? this.manageIncidences(2): this.state = 0
+      this.counter.closed > 0? this.manageIncidences(3): 
+      this.counter.hidden > 0? this.manageIncidences(4): this.state = 0;
     },
-    manageIncidences: function(input: string){
-      this.tab = input;
+    filterType: function(type: string) {
+      return type === 'Employee'? 
+      this.incidences.filter((data: Incidence)  => {
+        return data.owner.dni === this.user.dni;
+      }): 
+      this.incidences.filter((data: Incidence)  => {
+        return data.owner.dni !== this.user.dni;
+      });
+    },
+    filterState: function(state: number, incidences: Array<Incidence>) {
+      return incidences.filter((data: Incidence) => {
+        return data.state == state;
+      });
+    },
+    getTitle: function(state: number, type: string) {
+      let title = 'Partes ';
+      let titles: any = {1: 'nuevos', 2: 'atendidos', 3: 'cerrados', 4: 'ocultos'};
+      title += titles[state];
+      if(type === 'Employee') title += ' propios';
+      return title;
+    },
+    getCounters: function() {
+      this.counter = {
+        new: this.filterState(1, this.filterType('Employee')).length + this.filterState(1, this.filterType('Technician')).length,
+        attended: this.filterState(2, this.filterType('Technician')).length + this.filterState(2, this.filterType('Technician')).length,
+        closed: this.filterState(3, this.filterType('Employee')).length + this.filterState(3, this.filterType('Technician')).length,
+        hidden: this.filterState(4, this.filterType('Employee')).length,
+      }
+
+    },
+    manageIncidences: function(state: number){
+      this.state = state;
       this.countTypes++;
     },
   },
   mounted() {
     this.handle();
-    this.newOwnIncidences.length > 0 || this.newIncidences.length > 0? this.manageIncidences('new') :  this.tab = '';
-    this.attendedOwnIncidences.length > 0 || this.attendedIncidences.length > 0? this.manageIncidences('current'): this.tab = ''
-    this.closedOwnIncidences.length > 0 || this.closedIncidences.length > 0? this.manageIncidences('old'): this.hiddenOwnIncidences.length > 0? this.manageIncidences('hidden'): this.tab = '';
   }
 })
-
   interface Incidence {
     initDateTime: string;
     finishDate: string;

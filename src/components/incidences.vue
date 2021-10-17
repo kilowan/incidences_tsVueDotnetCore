@@ -3,10 +3,10 @@
     <!-- own incidences -->
     <br /><div v-if="!incidence">
       <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-        <b-link v-if="counter.new >0"  @click="tab = 1">Nuevos</b-link>{{ ' ' }}
-        <b-link v-if="counter.attended >0"  @click="tab = 2">Atendidos</b-link>{{ ' ' }}
-        <b-link v-if="counter.closed >0" @click="tab = 3">Cerrados</b-link>{{ ' ' }}
-        <b-link v-if="counter.hidden >0" @click="tab = 4">Ocultos</b-link>
+        <b-link v-if="counter.new >0"  @click="state = 1">Nuevos</b-link>{{ ' ' }}
+        <b-link v-if="counter.attended >0"  @click="state = 2">Atendidos</b-link>{{ ' ' }}
+        <b-link v-if="counter.closed >0" @click="state = 3">Cerrados</b-link>{{ ' ' }}
+        <b-link v-if="counter.hidden >0" @click="state = 4">Ocultos</b-link>
       </nav><br />
       <div v-if="checkPermissions(user.permissions, ['6', '7', '8', '9'])">
         <employee-incidences-view
@@ -166,7 +166,7 @@ export default Vue.extend({
 
     },
     manageIncidences: function(state: number){
-      this.state = state;
+      if(!this.state) this.state = state;
       this.countTypes++;
     },
   },

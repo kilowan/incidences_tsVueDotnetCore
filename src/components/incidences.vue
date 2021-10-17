@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- own incidences -->
     <br /><div v-if="!incidence">
       <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
         <b-link v-if="counter.new >0"  @click="state = 1">Nuevos</b-link>{{ ' ' }}
@@ -8,34 +7,15 @@
         <b-link v-if="counter.closed >0" @click="state = 3">Cerrados</b-link>{{ ' ' }}
         <b-link v-if="counter.hidden >0" @click="state = 4">Ocultos</b-link>
       </nav><br />
-      <div v-if="checkPermissions(user.permissions, ['6', '7', '8', '9'])">
-        <employee-incidences-view
-        :incidences="filterState(state, filterType('Employee'))"
-        :user="user"
-        :admin="admin"
-        :title="getTitle(state, 'Employee')"
-        @linked="linked($event)"/>
-      </div>
-      <!-- other incidences -->
-      <div v-if="checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])">
-        <!-- new -->
        <incidences-view
         :incidences="filterState(state, filterType('Technician'))"
+        :incidencesOwn="filterState(state, filterType('Employee'))"
         :user="user"
         :admin="admin"
         :title="getTitle(state, 'Technician')"
-        @linked="linked($event)"
-        @reload="reloading()"/>
-      </div>
-    </div>
-    <div v-else>
-      <incidence-view 
-        v-if="incidence && checkreload()"
-        :user="user" 
-        :incidence="incidence"
-        @reload="reloading()"
-        @stepBack="back()"
-        />
+        :titleown="getTitle(state, 'Employee')"
+        @reload="$emit('reload')"
+      />
     </div>
   </div>
 </template>
@@ -43,8 +23,6 @@
 <script lang="ts">
 
 import incidencesView from './incidencesView.vue';
-import incidenceView from './incidenceView.vue';
-import employeeIncidencesView from './employeeIncidencesView.vue';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -69,14 +47,14 @@ export default Vue.extend({
   },
   components: {
     incidencesView,
-    incidenceView,
-    employeeIncidencesView,
   },
   data:function() {
     return {
+      linked: true,
+      linkedEmployee: true,
       countTypes: 0,
       incidence: undefined,
-      state: 0,
+      state: 1,
       counter: {
         new: 0,
         attended: 0,
@@ -95,10 +73,6 @@ export default Vue.extend({
     }
   },
   methods: {
-    linked: function(incidence: any) {
-      this.incidence = incidence;
-      this.$emit('linked');
-    },
     checkPermissions: function(permissions: Array<string>, permissionNumbers: Array<string>) {
       let result = true;
       permissionNumbers.forEach((element: string) => {
@@ -108,24 +82,6 @@ export default Vue.extend({
       });
 
       return result;
-    },
-    reloading: function() {
-      this.incidence = undefined;
-      this.state = 1;
-      this.$emit('reload');
-    },
-    checkreload: function() {
-      if (!this.reload) {
-
-        return true
-      } else {
-        this.incidence = undefined;
-
-        return false;
-      }
-    },
-    back: function() {
-      this.incidence = undefined;
     },
     handle: function() {
       this.incidence = undefined;

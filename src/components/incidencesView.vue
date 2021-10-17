@@ -1,45 +1,85 @@
 <template>
   <!-- incidenceView -->
-  <div v-if="check()">
-    <div v-if="checkMenu('incidences')">
-    <table>
-        <tr>
-            <th colspan="10">{{title}}</th>
-        </tr>
-    </table>
-    <table>
-      <tr>
-        <th>Fecha de creación</th>
-        <th>Información</th>
-      </tr>
-      <tr v-for="(incidence, index) in incidences" v-bind:key="index">
-        <td @click="!admin? detail(incidence): null">
-          <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
-          <div v-else>--</div>
-        </td>
-        <td @click="!admin? detail(incidence): null">
-          <div v-if="incidence.issueDesc">{{incidence.issueDesc}}</div>
-          <div v-else>--</div>
-        </td>
-      </tr>
-    </table><br />
+    <div v-if="!incidenceSelected">
+      <div v-if="checkMenu('incidences') && checkPermissions(user.permissions, ['6', '7', '8', '9']) && incidencesOwn.length > 0">
+        <table>
+            <tr>
+                <th colspan="10">{{ titleown }}</th>
+            </tr>
+        </table>
+        <table>
+          <tr>
+            <th>Fecha de creación</th>
+            <th>Información</th>
+          </tr>
+          <tr v-for="(incidence, index) in incidencesOwn" v-bind:key="index">
+            <td @click="!admin? detail(incidence): null">
+              <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
+              <div v-else>--</div>
+            </td>
+            <td @click="!admin? detail(incidence): null">
+              <div v-if="incidence.issueDesc">{{incidence.issueDesc}}</div>
+              <div v-else>--</div>
+            </td>
+          </tr>
+        </table><br />
+      </div>
+      <div v-if="checkMenu('incidences') && (checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])) && incidences.length > 0">
+        <table>
+            <tr>
+                <th colspan="10">{{ title }}</th>
+            </tr>
+        </table>
+        <table>
+          <tr>
+            <th>Fecha de creación</th>
+            <th>Información</th>
+          </tr>
+          <tr v-for="(incidence, index) in incidences" v-bind:key="index">
+            <td @click="!admin? detail(incidence): null">
+              <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
+              <div v-else>--</div>
+            </td>
+            <td @click="!admin? detail(incidence): null">
+              <div v-if="incidence.issueDesc">{{incidence.issueDesc}}</div>
+              <div v-else>--</div>
+            </td>
+          </tr>
+        </table><br />
+      </div>
     </div>
-  </div>
+    <div v-else>
+    <incidence-view 
+      :user="user" 
+      :incidence="incidenceData"
+      @reload="reloading()"
+      @stepBack="back()"
+    />
+    </div>
 </template>
 
 <script lang="ts">
 
 import Vue from 'vue';
+import incidenceView from './incidenceView.vue';
 
 export default Vue.extend({
   name: 'incidencesView',
   props: {
+    incidencesOwn: {
+      type: Object,
+      required: false
+    },
     incidences: {
       type: Object,
-      required: true
+      required: false
     },
     user: {
       type: Object,
+      required: true
+    },
+    titleown: {
+      type: String,
       required: true
     },
     title: {
@@ -51,28 +91,51 @@ export default Vue.extend({
       required: true
     },
   },
-  components: {},
+  components: {
+    incidenceView
+  },
   data: function() {
     return {
       menu: 'incidences',
       incidenceData: {},
+      incidenceSelected: false,
     }
   },
   methods: {
     dateFormat: function(startTimeISOString: string) {
       return new Date(startTimeISOString).toLocaleDateString();
     },
-    check: function() {
-      return Object.keys(this.incidences).length >0;
-    },
     checkMenu: function(data: string) {
       return this.menu == data ? true : false;
     },
     detail: function(incidence: Incidence) {
-      this.menu = 'detail';
       this.incidenceData = incidence;
-      this.$emit('linked', incidence);
-    }
+      this.incidenceSelected = true;
+      this.$nextTick(() => {
+        this.menu = 'detail';
+      });
+    },
+    back: function() {
+      this.incidenceData = {};
+      this.incidenceSelected = false;
+      this.$nextTick(() => {
+        this.menu = 'incidences';
+      });
+    },
+    reloading: function() {
+      this.back();
+      this.$emit('reload');
+    },
+    checkPermissions: function(permissions: Array<string>, permissionNumbers: Array<string>) {
+      let result = true;
+      permissionNumbers.forEach((element: string) => {
+        if (!permissions.includes(element)) {
+          result = false;
+        }
+      });
+
+      return result;
+    },
   },
   //mounted(){}
 })

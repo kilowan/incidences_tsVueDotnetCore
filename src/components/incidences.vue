@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <br /><div v-if="!incidence">
+    <div>
+      <br />
       <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
         <b-link v-if="counter.new >0"  @click="state = 1">Nuevos</b-link>{{ ' ' }}
         <b-link v-if="counter.attended >0"  @click="state = 2">Atendidos</b-link>{{ ' ' }}
@@ -17,7 +17,6 @@
         @reload="$emit('reload')"
       />
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -53,7 +52,6 @@ export default Vue.extend({
       linked: true,
       linkedEmployee: true,
       countTypes: 0,
-      incidence: undefined,
       state: 1,
       counter: {
         new: 0,
@@ -84,7 +82,6 @@ export default Vue.extend({
       return result;
     },
     handle: function() {
-      this.incidence = undefined;
       this.getCounters();
       this.counter.new > 0? this.manageIncidences(1) :  this.state = 0;
       this.counter.attended > 0? this.manageIncidences(2): this.state = 0

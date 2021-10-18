@@ -178,7 +178,7 @@ export default Vue.extend({
             fields: this.fields,
             values: this.values,
           },
-          headers: undefined,
+          headers: []
         }).then(() =>{
           this.cancel('editemp');
           this.load();
@@ -237,7 +237,7 @@ export default Vue.extend({
           surname2: this.surname2,
           type: this.tipo,
         },
-        headers: undefined,
+        headers: []
       }).then(() =>{
           this.cancel('new')
           this.load();

@@ -1,7 +1,6 @@
 <template>
   <div>
     <!-- incidenceView -->
-    <br />
     <table>
       <tr>
         <th>Datos del parte</th>
@@ -194,7 +193,7 @@ export default Vue.extend({
           this.$emit('reload')
         );
     },
-    reload:function() {
+    reload: function() {
       this.menu = 'main';
       this.$emit('reload');
     },
@@ -212,7 +211,7 @@ export default Vue.extend({
             incidenceDesc: this.issueDesc,
             employeeId: this.user.id,
           },
-          headers: undefined,
+          headers: []
         })
         .then(() => this.$emit('reload'));
       } else this.$emit('reloadoff');
@@ -233,52 +232,14 @@ export default Vue.extend({
             pieces: this.PieceIdsSelected,
             close: this.close,
           },
-          headers: undefined,
-        })
-        .then(() => this.$emit('reload'));
+          headers: [],
+        }).then(() => this.$emit('reload'));
       },
   },
   mounted() {
     this.load();
   }
 })
-  interface Incidence {
-    initDateTime: string;
-    issueDesc: string;
-    owner: Employee;
-    solver: Employee;
-    state: number;
-    pieces: Array<Piece>;
-    id: number;
-    notes: Array<Note>;
-  }
-  interface Note {
-    date: string;
-    noteStr: string;
-    noteType: string;
-    incidence: number;
-    employee: number;
-  }
-  interface Piece {
-    type: PieceType;
-    name: string;
-    price: string;
-    quantity: number;
-    description: number;
-  }
-  interface PieceType {
-    name: string;
-    description: number;
-  }
-  interface Employee {
-    id: number;
-    name: string;
-    surname1: string;
-    surname2: string;
-    tipo: string;
-    dni: string;
-    permissions: Array<string>;
-  }
 </script>
 <style>
 td {

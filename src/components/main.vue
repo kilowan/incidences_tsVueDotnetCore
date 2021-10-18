@@ -218,7 +218,7 @@ export default Vue.extend({
           issueDesc: this.description,
           pieces: this.PieceIdsSelected,
         },
-      headers: undefined
+      headers: []
       })
       .then(() =>
         this.$emit('closeForm')
@@ -347,7 +347,7 @@ export default Vue.extend({
             fields: this.fields,
             values: this.values,
           },
-          headers: undefined,
+          headers: [],
         }).then(() =>
           this.$emit('reload')
         );        

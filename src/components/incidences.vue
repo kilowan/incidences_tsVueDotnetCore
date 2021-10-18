@@ -1,18 +1,18 @@
 <template>
-    <div>
-      <br />
-      <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-        <b-link v-if="counter.new >0"  @click="changeState(1)">Nuevos</b-link>{{ ' ' }}
-        <b-link v-if="counter.attended >0"  @click="changeState(2)">Atendidos</b-link>{{ ' ' }}
-        <b-link v-if="counter.closed >0" @click="changeState(3)">Cerrados</b-link>{{ ' ' }}
-        <b-link v-if="counter.hidden >0" @click="changeState(4)">Ocultos</b-link>
-      </nav><br />
+  <div>
+    <br />
+    <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
+      <b-link v-if="counter.new >0"  @click="changeState(1)">Nuevos</b-link>{{ ' ' }}
+      <b-link v-if="counter.attended >0"  @click="changeState(2)">Atendidos</b-link>{{ ' ' }}
+      <b-link v-if="counter.closed >0" @click="changeState(3)">Cerrados</b-link>{{ ' ' }}
+      <b-link v-if="counter.hidden >0" @click="changeState(4)">Ocultos</b-link>
+    </nav><br />
     <!-- incidenceView -->
     <div v-if="!incidenceSelected && checkPermissions(user.permissions, ['6', '7', '8', '9']) && filterState(state, filterType('Employee')).length > 0">
       <table>
-          <tr>
-              <th colspan="10">{{ getTitle(state, 'Employee') }}</th>
-          </tr>
+        <tr v-if="checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])">
+            <th colspan="10">{{ getTitle(state, 'Employee') }}</th>
+        </tr>
       </table>
       <table>
         <tr>
@@ -159,10 +159,15 @@ export default Vue.extend({
     },
     getCounters: function() {
       this.counter = {
-        new: this.filterState(1, this.filterType('Employee')).length + this.filterState(1, this.filterType('Technician')).length,
-        attended: this.filterState(2, this.filterType('Technician')).length + this.filterState(2, this.filterType('Technician')).length,
-        closed: this.filterState(3, this.filterType('Employee')).length + this.filterState(3, this.filterType('Technician')).length,
+        new: this.filterState(1, this.filterType('Employee')).length,
+        attended: this.filterState(2, this.filterType('Employee')).length,
+        closed: this.filterState(3, this.filterType('Employee')).length,
         hidden: this.filterState(4, this.filterType('Employee')).length,
+      }
+      if(this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
+        this.counter.new += this.filterState(1, this.filterType('Technician')).length;
+        this.counter.attended += this.filterState(2, this.filterType('Technician')).length;
+        this.counter.closed += this.filterState(3, this.filterType('Technician')).length;
       }
 
     },

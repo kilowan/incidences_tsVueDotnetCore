@@ -23,7 +23,6 @@
         <employee-list  
           v-if="user" 
           :user="user" 
-          :incidences="incidences"
         />
         
       </div>
@@ -32,9 +31,7 @@
           v-if="user" 
           :user="user"
           :reload="reload"
-          :incidences="incidences"
           @linked="reload=false"
-          @reload="reloading()"
         />
       </div>
     </div>
@@ -152,7 +149,6 @@ export default Vue.extend({
         username: undefined,
         pass: undefined,
       },
-      incidences: new Array<Incidence>(),
       incidencesCount: 0,
       reload: false,
       username: undefined,
@@ -238,24 +234,13 @@ export default Vue.extend({
     check: function(data: any) {
       return this.mod == data? true: false;
     },
-    reloading: function() {
-        axios.get("http://localhost:8082/newMenu.php?funcion=getAllincidences")
-        .then((datas: any) => {
-          this.incidences = datas.data;
-          this.reload = true;
-        });
-    },
     logedIn: function(data: any) {
       axios.get("http://localhost:8082/employee.php?funcion=getEmployeeByUsername&username="+ data)
       .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
         this.page = 'Menu';
-        axios.get("http://localhost:8082/newMenu.php?funcion=getAllincidences")
-        .then((datas: any)  => {
-          this.incidences = datas.data;
-          this.showIncidences();
-        });
+        this.showIncidences();
       });
     },
     reloadUser: function(data: any) {
@@ -265,31 +250,31 @@ export default Vue.extend({
       });
     },
     add: function(data: any) {
-      if (data == 'incidences' && this.mod =='incidences') {
-        this.reloading();
-      }
       this.mod = data;
     },
 
     showIncidences: function() {
-      let new_array = undefined;
-      if(this.user.permissions.includes("7") && this.user.permissions.includes("8") && this.user.permissions.includes("9")) {
-          new_array = this.incidences.filter(array => {
-              return (array.owner.id == this.user.id && array.state != 5);
-          });
-          this.incidencesCount = new_array.length;
-      } else if (this.user.permissions.includes("3") && this.user.permissions.includes("4") && this.user.permissions.includes("5")) {
-          new_array = this.incidences.filter(array => {
-              return (array.solver.id == this.user.id || array.state == 1);
-          });
-          this.incidencesCount = new_array.length;
-      } else if (this.user.permissions.includes("6") && this.user.permissions.includes("7") && this.user.permissions.includes("8") && this.user.permissions.includes("9") && this.user.permissions.includes("10") && this.user.permissions.includes("11") && this.user.permissions.includes("12")) {
-          new_array = this.incidences.filter(array => {
-              return (array.solver.id == this.user.id || (array.state == 1 || array.state == 2 || array.state == 3 || array.state == 4) || array.owner.id == this.user.id);
-          });
-          this.incidencesCount = new_array.length;
-          this.page = 'Menu';
+      if(this.checkPermissions(this.user.permissions, ['6', '7', '8', '9'])) {
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee'&userId=" + this.user.id)
+        .then((datas: any)  => {
+          this.incidencesCount = datas.data.total;
+        });
+      } else if (this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician'&userId=" + this.user.id)
+        .then((datas: any)  => {
+          this.incidencesCount = datas.data.total;
+        });
       }
+    },
+    checkPermissions: function(permissions: Array<string>, permissionNumbers: Array<string>) {
+      let result = true;
+      permissionNumbers.forEach((element: string) => {
+        if (!permissions.includes(element)) {
+          result = false;
+        }
+      });
+
+      return result;
     },
     logOut: function() {
       this.page = 'Login';
@@ -307,13 +292,10 @@ export default Vue.extend({
         dni: '',
         permissions: new Array<string>(),
       };
-      this.incidences = new Array<Incidence>();
       this.incidencesCount = 0;
     },
-    pushField(data: any, parity: any, name: any)
-    {
-      if(this.checkField(data, parity))
-      {
+    pushField(data: any, parity: any, name: any) {
+      if(this.checkField(data, parity)) {
         this.values.push(data);
         this.fields.push(name);
       }
@@ -324,8 +306,7 @@ export default Vue.extend({
       this.surname1 = this.user.surname1;
       this.surname2 = this.user.surname2;
     },
-    checkField(field: any, field2: any)
-    {
+    checkField(field: any, field2: any) {
       return field && field != field2? true: false
     },
     fillData(data: any) {
@@ -333,11 +314,9 @@ export default Vue.extend({
       this.pushField(data[1], this.user.surname1, "apellido1");
       this.pushField(data[2], this.user.surname2, "apellido2");
     },
-    saveData: function()
-    {
+    saveData: function() {
       this.fillData([this.name, this.surname1, this.surname2]);
-      if (this.fields.length >0) 
-      {
+      if (this.fields.length >0) {
         axios({
           method: 'post',
           url: 'http://localhost:8082/newMenu.php',

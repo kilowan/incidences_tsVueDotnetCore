@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div v-if="type !== ''">
     <br />
     <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-      <b-link v-if="counter.new >0"  @click="changeState(1)">Nuevos</b-link>{{ ' ' }}
-      <b-link v-if="counter.attended >0"  @click="changeState(2)">Atendidos</b-link>{{ ' ' }}
-      <b-link v-if="counter.closed >0" @click="changeState(3)">Cerrados</b-link>{{ ' ' }}
-      <b-link v-if="counter.hidden >0" @click="changeState(4)">Ocultos</b-link>
+      <b-link v-if="counter.new >0"  @click="getIncidences(1, type)">Nuevos</b-link>{{ ' ' }}
+      <b-link v-if="counter.old >0"  @click="getIncidences(2, type)">Atendidos</b-link>{{ ' ' }}
+      <b-link v-if="counter.closed >0" @click="getIncidences(3, type)">Cerrados</b-link>{{ ' ' }}
+      <b-link v-if="counter.hidden >0" @click="getIncidences(4, type)">Ocultos</b-link>
     </nav><br />
     <!-- incidenceView -->
-    <div v-if="!incidenceSelected && checkPermissions(user.permissions, ['6', '7', '8', '9']) && filterState(state, filterType('Employee')).length > 0">
+    <div v-if="!incidenceSelected && checkPermissions(user.permissions, ['6', '7', '8', '9']) && incidences.length > 0">
       <table>
         <tr v-if="checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])">
             <th colspan="10">{{ getTitle(state, 'Employee') }}</th>
@@ -19,7 +19,7 @@
           <th>Fecha de creación</th>
           <th>Información</th>
         </tr>
-        <tr v-for="(incidence, index) in filterState(state, filterType('Employee'))" v-bind:key="index">
+        <tr v-for="(incidence, index) in incidences" v-bind:key="index">
           <td @click="!admin? detail(incidence): null">
             <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
             <div v-else>--</div>
@@ -31,7 +31,7 @@
         </tr>
       </table><br />
     </div>
-    <div v-if="!incidenceSelected && (checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])) && filterState(state, filterType('Technician')).length > 0">
+    <div v-if="!incidenceSelected && (checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])) && technicianIncidences.length > 0">
       <table>
           <tr>
               <th colspan="10">{{ getTitle(state, 'Technician') }}</th>
@@ -42,7 +42,7 @@
           <th>Fecha de creación</th>
           <th>Información</th>
         </tr>
-        <tr v-for="(incidence, index) in filterState(state, filterType('Technician'))" v-bind:key="index">
+        <tr v-for="(incidence, index) in technicianIncidences" v-bind:key="index">
           <td @click="!admin? detail(incidence): null">
             <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
             <div v-else>--</div>
@@ -68,6 +68,7 @@
 <script lang="ts">
 
 import incidenceView from './incidenceView.vue';
+import axios from 'axios';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -77,13 +78,13 @@ export default Vue.extend({
       type: Object,
       required: true
     },
-    incidences: {
+    /*incidences: {
       type: Object,
       required: true
-    },
+    },*/
     admin: {
       type: Boolean,
-      required: true
+      required: false
     },
     reload: {
       type: Boolean,
@@ -95,13 +96,16 @@ export default Vue.extend({
   },
   data:function() {
     return {
+      incidences: new Array<Incidence>(),
+      technicianIncidences: new Array<Incidence>(),
       linked: true,
       linkedEmployee: true,
       countTypes: 0,
       state: 1,
+      type: '',
       counter: {
         new: 0,
-        attended: 0,
+        old: 0,
         closed: 0,
         hidden: 0,
       },
@@ -130,11 +134,36 @@ export default Vue.extend({
       return result;
     },
     handle: function() {
-      this.getCounters();
-      this.counter.new > 0? this.manageIncidences(1) :  this.state = 0;
-      this.counter.attended > 0? this.manageIncidences(2): this.state = 0
-      this.counter.closed > 0? this.manageIncidences(3): 
-      this.counter.hidden > 0? this.manageIncidences(4): this.state = 0;
+      if(this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
+        //set initial type
+        this.type = 'Technician';
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician'&userId=" + this.user.id)
+        .then((datas: any)  => {
+          this.manageData(datas.data);
+        });
+      } else if(this.checkPermissions(this.user.permissions, ['6', '7', '8', '9'])){
+        //set initial type
+        this.type = 'Employee';
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee'&userId=" + this.user.id)
+        .then((datas: any)  => {
+          this.manageData(datas.data);
+        });
+      }
+    },
+    getIncidences: function(state: number, type: string ) {
+      if(type === 'Technician') {
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=' + type)
+        .then((datas: any)  => {
+          this.technicianIncidences = datas.data.other;
+          this.incidences = datas.data.own;
+        });
+      } else {
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=' + type)
+        .then((datas: any)  => {
+          this.incidences = datas.data.own;
+        });
+      }
+
     },
     filterType: function(type: string) {
       return type === 'Employee'? 
@@ -157,18 +186,22 @@ export default Vue.extend({
       if(type === 'Employee') title += ' propios';
       return title;
     },
+    manageData: function(data: any) {
+          this.counter.new = data.new;
+          this.counter.old = data.old;
+          this.counter.closed = data.closed;
+          this.counter.hidden = data.hidden;
+          this.getCounters();
+          //set initial state
+          this.state = this.counter.new >0? 1: this.counter.old > 0? 2: this.counter.closed > 0? 3 : 4;
+          //get initial incidences
+          this.getIncidences(this.state, this.type);
+    },
     getCounters: function() {
-      this.counter = {
-        new: this.filterState(1, this.filterType('Employee')).length,
-        attended: this.filterState(2, this.filterType('Employee')).length,
-        closed: this.filterState(3, this.filterType('Employee')).length,
-        hidden: this.filterState(4, this.filterType('Employee')).length,
-      }
-      if(this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
-        this.counter.new += this.filterState(1, this.filterType('Technician')).length;
-        this.counter.attended += this.filterState(2, this.filterType('Technician')).length;
-        this.counter.closed += this.filterState(3, this.filterType('Technician')).length;
-      }
+      this.counter.new > 0? this.manageIncidences(1) :  this.state = 0;
+      this.counter.old > 0? this.manageIncidences(2): this.state = 0
+      this.counter.closed > 0? this.manageIncidences(3): 
+      this.counter.hidden > 0? this.manageIncidences(4): this.state = 0;
 
     },
     manageIncidences: function(state: number){

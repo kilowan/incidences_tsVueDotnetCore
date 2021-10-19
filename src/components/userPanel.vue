@@ -3,7 +3,7 @@
     <!-- userInfo -->
     <user-info :userData="user"/>
     <!-- incidences -->
-    <incidences :user="user" :incidences="incidences" :admin="true"/>
+    <incidences :user="user" :admin="true"/>
     <!-- userInfo -->
     <statistics :user="user"/>
   </div>
@@ -20,10 +20,6 @@ export default Vue.extend({
   name: 'userPanel',
   props: {
     user: {
-      type: Object,
-      required: true,
-    },
-    incidences: {
       type: Object,
       required: true,
     },

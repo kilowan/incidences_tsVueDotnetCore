@@ -42,7 +42,7 @@
       </table>
     </div>
     <div v-else-if="mod=='panel'" id="panel">
-      <user-panel :user="employee" :incidences="incidences"/>
+      <user-panel :user="employee"/>
     </div>
     <b-modal id="warning" hide-header hide-footer>
       <div class="d-block text-center">
@@ -102,10 +102,6 @@ export default Vue.extend({
   name: 'employeeList',
   props: {
     user: {
-      type: Object,
-      required: true
-    },
-    incidences: {
       type: Object,
       required: true
     },

@@ -123,7 +123,7 @@ export default Vue.extend({
             fields: this.fields,
             values: this.values,
           },
-          headers: undefined,
+          headers: [],
         }).then(() =>
           this.$emit('reload')
         );        

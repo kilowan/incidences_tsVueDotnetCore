@@ -8,7 +8,7 @@
         </router-link>
       </div>
       <nav class="opciones">
-        <b-link class="link" @click="$bvModal.show('make-incidence')" v-if="user.permissions.includes('13')">Crear parte</b-link>
+        <b-link class="link" @click="insertIncidence()" v-if="user.permissions.includes('13')">Crear parte</b-link>
         <b-link class="link" @click="add('incidences')" v-if="incidencesCount >0">Ver partes</b-link>
         <b-link class="link" @click="add('statistics')" v-if="user.permissions.includes('2')" >Estadísticas</b-link>
         <b-link class="link" @click="add('piecesList')" v-if="user.permissions.includes('16')">Piezas disponibles</b-link>
@@ -187,6 +187,13 @@ export default Vue.extend({
     }
   },
  methods: {
+   insertIncidence: function() {
+    axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
+      .then((data: any) => {
+        this.pieces = data.data;
+        this.$bvModal.show('make-incidence');
+    });
+   },
    cancel: function() {
      this.$bvModal.hide('make-incidence');
       this.selected = undefined;
@@ -374,10 +381,6 @@ export default Vue.extend({
   },
   mounted() {
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
-    axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
-      .then((data: any) => {
-        this.pieces = data.data;
-    });
   }
 })
   interface Employee {

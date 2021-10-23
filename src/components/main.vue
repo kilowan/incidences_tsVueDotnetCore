@@ -1,7 +1,7 @@
 <template>
   <div v-if="user">
     <div class="cabecera">
-      <p class="mensaje">Bienvenido {{user.name}} {{user.surname1}} {{user.surname2}}</p>
+      <p class="mensaje">Bienvenido {{ user.name }} {{ user.surname1 }} {{ user.surname2 }}</p>
       <div class="Logo">
         <router-link @click="logOut()" to="/">
           <img class="cierra" src="../shutdown.png" alt="Cerrar sesión" />
@@ -11,6 +11,7 @@
         <b-link class="link" @click="$bvModal.show('make-incidence')" v-if="user.permissions.includes('13')">Crear parte</b-link>
         <b-link class="link" @click="add('incidences')" v-if="incidencesCount >0">Ver partes</b-link>
         <b-link class="link" @click="add('statistics')" v-if="user.permissions.includes('2')" >Estadísticas</b-link>
+        <b-link class="link" @click="add('piecesList')" v-if="user.permissions.includes('16')">Piezas disponibles</b-link>
         <b-link class="link" @click="add('employeeList')" v-if="user.permissions.includes('16')">Lista empleados</b-link>
         <b-link class="link" @click="$bvModal.show('user-info')" >Datos personales</b-link>
       </nav>
@@ -24,7 +25,12 @@
           v-if="user" 
           :user="user" 
         />
-        
+      </div>
+      <div v-else-if="check('piecesList')">
+        <pieces 
+          v-if="user" 
+          :user="user" 
+        />
       </div>
       <div v-else-if="check('incidences')">
         <incidences 
@@ -108,6 +114,7 @@ import axios from 'axios';
 import statistics from './statistics.vue';
 import employeeList from './employeeList.vue';
 import incidences from './incidences.vue';
+import pieces from './piecesList.vue';
 import Vue from 'vue'
 
 export default Vue.extend({
@@ -122,6 +129,7 @@ export default Vue.extend({
     statistics,
     employeeList,
     incidences,
+    pieces
   },
   data: function() {
     return {

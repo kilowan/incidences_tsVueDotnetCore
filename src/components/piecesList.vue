@@ -97,18 +97,8 @@ export default Vue.extend({
       pieceSelected: {},
       selectedToDelete: 0,
       pieceTypeOptions: [
-        { value: 0, text: 'Tipo' },
+        { value: 0, text: 'Tipo', disabled: true },
       ],
-      options: [
-        { value: null, text: 'Tipo', default: true },
-        { value: 'Limpiador', text: 'Un limpiador' },
-        { value: 'Encargado', text: 'Un encargado' },
-        { value: 'Técnico', text: 'Un técnico' },
-        { value: 'Becario', text: 'Un becario' },
-        { value: 'Admin', text: 'Un administrador' },
-        { value: 'Temporal', text: 'Uno temporal' },
-        { value: 'Otro', text: 'Otro tipo aún no definido' }
-      ]
     }
   },
   methods: {
@@ -194,7 +184,6 @@ export default Vue.extend({
       );
     },
     edit: function(piece: Piece) {
-      debugger;
       this.pieceSelected = piece;
       this.name = piece.name;
       this.description = piece.description;
@@ -236,7 +225,7 @@ export default Vue.extend({
       })
       .then((data: any) => {
         data.data.map((pieceType: PieceType) => {
-          return this.pieceTypeOptions.push({ value: pieceType.id, text: pieceType.name });
+          return this.pieceTypeOptions.push({ value: pieceType.id, text: pieceType.name, disabled: false });
         })
         }
       );

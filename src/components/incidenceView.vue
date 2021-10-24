@@ -47,7 +47,7 @@
               <a href="#" @click="edit=true">Modificar</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 3 && user.permissions.includes('22')">
+        <tr v-else-if="incidence.state == 3 && incidence.ownerId === user.id">
           <td colspan="2">
               <a href="#" @click="hide()">Ocultar</a>
           </td>

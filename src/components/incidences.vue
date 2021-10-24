@@ -137,14 +137,14 @@ export default Vue.extend({
       if(this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
         //set initial type
         this.type = 'Technician';
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician'&userId=" + this.user.id)
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician&userId=" + this.user.id)
         .then((datas: any)  => {
           this.manageData(datas.data);
         });
       } else if(this.checkPermissions(this.user.permissions, ['6', '7', '8', '9'])){
         //set initial type
         this.type = 'Employee';
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee'&userId=" + this.user.id)
+        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee&userId=" + this.user.id)
         .then((datas: any)  => {
           this.manageData(datas.data);
         });
@@ -156,11 +156,13 @@ export default Vue.extend({
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
+          this.state = state;
         });
       } else {
         axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=' + type)
         .then((datas: any)  => {
           this.incidences = datas.data.own;
+          this.state = state;
         });
       }
 
@@ -233,7 +235,7 @@ export default Vue.extend({
     },
     reloading: function() {
       this.back();
-      this.$emit('reload');
+       this.handle();
     },
   },
   mounted() {

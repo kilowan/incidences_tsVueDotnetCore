@@ -8,7 +8,7 @@
     </table><br />
     <!-- Datos del parte -->
     <table>
-        <tr v-if="incidence.owner != null">
+        <tr v-if="incidence.owner != ''">
           <td>Nombre del empleado</td>
           <td >{{ incidence.owner }}</td>
         </tr>
@@ -18,13 +18,25 @@
           <td v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3) && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
           <td v-else>{{ incidence.issueDesc }}</td>
         </tr>
-        <tr v-if="incidence.solver != null">
+        <tr v-if="incidence.solver != ''">
           <td >Tecnico a cargo</td>
           <td>{{ incidence.solver }}</td>
         </tr>
         <tr>
           <td>Fecha de creación</td>
-          <td>{{incidence.initDateTime}}</td>
+          <td>{{ dateFormat(incidence.initDateTime, 1) }}</td>
+        </tr>
+        <tr>
+          <td>Hora de creación</td>
+          <td>{{ dateFormat(incidence.initDateTime, 2) }}</td>
+        </tr>
+        <tr v-if="incidence.finishDate !== null">
+          <td>Fecha de resolución</td>
+          <td>{{ dateFormat(incidence.finishDate, 1) }}</td>
+        </tr>
+        <tr v-if="incidence.finishTime !== null">
+          <td>Hora de resolución</td>
+          <td>{{ dateFormat(getDateTime(incidence.finishDate, incidence.finishTime), 2) }}</td>
         </tr>
         <tr v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3)">
           <td v-if="!edit" style="width:10%; height: 2%;">
@@ -152,8 +164,16 @@ export default Vue.extend({
     }
   },
   methods: {
+    dateFormat: function(startTimeISOString: string, format: number) {
+      return format == 1? new Date(startTimeISOString).toLocaleDateString(): new Date(startTimeISOString).toLocaleTimeString();
+    },
     back: function() {
       this.$emit('stepBack');
+    },
+    getDateTime: function(date: string, time: string) {
+      let data = [date, time];
+      let joined = data.join(' ');
+      return joined;
     },
     stepBack: function() {
       this.load();

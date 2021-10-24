@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- globalstatistics -->
-    <br /><div v-if="globalStatistics && user.permissions.includes('17')" id="globalStatistics">
+    <br /><div v-if="globalStatistics &&this.user.tipo.level === 3" id="globalStatistics">
       <table>
           <tr>
               <th colspan="2">Estadisticas globales</th>
@@ -85,8 +85,7 @@ export default Vue.extend({
     },
   },
   mounted() {
-    if(this.user.permissions.includes('2'))
-    {
+    if((this.user.tipo.level === 2 || this.user.tipo.level === 3)) {
       axios({
         method: 'get',
         url: 'http://localhost:8082/newMenu.php?funcion=getStatistics&id='+ this.user.id,

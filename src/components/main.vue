@@ -8,11 +8,11 @@
         </router-link>
       </div>
       <nav class="opciones">
-        <b-link class="link" @click="insertIncidence()" v-if="user.permissions.includes('13')">Crear parte</b-link>
+        <b-link class="link" @click="insertIncidence()" v-if="this.user.tipo.level === 1 || this.user.tipo.level === 3">Crear parte</b-link>
         <b-link class="link" @click="add('incidences')" v-if="incidencesCount >0">Ver partes</b-link>
-        <b-link class="link" @click="add('statistics')" v-if="user.permissions.includes('2')" >Estadísticas</b-link>
-        <b-link class="link" @click="add('piecesList')" v-if="user.permissions.includes('16')">Piezas disponibles</b-link>
-        <b-link class="link" @click="add('employeeList')" v-if="user.permissions.includes('16')">Lista empleados</b-link>
+        <b-link class="link" @click="add('statistics')" v-if="this.user.tipo.level === 2 || this.user.tipo.level === 3" >Estadísticas</b-link>
+        <b-link class="link" @click="add('piecesList')" v-if="this.user.tipo.level === 3">Piezas disponibles</b-link>
+        <b-link class="link" @click="add('employeeList')" v-if="this.user.tipo.level === 3">Lista empleados</b-link>
         <b-link class="link" @click="$bvModal.show('user-info')" >Datos personales</b-link>
       </nav>
     </div>
@@ -140,18 +140,24 @@ export default Vue.extend({
         name: '',
         surname1: '',
         surname2: '',
-        tipo: new String(),
+        tipo: {
+          id: new Number(),
+          level: new Number(),
+          name: '',
+        },
         dni: '',
-        permissions: new Array<string>(),
       },
       userData: {
         id: new Number(),
         name: '',
         surname1: '',
         surname2: '',
-        tipo: '',
+        tipo: {
+          id: new Number(),
+          level: new Number(),
+          name: '',
+        },
         dni: '',
-        permissions: new Array<string>(),
       },
       form: {
         username: undefined,
@@ -269,27 +275,17 @@ export default Vue.extend({
     },
 
     showIncidences: function() {
-      if(this.checkPermissions(this.user.permissions, ['6', '7', '8', '9'])) {
+      if(this.user.tipo.level === 1 || this.user.tipo.level === 3) {
         axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee'&userId=" + this.user.id)
         .then((datas: any)  => {
           this.incidencesCount = datas.data.total;
         });
-      } else if (this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
+      } else if (this.user.tipo.level === 2 || this.user.tipo.level === 3) {
         axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician'&userId=" + this.user.id)
         .then((datas: any)  => {
           this.incidencesCount = datas.data.total;
         });
       }
-    },
-    checkPermissions: function(permissions: Array<string>, permissionNumbers: Array<string>) {
-      let result = true;
-      permissionNumbers.forEach((element: string) => {
-        if (!permissions.includes(element)) {
-          result = false;
-        }
-      });
-
-      return result;
     },
     logOut: function() {
       this.page = 'Login';
@@ -303,9 +299,12 @@ export default Vue.extend({
         name: '',
         surname1: '',
         surname2: '',
-        tipo: '',
+        tipo: {
+          id: new Number(),
+          level: new Number(),
+          name: '',
+        },
         dni: '',
-        permissions: new Array<string>(),
       };
       this.incidencesCount = 0;
     },
@@ -388,9 +387,13 @@ export default Vue.extend({
     name: string;
     surname1: string;
     surname2: string;
-    tipo: string;
+    tipo: EmployeeType;
     dni: string;
-    permissions: Array<string>;
+  }
+  interface EmployeeType {
+    id: number;
+    level: number;
+    name: string;
   }
   interface Piece {
     type: PieceType;

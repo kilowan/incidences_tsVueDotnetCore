@@ -8,9 +8,9 @@
       <b-link v-if="counter.hidden >0" @click="getIncidences(4, type)">Ocultos</b-link>
     </nav><br />
     <!-- incidenceView -->
-    <div v-if="!incidenceSelected && checkPermissions(user.permissions, ['6', '7', '8', '9']) && incidences.length > 0">
+    <div v-if="!incidenceSelected && (user.tipo.level === 1 || user.tipo.level === 3) && incidences.length > 0">
       <table>
-        <tr v-if="checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])">
+        <tr v-if="user.tipo.level === 3">
             <th colspan="10">{{ getTitle(state, 'Employee') }}</th>
         </tr>
       </table>
@@ -31,9 +31,9 @@
         </tr>
       </table><br />
     </div>
-    <div v-if="!incidenceSelected && (checkPermissions(user.permissions, ['10', '11', '12']) || checkPermissions(user.permissions, ['3', '4', '5'])) && technicianIncidences.length > 0">
+    <div v-if="!incidenceSelected && (user.tipo.level === 3) && technicianIncidences.length > 0">
       <table>
-          <tr>
+          <tr v-if="user.tipo.level === 3">
               <th colspan="10">{{ getTitle(state, 'Technician') }}</th>
           </tr>
       </table>
@@ -123,25 +123,15 @@ export default Vue.extend({
     }
   },
   methods: {
-    checkPermissions: function(permissions: Array<string>, permissionNumbers: Array<string>) {
-      let result = true;
-      permissionNumbers.forEach((element: string) => {
-        if (!permissions.includes(element)) {
-          result = false;
-        }
-      });
-
-      return result;
-    },
     handle: function() {
-      if(this.checkPermissions(this.user.permissions, ['10', '11', '12']) || this.checkPermissions(this.user.permissions, ['3', '4', '5'])) {
+      if(this.user.tipo.level === 2 || this.user.tipo.level === 3) {
         //set initial type
         this.type = 'Technician';
         axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician&userId=" + this.user.id)
         .then((datas: any)  => {
           this.manageData(datas.data);
         });
-      } else if(this.checkPermissions(this.user.permissions, ['6', '7', '8', '9'])){
+      } else if(this.user.tipo.level === 1 || this.user.tipo.level === 3){
         //set initial type
         this.type = 'Employee';
         axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee&userId=" + this.user.id)
@@ -278,9 +268,13 @@ export default Vue.extend({
     name: string;
     surname1: string;
     surname2: string;
-    tipo: string;
+    tipo: EmployeeType;
     dni: string;
-    permissions: Array<string>;
+  }
+  interface EmployeeType {
+    id: number;
+    level: number;
+    name: string;
   }
 </script>
 <style></style>

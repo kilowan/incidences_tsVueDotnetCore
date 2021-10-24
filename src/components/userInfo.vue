@@ -32,7 +32,7 @@
         </td>
       </tr>
       <tr>
-        <td>Tipo: {{ user.tipo }}</td>
+        <td>Tipo: {{ user.tipo.name }}</td>
       </tr>
       <tr v-if="editSurname2 || editSurname1 || editName">
         <td colspan="2"><a href="#" @click="saveData()">Guardar</a> <a href="#" @click="reset()">Reiniciar</a>

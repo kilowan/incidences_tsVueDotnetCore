@@ -17,11 +17,11 @@
               <th>--</th>
           </tr>
           <tr v-for="(employee, index) in employeesFiltered()" v-bind:key="index">
-              <td>{{employee.dni}}</td>
-              <td>{{employee.name}}</td>
-              <td>{{employee.surname1}}</td>
-              <td>{{employee.surname2}}</td>
-              <td>{{employee.tipo}}</td>
+              <td>{{ employee.dni }}</td>
+              <td>{{ employee.name }}</td>
+              <td>{{ employee.surname1 }}</td>
+              <td>{{ employee.surname2 }}</td>
+              <td>{{ employee.tipo.name }}</td>
               <td style="width:10%; height: 2%;">
                 <b-link @click="deleteEmployee(employee.id)">
                   <img class="cierra" src="./delete.png" alt="Borrar empleado" style="width:12%; height: 12%;"/>
@@ -119,7 +119,6 @@ export default Vue.extend({
         surname2: new String(),
         tipo: new String(),
         dni: new String(),
-        permissions: new Array<string>(),
       },
       employeSelected: {
         id: Number,
@@ -128,7 +127,6 @@ export default Vue.extend({
         surname2: new String(),
         tipo: new String(),
         dni: new String(),
-        permissions: new Array<Employee>(),
       },
       mod: 'employeeList',
       selectedToDelete: new Number(),
@@ -141,16 +139,9 @@ export default Vue.extend({
       tipo: new String(),
       fields: new Array<string>(),
       values: new Array<string>(),
-      selected: null,
+      selected: 0,
       options: [
-        { value: null, text: 'Tipo', default: true},
-        { value: 'Limpiador', text: 'Un limpiador' },
-        { value: 'Encargado', text: 'Un encargado' },
-        { value: 'Técnico', text: 'Un técnico' },
-        { value: 'Becario', text: 'Un becario' },
-        { value: 'Admin', text: 'Un administrador' },
-        { value: 'Temporal', text: 'Uno temporal' },
-        { value: 'Otro', text: 'Otro tipo aún no definido' }
+        { value: 0, text: 'Tipo', disabled: true},
       ]
     }
   },
@@ -158,7 +149,7 @@ export default Vue.extend({
     employeesFiltered(){
       let array: any = this.employees;
       return this.employees? array.filter((data: Employee) => {
-        return data.tipo !== 'Admin';
+        return data.tipo.name !== 'Admin';
       }) : undefined;
     },
     update: function() {
@@ -249,7 +240,7 @@ export default Vue.extend({
       this.name = employee.name;
       this.surname1 = employee.surname1;
       this.surname2 = employee.surname2;
-      this.tipo = employee.tipo;
+      this.tipo = employee.tipo.id;
       this.dni = employee.dni;
       this.$nextTick(() => {
         this.$bvModal.show('editemp');
@@ -288,6 +279,15 @@ export default Vue.extend({
       .then((data: any) =>
         this.employees = data.data
       );
+      axios({
+      method: 'get',
+      url: 'http://localhost:8082/newMenu.php?funcion=getEmployeeTypeList',
+      })
+      .then((data: any) =>
+        data.data.map((employeeType: EmployeeType) => {
+          this.options.push( { value: employeeType.id, text: employeeType.name, disabled: false })
+        })
+      );
     },
   },
   mounted() {
@@ -301,9 +301,13 @@ export default Vue.extend({
     name: string;
     surname1: string;
     surname2: string;
-    tipo: string;
+    tipo: EmployeeType;
     dni: string;
-    permissions: Array<string>;
+  }
+  interface EmployeeType {
+    id: number;
+    level: number;
+    name: string;
   }
 </script>
 <style>

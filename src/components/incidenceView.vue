@@ -13,8 +13,9 @@
           <td >{{ incidence.owner }}</td>
         </tr>
         <tr>
+
           <td>Información</td>
-          <td v-if="incidence.state == 1 && user.permissions.includes('6') && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
+          <td v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3) && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
           <td v-else>{{ incidence.issueDesc }}</td>
         </tr>
         <tr v-if="incidence.solver != null">
@@ -25,7 +26,7 @@
           <td>Fecha de creación</td>
           <td>{{incidence.initDateTime}}</td>
         </tr>
-        <tr v-if="incidence.state == 1 && user.permissions.includes('6')">
+        <tr v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3)">
           <td v-if="!edit" style="width:10%; height: 2%;">
             <a @click="deleteIncidence()" href="#">
               <img class="cierra" src="./delete.png" alt="Borrar incidencia" style="width:4%; height: 4%;"/>
@@ -37,12 +38,12 @@
             </a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 1 && (user.permissions.includes('3') || user.permissions.includes('10'))">
+        <tr v-else-if="incidence.state == 1 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
           <td colspan="2" v-if="!edit">
               <a href="#" @click="edit=true">Atender</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 2 && (user.permissions.includes('5') || user.permissions.includes('11'))">
+        <tr v-else-if="incidence.state == 2 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
           <td colspan="2" v-if="!edit">
               <a href="#" @click="edit=true">Modificar</a>
           </td>
@@ -52,13 +53,13 @@
               <a href="#" @click="hide()">Ocultar</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 4 && user.permissions.includes('9')">
+        <tr v-else-if="incidence.state == 4 && (this.user.tipo.level === 1 || this.user.tipo.level === 3)">
           <td colspan="2">
               <a href="#" @click="show()">Mostrar</a>
           </td>
         </tr>
     </table><br />
-    <div v-if="incidence.state == 1 && user.permissions.includes('6')">
+    <div v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3)">
       <table v-if="edit">
         <tr>
           <th>Funciones</th>
@@ -73,7 +74,7 @@
       <div v-if="incidence.state != 1">
         <pieces-module :edit="edit" :pieces="incidence.pieces" @add="PieceIdsSelected.push($event)"/>
         <notes-module v-if="incidence.notes || edit" :edit="edit" :notes="incidence.notes" @add="note = $event"/>
-        <div v-else-if="incidence.state == 1 && (user.permissions.includes('3') || user.permissions.includes('10'))">
+        <div v-else-if="incidence.state == 1 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
           <!-- attendIncidence -->
           <table v-if="edit">
             <tr>
@@ -88,7 +89,7 @@
             </tr>
           </table>
         </div>
-        <div v-else-if="incidence.state == 2 && (user.permissions.includes('5') || user.permissions.includes('11'))">
+        <div v-else-if="incidence.state == 2 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
           <!-- modifyIncidence -->
           <table v-if="edit">
             <tr>

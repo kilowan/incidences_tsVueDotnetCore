@@ -124,21 +124,12 @@ export default Vue.extend({
   },
   methods: {
     handle: function() {
-      if(this.user.tipo.level === 2 || this.user.tipo.level === 3) {
-        //set initial type
-        this.type = 'Technician';
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician&userId=" + this.user.id)
-        .then((datas: any)  => {
-          this.manageData(datas.data);
-        });
-      } else if(this.user.tipo.level === 1 || this.user.tipo.level === 3){
-        //set initial type
-        this.type = 'Employee';
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee&userId=" + this.user.id)
-        .then((datas: any)  => {
-          this.manageData(datas.data);
-        });
-      }
+      //set initial type
+      this.type = this.user.tipo.name;
+      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.type + "&userId=" + this.user.id)
+      .then((datas: any)  => {
+        this.manageData(datas.data);
+      });
     },
     getIncidences: function(state: number, type: string ) {
       if(type === 'Technician') {

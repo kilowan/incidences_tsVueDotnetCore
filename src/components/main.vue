@@ -92,7 +92,7 @@
           <b-row>
             <b-col><label>Tipo: </label></b-col>
             <b-col>
-              <b-form-select :disabled="true" v-model="user.tipo" :options="options" size="sm" class="mt-3"></b-form-select>
+              <b-form-select :disabled="true" v-model="user.tipo.id" :options="options" size="sm" class="mt-3"></b-form-select>
             </b-col>
           </b-row>
           <b-row colspan="2">
@@ -181,14 +181,7 @@ export default Vue.extend({
       fields: new Array<string>(),
       values:new Array<string>(),
       options: [
-        { value: null, text: 'Tipo', default: true},
-        { value: 'Limpiador', text: 'Un limpiador' },
-        { value: 'Encargado', text: 'Un encargado' },
-        { value: 'Técnico', text: 'Un técnico' },
-        { value: 'Becario', text: 'Un becario' },
-        { value: 'Admin', text: 'Un administrador' },
-        { value: 'Temporal', text: 'Uno temporal' },
-        { value: 'Otro', text: 'Otro tipo aún no definido' }
+        { value: 0, text: 'Tipo', disabled: true },
       ]
     }
   },
@@ -201,7 +194,6 @@ export default Vue.extend({
     });
    },
    cancel: function() {
-     this.$bvModal.hide('make-incidence');
       this.selected = undefined;
       this.checked = false;
       this.choosen = '--';
@@ -209,6 +201,7 @@ export default Vue.extend({
       this.selectedPiece = 'other';
       this.selectedPieces = [];
       this.PieceIdsSelected = [];
+      this.$bvModal.hide('make-incidence');
    },
     addPiece: function() {
       if (!this.selectedPieces.includes(this.selectedPiece)) {
@@ -238,7 +231,7 @@ export default Vue.extend({
       headers: []
       })
       .then(() =>
-        this.$emit('closeForm')
+        this.cancel()
       );
     },
     checkForm: function() {
@@ -275,17 +268,10 @@ export default Vue.extend({
     },
 
     showIncidences: function() {
-      if(this.user.tipo.level === 1 || this.user.tipo.level === 3) {
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Employee'&userId=" + this.user.id)
-        .then((datas: any)  => {
-          this.incidencesCount = datas.data.total;
-        });
-      } else if (this.user.tipo.level === 2 || this.user.tipo.level === 3) {
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=Technician'&userId=" + this.user.id)
-        .then((datas: any)  => {
-          this.incidencesCount = datas.data.total;
-        });
-      }
+      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "Employee'&userId=" + this.user.id)
+      .then((datas: any)  => {
+        this.incidencesCount = datas.data.total;
+      });
     },
     logOut: function() {
       this.page = 'Login';
@@ -341,9 +327,9 @@ export default Vue.extend({
             values: this.values,
           },
           headers: [],
-        }).then(() =>
-          this.$emit('reload')
-        );        
+        }).then(() => 
+            this.cancel()
+        );      
       }
       this.$emit('reloadUser', this.user.dni);
       this.reset();
@@ -380,6 +366,15 @@ export default Vue.extend({
   },
   mounted() {
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
+      axios({
+      method: 'get',
+      url: 'http://localhost:8082/newMenu.php?funcion=getEmployeeTypeList',
+      })
+      .then((data: any) =>
+        data.data.map((employeeType: EmployeeType) => {
+          this.options.push( { value: employeeType.id, text: employeeType.name, disabled: false })
+        })
+      );
   }
 })
   interface Employee {

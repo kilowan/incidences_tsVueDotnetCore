@@ -2,20 +2,12 @@ import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 import main from '../components/main.vue';
-import PortalVue from 'portal-vue'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-//import { createPopper } from '@popperjs/core';
-
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import statistics from '../components/statistics.vue';
+import employeeList from '../components/employeeList.vue';
+import incidences from '../components/incidences.vue';
+import pieces from '../components/piecesList.vue';
 
 Vue.use(VueRouter);
-Vue.use(PortalVue);
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
-const popcorn = document.querySelector('#popcorn');
-const tooltip = document.querySelector('#tooltip');
-//createPopper(popcorn, tooltip, { placement: 'top',});
 
 const routes: Array<RouteConfig> = [
   {
@@ -26,11 +18,30 @@ const routes: Array<RouteConfig> = [
   {
     path: '/main',
     name: 'main',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: main
-  }
+    component: main,
+    children: [
+      {
+        path: '/main/incidences',
+        name: 'incidences',
+        component: incidences
+      },
+      {
+        path: '/main/pieces',
+        name: 'pieces',
+        component: pieces
+      },
+      {
+        path: '/main/employeeList',
+        name: 'employeeList',
+        component: employeeList
+      },
+      {
+        path: '/main/statistics',
+        name: 'statistics',
+        component: statistics
+      }
+    ]
+  },
 ];
 
 const router = new VueRouter({

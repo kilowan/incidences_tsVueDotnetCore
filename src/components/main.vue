@@ -1,6 +1,6 @@
 <template>
   <div v-if="user">
-    <div class="cabecera">
+    <div class="cabecera" id="nav">
       <p class="mensaje">Bienvenido {{ user.name }} {{ user.surname1 }} {{ user.surname2 }}</p>
       <div class="Logo">
         <router-link @click="logOut()" to="/">
@@ -9,37 +9,15 @@
       </div>
       <nav class="opciones">
         <b-link class="link" @click="insertIncidence()" v-if="this.user.tipo.level === 1 || this.user.tipo.level === 3">Crear parte</b-link>
-        <b-link class="link" @click="add('incidences')" v-if="incidencesCount >0">Ver partes</b-link>
-        <b-link class="link" @click="add('statistics')" v-if="this.user.tipo.level === 2 || this.user.tipo.level === 3" >Estadísticas</b-link>
-        <b-link class="link" @click="add('piecesList')" v-if="this.user.tipo.level === 3">Piezas disponibles</b-link>
-        <b-link class="link" @click="add('employeeList')" v-if="this.user.tipo.level === 3">Lista empleados</b-link>
+        <router-link class="link" to="/main/incidences" v-if="incidencesCount >0">Ver partes</router-link>
+        <router-link class="link" to="/main/statistics" v-if="this.user.tipo.level === 2 || this.user.tipo.level === 3" >Estadísticas</router-link>
+        <router-link class="link" to="/main/pieces" v-if="this.user.tipo.level === 3">Piezas disponibles</router-link>
+        <router-link class="link" to="/main/employeeList" v-if="this.user.tipo.level === 3">Lista empleados</router-link>
         <b-link class="link" @click="$bvModal.show('user-info')" >Datos personales</b-link>
       </nav>
     </div>
     <div class="cuerpo">
-      <div v-if="check('statistics')">
-        <statistics  v-if="user" :user="user"/>
-      </div>
-      <div v-else-if="check('employeeList')">
-        <employee-list  
-          v-if="user" 
-          :user="user" 
-        />
-      </div>
-      <div v-else-if="check('piecesList')">
-        <pieces 
-          v-if="user" 
-          :user="user" 
-        />
-      </div>
-      <div v-else-if="check('incidences')">
-        <incidences 
-          v-if="user" 
-          :user="user"
-          :reload="reload"
-          @linked="reload=false"
-        />
-      </div>
+      <router-view :user="user" :reload="reload" @linked="reload=false"/>
     </div>
     <div class="Pie">
       <p>Trabajo realizado por Jose Javier Valero Fuentes y Juan Francisco Navarro Ramiro para el curso de ASIR 2º X migrado a Vue.js</p>
@@ -111,30 +89,14 @@
 <script lang="ts">
 
 import axios from 'axios';
-import statistics from './statistics.vue';
-import employeeList from './employeeList.vue';
-import incidences from './incidences.vue';
-import pieces from './piecesList.vue';
 import Vue from 'vue'
 
 export default Vue.extend({
   name: 'main',
-  props: {
-    /*message: {
-      type: String,
-      required: false
-    },*/
-  },
-  components: {
-    statistics,
-    employeeList,
-    incidences,
-    pieces
-  },
+  props: {},
+  components: {},
   data: function() {
     return {
-      page: 'Login',
-      mod: 'Main',
       user: {
         id: new Number(),
         name: '',
@@ -245,15 +207,11 @@ export default Vue.extend({
     concatPieces: function() {
       return this.selectedPieces.join(', ');
     },
-    check: function(data: any) {
-      return this.mod == data? true: false;
-    },
     logedIn: function(data: any) {
       axios.get("http://localhost:8082/employee.php?funcion=getEmployeeByUsername&username="+ data)
       .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
-        this.page = 'Menu';
         this.showIncidences();
       });
     },
@@ -263,9 +221,6 @@ export default Vue.extend({
         this.user = datas.data;
       });
     },
-    add: function(data: any) {
-      this.mod = data;
-    },
 
     showIncidences: function() {
       axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "Employee'&userId=" + this.user.id)
@@ -274,8 +229,6 @@ export default Vue.extend({
       });
     },
     logOut: function() {
-      this.page = 'Login';
-      this.mod = 'Main';
       this.form = {
         username: undefined,
         pass: undefined,
@@ -377,14 +330,6 @@ export default Vue.extend({
       );
   }
 })
-  interface Employee {
-    id: number;
-    name: string;
-    surname1: string;
-    surname2: string;
-    tipo: EmployeeType;
-    dni: string;
-  }
   interface EmployeeType {
     id: number;
     level: number;
@@ -402,27 +347,21 @@ export default Vue.extend({
     name: string;
     description: number;
   }
-  interface Incidence {
-    initDateTime: string;
-    finishDate: string;
-    finishTime: string;
-    issueDesc: string;
-    owner: Employee;
-    solver: Employee;
-    state: number;
-    pieces: Array<Piece>;
-    id: number;
-    notes: Array<Note>;
-  }
-  interface Note {
-    date: string;
-    noteStr: string;
-    noteType: string;
-    incidence: number;
-    employee: number;
-  }
 </script>
 <style>
+  #nav {
+    padding: 30px;
+  }
+
+  #nav a {
+    font-weight: bold;
+    color: white;
+    padding-right: 6px;
+  }
+
+  #nav a.router-link-exact-active {
+    color: #42b983;
+  }
   .cabecera {
     border: 2px solid black;
     background-color: #333;

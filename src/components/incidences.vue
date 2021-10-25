@@ -54,6 +54,33 @@
         </tr>
       </table><br />
     </div>
+    <div v-if="!incidenceSelected">
+      <b-link class="link" @click="insertIncidence()" v-if="this.user.tipo.level === 1 || this.user.tipo.level === 3">Añadir nuevo</b-link>
+    </div>
+    <b-modal id="make-incidence" hide-header hide-footer>
+      <div class="d-block text-center">
+        <!-- MakeIncidence -->
+        <h3>Crear parte</h3>
+        <div v-if="pieces">
+          <label>¿Que pieza/s crees que falla/n?:</label> <br /> 
+          <b-form-select v-model="selectedPiece" name="pieza">
+            <b-form-select-option :value="'other'">Selecciona las piezas que fallan</b-form-select-option>
+            <b-form-select-option :value="piece.name" v-for="(piece) in pieces" :key="piece.id">{{ piece.name }}</b-form-select-option>
+          </b-form-select>
+          <b-button v-if="selectedPiece !== 'other'" @click="addPiece()">Añadir</b-button>
+          <b-button v-if="selectedPieces.length>0" @click="reset()">Reiniciar</b-button><br />
+        </div>
+        <b-form-textarea placeholder="Descripción del problema" v-model="description"/><br />
+        <div v-if="selectedPieces.length>0">
+          <label>Piezas seleccionas:</label>
+          <p>{{ concatPieces() }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <b-button block @click="cancel()">Cancel</b-button>
+        <b-button :disabled="selectedPieces.length < 1 || !description" block @click="addIncidence()">Enviar</b-button>
+      </div>
+    </b-modal>
     <div v-if="incidenceSelected">
       <incidence-view 
         :user="user" 
@@ -96,6 +123,14 @@ export default Vue.extend({
   },
   data:function() {
     return {
+      selected: undefined,
+      checked: false,
+      choosen: '--',
+      selectedPiece: 'other',
+      pieces: [],
+      PieceIdsSelected: [],
+      selectedPieces: new Array<string>(),
+      description: undefined,
       incidences: new Array<Incidence>(),
       technicianIncidences: new Array<Incidence>(),
       linked: true,
@@ -123,6 +158,42 @@ export default Vue.extend({
     }
   },
   methods: {
+    addIncidence: function() {
+      axios({
+        method: 'post',
+        url: 'http://localhost:8082/newMenu.php',
+        data: {
+          funcion: 'addIncidence',
+          ownerId: this.user.id,
+          issueDesc: this.description,
+          pieces: this.PieceIdsSelected,
+        },
+      headers: []
+      })
+      .then(() =>
+        this.cancel()
+      );
+    },
+    concatPieces: function() {
+      return this.selectedPieces.join(', ');
+    },
+   cancel: function() {
+      this.selected = undefined;
+      this.checked = false;
+      this.choosen = '--';
+      this.description = undefined;
+      this.selectedPiece = 'other';
+      this.selectedPieces = [];
+      this.PieceIdsSelected = [];
+      this.$bvModal.hide('make-incidence');
+   },
+   insertIncidence: function() {
+    axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
+      .then((data: any) => {
+        this.pieces = data.data;
+        this.$bvModal.show('make-incidence');
+    });
+   },
     handle: function() {
       //set initial type
       this.type = this.user.tipo.name;

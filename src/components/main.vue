@@ -1,19 +1,17 @@
 <template>
   <div v-if="user">
     <div class="cabecera" id="nav">
-      <p class="mensaje">Bienvenido {{ user.name }} {{ user.surname1 }} {{ user.surname2 }}</p>
+      <p class="mensaje">Bienvenido  <b-link class="link" @click="$bvModal.show('user-info')" >{{ user.name }} {{ user.surname1 }} {{ user.surname2 }}</b-link></p>
       <div class="Logo">
         <router-link @click="logOut()" to="/">
           <img class="cierra" src="../shutdown.png" alt="Cerrar sesión" />
         </router-link>
       </div>
       <nav class="opciones">
-        <b-link class="link" @click="insertIncidence()" v-if="this.user.tipo.level === 1 || this.user.tipo.level === 3">Crear parte</b-link>
-        <router-link class="link" to="/main/incidences" v-if="incidencesCount >0">Ver partes</router-link>
-        <router-link class="link" to="/main/statistics" v-if="this.user.tipo.level === 2 || this.user.tipo.level === 3" >Estadísticas</router-link>
-        <router-link class="link" to="/main/pieces" v-if="this.user.tipo.level === 3">Piezas disponibles</router-link>
-        <router-link class="link" to="/main/employeeList" v-if="this.user.tipo.level === 3">Lista empleados</router-link>
-        <b-link class="link" @click="$bvModal.show('user-info')" >Datos personales</b-link>
+        <router-link v-if="user.tipo.level !== 1 && incidencesCount >0" class="link" to="/main/incidences" >Partes</router-link>
+        <router-link class="link" to="/main/statistics" v-if="user.tipo.level === 2 || this.user.tipo.level === 3" >Estadísticas</router-link>
+        <router-link class="link" to="/main/pieces" v-if="user.tipo.level === 3">Piezas disponibles</router-link>
+        <router-link class="link" to="/main/employeeList" v-if="user.tipo.level === 3">Lista empleados</router-link>
       </nav>
     </div>
     <div class="cuerpo">
@@ -22,30 +20,6 @@
     <div class="Pie">
       <p>Trabajo realizado por Jose Javier Valero Fuentes y Juan Francisco Navarro Ramiro para el curso de ASIR 2º X migrado a Vue.js</p>
     </div>
-    <b-modal id="make-incidence" hide-header hide-footer>
-      <div class="d-block text-center">
-        <!-- MakeIncidence -->
-        <h3>Crear parte</h3>
-        <div v-if="pieces">
-          <label>¿Que pieza/s crees que falla/n?:</label> <br /> 
-          <b-form-select v-model="selectedPiece" name="pieza">
-            <b-form-select-option :value="'other'">Selecciona las piezas que fallan</b-form-select-option>
-            <b-form-select-option :value="piece.name" v-for="(piece) in pieces" :key="piece.id">{{ piece.name }}</b-form-select-option>
-          </b-form-select>
-          <b-button v-if="selectedPiece !== 'other'" @click="addPiece()">Añadir</b-button>
-          <b-button v-if="selectedPieces.length>0" @click="reset()">Reiniciar</b-button><br />
-        </div>
-        <b-form-textarea placeholder="Descripción del problema" v-model="description"/><br />
-        <div v-if="selectedPieces.length>0">
-          <label>Piezas seleccionas:</label>
-          <p>{{ concatPieces() }}</p>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <b-button block @click="cancel()">Cancel</b-button>
-        <b-button :disabled="selectedPieces.length < 1 || !description" block @click="addIncidence()">Enviar</b-button>
-      </div>
-    </b-modal>
     <b-modal id="user-info" hide-header hide-footer @hidden="closeEvent()">
       <div class="d-block text-center">
         <h3>Datos personales</h3>
@@ -128,14 +102,8 @@ export default Vue.extend({
       incidencesCount: 0,
       reload: false,
       username: undefined,
-      selected: undefined,
       pieces: [],
-      checked: false,
-      choosen: '--',
-      description: undefined,
-      selectedPiece: 'other',
       selectedPieces: new Array<string>(),
-      PieceIdsSelected: new Array<number>(),
       edit: false,
       name: '',
       surname1: '',
@@ -148,64 +116,12 @@ export default Vue.extend({
     }
   },
  methods: {
-   insertIncidence: function() {
-    axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
-      .then((data: any) => {
-        this.pieces = data.data;
-        this.$bvModal.show('make-incidence');
-    });
-   },
    cancel: function() {
-      this.selected = undefined;
-      this.checked = false;
-      this.choosen = '--';
-      this.description = undefined;
-      this.selectedPiece = 'other';
       this.selectedPieces = [];
-      this.PieceIdsSelected = [];
       this.$bvModal.hide('make-incidence');
    },
-    addPiece: function() {
-      if (!this.selectedPieces.includes(this.selectedPiece)) {
-        if (this.selectedPieces.includes('no sé') || this.selectedPiece == 'no sé') {
-          this.reset();
-        }
-        this.selectedPieces.push(this.selectedPiece);
-        let piece: Piece = this.pieces.filter((data: any) =>{
-          return data.name == this.selectedPiece;
-        })[0];
-        this.PieceIdsSelected.push(piece.id);
-      }
-    },
     reset: function() {
       this.selectedPieces = []
-    },
-    addIncidence: function() {
-      axios({
-        method: 'post',
-        url: 'http://localhost:8082/newMenu.php',
-        data: {
-          funcion: 'addIncidence',
-          ownerId: this.user.id,
-          issueDesc: this.description,
-          pieces: this.PieceIdsSelected,
-        },
-      headers: []
-      })
-      .then(() =>
-        this.cancel()
-      );
-    },
-    checkForm: function() {
-      return this.selected && this.description? true:false;
-    },
-    getPiece: function() {
-      return this.pieces.filter((piece: Piece) => {
-        return piece.name == this.selected;
-      })[0];
-    },
-    concatPieces: function() {
-      return this.selectedPieces.join(', ');
     },
     logedIn: function(data: any) {
       axios.get("http://localhost:8082/employee.php?funcion=getEmployeeByUsername&username="+ data)
@@ -223,9 +139,23 @@ export default Vue.extend({
     },
 
     showIncidences: function() {
-      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "Employee'&userId=" + this.user.id)
+      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
+        if(this.user.tipo.level === 1 || this.incidencesCount >0){
+          this.$router.push({
+            name: 'incidences', params: {
+              //user: this.user
+            }
+          });
+        }
+        if(this.user.tipo.level !== 1 && this.incidencesCount === 0) {
+          this.$router.push({
+            name: 'statistics', params: {
+              //user: this.user
+            }
+          });
+        }
       });
     },
     logOut: function() {

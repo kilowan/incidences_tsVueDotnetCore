@@ -126,7 +126,7 @@
           </table><br />
         </div>
       </div>
-    <br /><a href="#" @click="back()" class="link" center>Atrás</a>
+    <br /><b-link @click="back()" class="link" center>Atrás</b-link>
     <b-modal id="warning" hide-header hide-footer>
       <div class="d-block text-center">
         <h3>¿Seguro que quieres borrar este parte?</h3>

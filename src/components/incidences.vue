@@ -55,26 +55,24 @@
       </table><br />
     </div>
     <div v-if="!incidenceSelected">
-      <b-link class="link" @click="insertIncidence()" v-if="this.user.tipo.level === 1 || this.user.tipo.level === 3">Añadir nuevo</b-link>
+      <b-link class="link" @click="insertIncidence()" v-if="this.user.tipo.level === 1 || this.user.tipo.level === 3">Nuevo parte</b-link>
     </div>
     <b-modal id="make-incidence" hide-header hide-footer>
       <div class="d-block text-center">
         <!-- MakeIncidence -->
         <h3>Crear parte</h3>
         <div v-if="pieces">
-          <label>¿Que pieza/s crees que falla/n?:</label> <br /> 
-          <b-form-select v-model="selectedPiece" name="pieza">
-            <b-form-select-option :value="'other'">Selecciona las piezas que fallan</b-form-select-option>
-            <b-form-select-option :value="piece.name" v-for="(piece) in pieces" :key="piece.id">{{ piece.name }}</b-form-select-option>
-          </b-form-select>
-          <b-button v-if="selectedPiece !== 'other'" @click="addPiece()">Añadir</b-button>
-          <b-button v-if="selectedPieces.length>0" @click="reset()">Reiniciar</b-button><br />
+          <label>¿Que pieza/s crees que falla/n?:</label> <br />
+          <div style="margin-left: 30%; margin-right: 30%;">
+            <br>
+            <ejs-multiselect 
+              v-model="selectedPieces" 
+              :dataSource="getPieces()"
+              @click="addPiece()"
+            />
+          </div>
         </div>
         <b-form-textarea placeholder="Descripción del problema" v-model="description"/><br />
-        <div v-if="selectedPieces.length>0">
-          <label>Piezas seleccionas:</label>
-          <p>{{ concatPieces() }}</p>
-        </div>
       </div>
       <div class="modal-footer">
         <b-button block @click="cancel()">Cancel</b-button>
@@ -105,10 +103,6 @@ export default Vue.extend({
       type: Object,
       required: true
     },
-    /*incidences: {
-      type: Object,
-      required: true
-    },*/
     admin: {
       type: Boolean,
       required: false
@@ -128,7 +122,7 @@ export default Vue.extend({
       choosen: '--',
       selectedPiece: 'other',
       pieces: [],
-      PieceIdsSelected: [],
+      PieceIdsSelected: new Array<number>(),
       selectedPieces: new Array<string>(),
       description: undefined,
       incidences: new Array<Incidence>(),
@@ -158,24 +152,44 @@ export default Vue.extend({
     }
   },
   methods: {
-    addIncidence: function() {
-      axios({
-        method: 'post',
-        url: 'http://localhost:8082/newMenu.php',
-        data: {
-          funcion: 'addIncidence',
-          ownerId: this.user.id,
-          issueDesc: this.description,
-          pieces: this.PieceIdsSelected,
-        },
-      headers: []
-      })
-      .then(() =>
-        this.cancel()
-      );
+    getPieces: function() {
+      return this.pieces.map((piece: Piece) => {
+        return { value: piece.id, text: piece.name }
+      });
     },
-    concatPieces: function() {
-      return this.selectedPieces.join(', ');
+    fillPieceIds: function(names: Array<string>) {
+      names.forEach((element: string) => {
+        let pieces: Array<Piece> = this.pieces.filter((data: Piece) =>{
+          return data.name === element;
+        });
+        let piece = {
+          id: 0,
+        };
+        if(pieces.length >0) piece = pieces[0];
+        if(piece && piece.id)
+        this.PieceIdsSelected.push(piece.id);
+      });
+    },
+    addIncidence: function() {
+      if(this.selectedPieces.length >0) {
+        this.fillPieceIds(this.selectedPieces);
+        axios({
+          method: 'post',
+          url: 'http://localhost:8082/newMenu.php',
+          data: {
+            funcion: 'addIncidence',
+            ownerId: this.user.id,
+            issueDesc: this.description,
+            pieces: this.PieceIdsSelected,
+          },
+        headers: []
+        })
+        .then(() => {
+            this.cancel();
+            this.getIncidences(this.state, this.user.tipo.id);
+          }
+        );
+      }
     },
    cancel: function() {
       this.selected = undefined;
@@ -219,20 +233,6 @@ export default Vue.extend({
       }
 
     },
-    filterType: function(type: string) {
-      return type === 'Employee'? 
-      this.incidences.filter((data: Incidence)  => {
-        return data.owner.dni === this.user.dni;
-      }): 
-      this.incidences.filter((data: Incidence)  => {
-        return data.owner.dni !== this.user.dni;
-      });
-    },
-    filterState: function(state: number, incidences: Array<Incidence>) {
-      return incidences.filter((data: Incidence) => {
-        return data.state == state;
-      });
-    },
     getTitle: function(state: number, type: string) {
       let title = 'Partes ';
       let titles: any = {1: 'nuevos', 2: 'atendidos', 3: 'cerrados', 4: 'ocultos'};
@@ -261,14 +261,6 @@ export default Vue.extend({
     manageIncidences: function(state: number){
       if(!this.state) this.state = state;
       this.countTypes++;
-    },
-    changeState: function(state: number){
-      this.state = state;
-      this.incidenceData = {};
-      this.$nextTick(() => {
-        this.incidenceSelected = false;
-        
-      });
     },
     dateFormat: function(startTimeISOString: string) {
       return new Date(startTimeISOString).toLocaleDateString();
@@ -339,4 +331,6 @@ export default Vue.extend({
     name: string;
   }
 </script>
-<style></style>
+<style>
+@import url(https://cdn.syncfusion.com/ej2/material.css);
+</style>

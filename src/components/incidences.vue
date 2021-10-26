@@ -68,7 +68,6 @@
             <ejs-multiselect 
               v-model="selectedPieces" 
               :dataSource="getPieces()"
-              @click="addPiece()"
             />
           </div>
         </div>

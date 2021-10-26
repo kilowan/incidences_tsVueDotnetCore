@@ -84,7 +84,18 @@
       </table>
     </div>
       <div v-if="incidence.state != 1">
-        <pieces-module :edit="edit" :pieces="incidence.pieces" @add="PieceIdsSelected.push($event)"/>
+      <div style=" background-color: white; margin-left: 30%; margin-right: 30%;">
+        <br>
+        <ejs-multiselect v-if="availablePieces.length >0"
+          :readonly="!edit"
+          v-model="selectedPiecesNames" 
+          :dataSource="getPieces()"
+          :ref="'piecesComp'"
+          placeholoder="Añade nuevas piezas"
+          hideSelectedItem="true"
+        />
+      </div><br />
+        <!--<pieces-module :edit="edit" :pieces="incidence.pieces" @add="pieceIdsSelected.push($event)"/>-->
         <notes-module v-if="incidence.notes || edit" :edit="edit" :notes="incidence.notes" @add="note = $event"/>
         <div v-else-if="incidence.state == 1 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
           <!-- attendIncidence -->
@@ -143,14 +154,21 @@
 
 import axios from 'axios';
 import notesModule from './notesModule.vue';
-import piecesModule from './piecesModule.vue';
 import Vue from 'vue';
 export default Vue.extend({
   name: 'incidencesView',
-  props: ['incidence', 'user'],
+  props: {
+    user: {
+      type: Object,
+      required: true
+    },
+    incidence: {
+      type: Object,
+      required: true
+    },
+  },
   components: {
     notesModule,
-    piecesModule,
   },
   data: function() {
     return {
@@ -159,11 +177,41 @@ export default Vue.extend({
       selected: undefined,
       note: undefined,
       edit: false,
-      PieceIdsSelected: [],
+      pieceIdsSelected: new Array<number>(),
+      availablePieces: new Array<Piece>(),
+      selectedPiecesNames: new Array<string>(),
+      preselected: new Array<string>(),
       close: false,
     }
   },
   methods: {
+    getSelectedPieces: function(pieces: Array<Piece>) {
+      return pieces.map((piece: Piece) => {
+        return piece.name
+      });
+    },
+    getPieces: function() {
+      return this.availablePieces.map((piece: Piece) => {
+        return { value: piece.id, text: piece.name }
+      });
+    },
+    fillPieceIds: function(names: Array<string>) {
+      let newNames = names.filter((name: string) => {
+        return !this.preselected.includes(name);
+      });
+      if(newNames.length >0) {
+        newNames.forEach((element: string) => {
+          let pieces: Array<Piece> = this.availablePieces.filter((data: Piece) =>{
+            return data.name === element;
+          });
+          let piece = {
+            id: 0,
+          };
+          if(pieces.length >0) piece = pieces[0];
+          if(piece) this.pieceIdsSelected.push(piece.id);
+        });
+      }
+    },
     dateFormat: function(startTimeISOString: string, format: number) {
       return format == 1? new Date(startTimeISOString).toLocaleDateString(): new Date(startTimeISOString).toLocaleTimeString();
     },
@@ -222,7 +270,8 @@ export default Vue.extend({
       this.menu = 'main';
     },
     editIncidence: function() {
-      if (this.incidence.issueDesc != this.issueDesc) {
+      if(this.selectedPiecesNames.length >0 && this.incidence.issueDesc != this.issueDesc) {
+        this.fillPieceIds(this.selectedPiecesNames);
         axios({
           method: 'post',
           url: 'http://localhost:8082/newMenu.php',
@@ -236,7 +285,6 @@ export default Vue.extend({
         })
         .then(() => this.$emit('reload'));
       } else this.$emit('reloadoff');
-      
     },
       modifyIncidence: function() {
         if (this.selected == 'cierraparte') {
@@ -250,7 +298,7 @@ export default Vue.extend({
             incidenceId: this.incidence.id,
             userId: this.user.id,
             note: this.note,
-            pieces: this.PieceIdsSelected,
+            pieces: this.pieceIdsSelected,
             close: this.close,
           },
           headers: [],
@@ -259,10 +307,31 @@ export default Vue.extend({
   },
   mounted() {
     this.load();
+    axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
+    .then((data: any) => {
+      this.availablePieces = data.data;
+      this.incidence.pieces.forEach((piece: Piece) => {
+        this.selectedPiecesNames.push(piece.name);
+        this.preselected.push(piece.name);
+      });
+    });
   }
 })
+  interface Piece {
+    type: PieceType;
+    name: string;
+    price: string;
+    quantity: number;
+    description: number;
+    id: number;
+  }
+  interface PieceType {
+    name: string;
+    description: number;
+  }
 </script>
 <style>
+@import url(https://cdn.syncfusion.com/ej2/material.css);
 td {
 	font-size: 100%;
 	text-align: center;

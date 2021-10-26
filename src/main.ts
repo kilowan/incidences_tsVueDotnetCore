@@ -5,10 +5,12 @@ import store from "./store";
 import PortalVue from 'portal-vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import { createPopper } from '@popperjs/core';
+import { MultiSelectPlugin } from '@syncfusion/ej2-vue-dropdowns';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+Vue.use(MultiSelectPlugin);
 Vue.config.productionTip = false;
 
 const popcorn: any = document.querySelector('#popcorn');

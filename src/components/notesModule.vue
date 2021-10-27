@@ -2,19 +2,31 @@
   <div>
     <table>
       <tr>
-        <th colspan="2">Notas</th>
+        <th>Notas</th>
+      </tr>
+    </table><br />
+    <table>
+      <tr>
+        <th>Nota</th>
+        <th>Fecha</th>
+        <th>Hora</th>
       </tr>
       <tr v-for="(note, index) in notesData" v-bind:key="index">
         <td v-if="note.noteStr != ''">{{ note.noteStr }}</td>
         <td v-else> "Sin texto" </td>
+        <td>{{ formatDate(note.date) }}</td>
+        <td>{{ formatHour(note.date) }}</td>
       </tr>
+      <tr></tr>
       <tr v-if="addNote && !added">
-        <td>
-          <input type="text" v-model="note" /> <a href="#" @click="addNotes()">Añadir</a>
+        <td colspan="3">
+          <input type="text" v-model="note" /> <a href="#" @click="addNotes()">Añadir</a> <a href="#" @click="addNote = false">Cancelar</a>
         </td>
       </tr>
       <tr v-if="!addNote && !added && edit">
-        <a href="#" @click="addOn()">Añadir</a>
+        <td colspan="3">
+          <a href="#" @click="addOn()">Añadir</a>
+        </td>
       </tr>
     </table><br />
   </div>
@@ -22,6 +34,7 @@
 
 <script lang="ts">
 
+import { Note } from '../Config/types';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -40,9 +53,9 @@ export default Vue.extend({
   },
   data: function() {
     return {
-      note: undefined,
+      note: '',
       addNote: false,
-      notesData: new Array<any>(),
+      notesData: new Array<Note>(),
       added: false,
     }
   },
@@ -50,15 +63,20 @@ export default Vue.extend({
     addOn: function() {
       this.addNote = true;
     },
+    formatDate: function(date: string) {
+      return new Date(date).toLocaleDateString();
+    },
+    formatHour: function(date: string) {
+      return new Date(date).toLocaleTimeString();
+    },
     addNotes: function() {
       let date = new Date();
-      let note = { noteStr: this.note, date: date.toISOString() };
+      let note: Note = { noteStr: this.note, date: date.toISOString() };
       this.notesData.push(note);
       this.added = true;
       this.$emit('add', note);
     },
-    reset: function()
-    {
+    reset: function() {
       this.addNote = false;
       this.$emit('reset');
     },

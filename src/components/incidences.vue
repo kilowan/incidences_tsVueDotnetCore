@@ -2,10 +2,10 @@
   <div v-if="type !== ''">
     <br />
     <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-      <b-link v-if="counter.new >0"  @click="getIncidences(1, type)">Nuevos</b-link>{{ ' ' }}
-      <b-link v-if="counter.old >0"  @click="getIncidences(2, type)">Atendidos</b-link>{{ ' ' }}
-      <b-link v-if="counter.closed >0" @click="getIncidences(3, type)">Cerrados</b-link>{{ ' ' }}
-      <b-link v-if="counter.hidden >0" @click="getIncidences(4, type)">Ocultos</b-link>
+      <b-link v-if="counter.new >0"  @click="getIncidences(1, user.tipo.name)">Nuevos</b-link>{{ ' ' }}
+      <b-link v-if="counter.old >0"  @click="getIncidences(2, user.tipo.name)">Atendidos</b-link>{{ ' ' }}
+      <b-link v-if="counter.closed >0" @click="getIncidences(3, user.tipo.name)">Cerrados</b-link>{{ ' ' }}
+      <b-link v-if="counter.hidden >0" @click="getIncidences(4, user.tipo.name)">Ocultos</b-link>
     </nav><br />
     <!-- incidenceView -->
     <div v-if="!incidenceSelected && (user.tipo.level === 1 || user.tipo.level === 3) && incidences.length > 0">
@@ -68,7 +68,6 @@
             <ejs-multiselect 
               v-model="selectedPieces" 
               :dataSource="getPieces()"
-              @click="addPiece()"
             />
           </div>
         </div>
@@ -92,6 +91,7 @@
 
 <script lang="ts">
 
+import { Incidence, Piece } from '../Config/types';
 import incidenceView from './incidenceView.vue';
 import axios from 'axios';
 import Vue from 'vue';
@@ -117,21 +117,17 @@ export default Vue.extend({
   },
   data:function() {
     return {
-      selected: undefined,
-      checked: false,
-      choosen: '--',
       selectedPiece: 'other',
-      pieces: [],
+      pieces: new Array<Piece>(),
       PieceIdsSelected: new Array<number>(),
       selectedPieces: new Array<string>(),
-      description: undefined,
+      description: '',
       incidences: new Array<Incidence>(),
       technicianIncidences: new Array<Incidence>(),
       linked: true,
       linkedEmployee: true,
       countTypes: 0,
       state: 1,
-      type: '',
       counter: {
         new: 0,
         old: 0,
@@ -186,19 +182,16 @@ export default Vue.extend({
         })
         .then(() => {
             this.cancel();
-            this.getIncidences(this.state, this.user.tipo.id);
+            this.getIncidences(this.state, this.user.tipo.name);
           }
         );
       }
     },
    cancel: function() {
-      this.selected = undefined;
-      this.checked = false;
-      this.choosen = '--';
-      this.description = undefined;
+      this.description = '';
       this.selectedPiece = 'other';
-      this.selectedPieces = [];
-      this.PieceIdsSelected = [];
+      this.selectedPieces = new Array<string>();
+      this.PieceIdsSelected = new Array<number>();
       this.$bvModal.hide('make-incidence');
    },
    insertIncidence: function() {
@@ -210,14 +203,13 @@ export default Vue.extend({
    },
     handle: function() {
       //set initial type
-      this.type = this.user.tipo.name;
-      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.type + "&userId=" + this.user.id)
+      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
     getIncidences: function(state: number, type: string ) {
-      if(type === 'Technician') {
+      if(['Technician', 'Admin'].includes(type)) {
         axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=' + type)
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
@@ -249,7 +241,7 @@ export default Vue.extend({
           //set initial state
           this.state = this.counter.new >0? 1: this.counter.old > 0? 2: this.counter.closed > 0? 3 : 4;
           //get initial incidences
-          this.getIncidences(this.state, this.type);
+          this.getIncidences(this.state, this.user.tipo.name);
     },
     getCounters: function() {
       this.counter.new > 0? this.manageIncidences(1) :  this.state = 0;
@@ -286,50 +278,6 @@ export default Vue.extend({
     this.handle();
   }
 })
-  interface Incidence {
-    initDateTime: string;
-    finishDate: string;
-    finishTime: string;
-    issueDesc: string;
-    owner: Employee;
-    solver: Employee;
-    state: number;
-    pieces: Array<Piece>;
-    id: number;
-    notes: Array<Note>;
-  }
-  interface Note {
-    date: string;
-    noteStr: string;
-    noteType: string;
-    incidence: number;
-    employee: number;
-  }
-  interface Piece {
-    type: PieceType;
-    name: string;
-    price: string;
-    quantity: number;
-    description: number;
-    id: number;
-  }
-  interface PieceType {
-    name: string;
-    description: number;
-  }
-  interface Employee {
-    id: number;
-    name: string;
-    surname1: string;
-    surname2: string;
-    tipo: EmployeeType;
-    dni: string;
-  }
-  interface EmployeeType {
-    id: number;
-    level: number;
-    name: string;
-  }
 </script>
 <style>
 @import url(https://cdn.syncfusion.com/ej2/material.css);

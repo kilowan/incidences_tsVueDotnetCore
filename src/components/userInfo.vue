@@ -76,15 +76,6 @@ export default Vue.extend({
       surname2: '',
       fields: new Array<string>(),
       values: new Array<string>(),
-      style: {
-        //boxShadow: '5px 5px 10px #999',
-        border: '1px dotted black',
-        background: 'white',
-        //left: '10%',
-        width: '80%',
-        position: 'relative',
-        //borderSpacing: '0px'
-      }
     }
   },
   methods: {
@@ -134,8 +125,7 @@ export default Vue.extend({
         this.reloadUser();
       }
     },
-    reset: function()
-    {
+    reset: function() {
       this.edit = false;
       this.name = '';
       this.surname1 = '';
@@ -143,8 +133,7 @@ export default Vue.extend({
       this.fields = [];
       this.values = [];
     },
-    reloadUser: function()
-    {
+    reloadUser: function() {
       axios.get("http://localhost:8082/newMenu.php?funcion=getEmployeeByUsername&username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;

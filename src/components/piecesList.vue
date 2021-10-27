@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- piecesList -->
-    <div id="piecesList" v-if="mod=='piecesList'">
+    <div id="piecesList">
       <br /><table>
           <tr>
               <th>Lista de piezas</th>
@@ -32,7 +32,7 @@
           </tr>
       </table>
     </div>
-    <b-modal id="warning" hide-header hide-footer>
+    <b-modal id="warning" hide-header hide-footer @hidden="clear()">
       <div class="d-block text-center">
         <h3>¿Seguro que quieres borrar esta pieza?</h3>
       </div>
@@ -41,31 +41,31 @@
         <b-button block @click="confirmDelete()">Ok</b-button>
       </div>
     </b-modal>
-    <b-modal id="new" hide-header hide-footer>
+    <b-modal id="new" hide-header hide-footer @hidden="clear()">
       
       <div class="d-block text-center">
         <h1>Hoja de la nueva pieza:</h1><br />
-        <input placeholder="Nombre" v-model="name"/><br />
-        <b-form-textarea placeholder="Descripción" v-model="description"/><br />
-        <b-form-select v-model="type" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select><br />
+        <input placeholder="Nombre" v-model="pieceName"/><br />
+        <b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />
+        <b-form-select v-model="pieceTypeId" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select><br />
       </div>
       <div class="modal-footer">
-        <b-button block @click="cancel('new')">Cancel</b-button>
+        <b-button block @click="$bvModal.hide('new')">Cancel</b-button>
         <b-button block @click="save()">Guardar</b-button>
       </div>
     </b-modal>
     <!--ok.prevent-->
-    <b-modal id="editpiece" hide-header hide-footer>
+    <b-modal id="editpiece" hide-header hide-footer @hidden="clear()">
       <div class="d-block text-center" v-if="user">
         <h1>Editar pieza</h1><br />
         <label>Nombre:</label>
-        <input v-model="name"/><br />
-        <b-form-textarea placeholder="Descripción" v-model="description"/><br />
+        <input v-model="pieceName"/><br />
+        <b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />
         <label>Tipo:</label>
-        <b-form-select v-model="type" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select>
+        <b-form-select v-model="pieceTypeId" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select>
       </div>
       <div class="modal-footer">
-        <b-button block @click="cancel('editpiece')">Cancel</b-button>
+        <b-button block @click="$bvModal.hide('editpiece')">Cancel</b-button>
         <b-button block @click="update()">Actualizar</b-button>
       </div>
     </b-modal>
@@ -89,22 +89,27 @@ export default Vue.extend({
   components: {},
   data: function() {
     return {
+      pieceName: '',
+      pieceId: 0,
+      pieceDescription: '',
+      pieceTypeId: 0,
+      pieceTypeName: '',
       piecesList: new Array<Piece>(),
-      mod: 'piecesList',
-      selected: null,
-      name: '',
-      type: 0,
-      description: '',
-      pieceSelected: {},
-      selectedToDelete: 0,
       pieceTypeOptions: [
         { value: 0, text: 'Tipo', disabled: true },
       ],
     }
   },
   methods: {
-    deletePiece: function(piece: number) {
-      this.selectedToDelete = piece;
+    clear: function(){
+      this.pieceName = '';
+      this.pieceId = 0;
+      this.pieceDescription = '';
+      this.pieceTypeId = 0;
+      this.pieceTypeName = '';
+    },
+    deletePiece: function(pieceId: number) {
+      this.pieceId = pieceId;
       this.$nextTick(() => {
         this.$bvModal.show('warning');
       });
@@ -116,56 +121,21 @@ export default Vue.extend({
       }) : undefined;
     },
     update: function() {
-      //let fields: any = this.fields;
-      //this.fillData([this.name, this.surname1, this.surname2, this.tipo]);
-      //if (fields.length >0) {
-        axios({
-          method: 'post',
-          url: 'http://localhost:8082/newMenu.php',
-          data: {
-            funcion: 'updatePiece',
-            id: this.pieceSelected.id,
-            name: this.name,
-            description: this.description,
-            type: this.type
-          },
-          headers: []
-        }).then(() =>{
-          this.cancel('editpiece');
-          this.load();
-        });
-      //}
-    },
-    /*reset: function() {
-      this.name = '';
-      this.surname1 = '';
-      this.surname2 = '';
-      this.tipo = '';
-      this.dni = '';
-      this.fields = new Array<string>();
-      this.values = new Array<string>();
-    },
-    checkField(field: string, field2: string) {
-      return field && field != field2? true: false
-    },
-    pushField(data: any, parity: any, name: any) {
-      if(this.checkField(data, parity)) {
-        this.values.push(data);
-        this.fields.push(name);
-      }
-    },
-    fillData(data: Array<any>) {
-      this.pushField(data[0], this.employeSelected.name, 'nombre');
-      this.pushField(data[1], this.employeSelected.surname1, "apellido1");
-      this.pushField(data[2], this.employeSelected.surname2, "apellido2");
-      this.pushField(data[3], this.employeSelected.tipo, "tipo");
-    },*/
-    cancel: function(name: string) {
-      this.type = 0;
-      this.selected = null;
-      this.name = '';
-      this.description = '';
-      this.$bvModal.hide(name);
+      axios({
+        method: 'post',
+        url: 'http://localhost:8082/newMenu.php',
+        data: {
+          funcion: 'updatePiece',
+          id: this.pieceId,
+          name: this.pieceName,
+          description: this.pieceDescription,
+          type: this.pieceTypeId
+        },
+        headers: []
+      }).then(() =>{
+        this.$bvModal.hide('editpiece');
+        this.load();
+      });
     },
     save() {
       axios({
@@ -173,22 +143,23 @@ export default Vue.extend({
         url: 'http://localhost:8082/newMenu.php',
         data: {
           funcion: 'addPiece',
-          name: this.name,
-          description: this.description,
-          type: this.type,
+          name: this.pieceName,
+          description: this.pieceDescription,
+          type: this.pieceTypeId,
         },
         headers: []
       }).then(() =>{
-          this.cancel('new')
+          this.$bvModal.hide('new');
           this.load();
         }
       );
     },
     edit: function(piece: Piece) {
-      this.pieceSelected = piece;
-      this.name = piece.name;
-      this.description = piece.description;
-      this.type = piece.type.id;
+      this.pieceName = piece.name;
+      this.pieceId = piece.id;
+      this.pieceDescription = piece.description;
+      this.pieceTypeId = piece.type.id;
+      this.pieceTypeName = piece.type.name;
       this.$nextTick(() => {
         this.$bvModal.show('editpiece');
       });
@@ -198,14 +169,10 @@ export default Vue.extend({
         this.$bvModal.show('new');
       });
     },
-    reload: function() {
-      this.load();
-      this.mod = 'piecesList';
-    },
     confirmDelete: function() {
       axios({
       method: 'get',
-      url: 'http://localhost:8082/newMenu.php?funcion=deletePiece&id=' + this.selectedToDelete,
+      url: 'http://localhost:8082/newMenu.php?funcion=deletePiece&id=' + this.pieceId,
       })
       .then(()=> {
         this.$bvModal.hide('warning');

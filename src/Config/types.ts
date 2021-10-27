@@ -20,14 +20,15 @@ export interface Incidence {
   export interface Piece {
     type: PieceType;
     name: string;
-    price: string;
-    quantity: number;
+    price?: string;
+    quantity?: number;
     description: string;
     id: number;
   }
   export interface PieceType {
     name: string;
     description: string;
+    id: number;
   }
   export interface Employee {
     id: number;

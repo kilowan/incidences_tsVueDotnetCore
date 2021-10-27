@@ -15,7 +15,7 @@
         <tr>
 
           <td>Información</td>
-          <td v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3) && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
+          <td v-if="incidence.state == 1 && [1,3].includes(this.user.tipo.level) && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
           <td v-else>{{ incidence.issueDesc }}</td>
         </tr>
         <tr v-if="incidence.solver != ''">
@@ -38,7 +38,21 @@
           <td>Hora de resolución</td>
           <td>{{ dateFormat(getDateTime(incidence.finishDate, incidence.finishTime), 2) }}</td>
         </tr>
-        <tr v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3)">
+        <tr v-if="incidence.state != 1">
+          <td>Piezas afectadas</td>
+          <td style="width: 400px">
+            <ejs-multiselect v-if="availablePieces.length >0"
+              id='multiselect'
+              :readonly="!edit"
+              v-model="selectedPiecesNames" 
+              :dataSource="getPieces()"
+              placeholoder="Añade nuevas piezas"
+              hideSelectedItem="true"
+              :showDropDownIcon="edit"
+            />
+          </td>
+        </tr>
+        <tr v-if="incidence.state == 1 && [1,3].includes(this.user.tipo.level)">
           <td v-if="!edit" style="width:10%; height: 2%;">
             <a @click="deleteIncidence()" href="#">
               <img class="cierra" src="./delete.png" alt="Borrar incidencia" style="width:4%; height: 4%;"/>
@@ -50,14 +64,17 @@
             </a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 1 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
+        <tr v-else-if="incidence.state == 1 && [2,3].includes(this.user.tipo.level)">
           <td colspan="2" v-if="!edit">
               <a href="#" @click="edit=true">Atender</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 2 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
+        <tr v-else-if="incidence.state == 2 && [2,3].includes(this.user.tipo.level) && incidence.solverId === user.id">
           <td colspan="2" v-if="!edit">
-              <a href="#" @click="edit=true">Modificar</a>
+              <b-link @click="edit=true">Modificar</b-link>
+          </td>
+          <td colspan="2" v-if="edit">
+              <b-link @click="edit=false">Cancelar</b-link>
           </td>
         </tr>
         <tr v-else-if="incidence.state == 3 && incidence.ownerId === user.id">
@@ -65,78 +82,52 @@
               <a href="#" @click="hide()">Ocultar</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 4 && (this.user.tipo.level === 1 || this.user.tipo.level === 3)">
+        <tr v-else-if="incidence.state == 4 && [1,3].includes(this.user.tipo.level)">
           <td colspan="2">
               <a href="#" @click="show()">Mostrar</a>
           </td>
         </tr>
     </table><br />
-    <div v-if="incidence.state == 1 && (this.user.tipo.level === 1 || this.user.tipo.level === 3)">
-      <table v-if="edit">
+    <div v-if="incidence.state != 1">
+      <notes-module v-if="incidence.notes || edit" :edit="edit" :notes="incidence.notes" @add="note = $event"/>
+    </div>
+    <div v-if="edit">
+      <table v-if="edit && ((incidence.state == 1 && [1,3].includes(this.user.tipo.level) || (incidence.state == 2 && [2,3].includes(this.user.tipo.level) && incidence.solverId === user.id)))">
         <tr>
           <th>Funciones</th>
         </tr>
       </table>
-      <table v-if="edit">
+      <table v-if="incidence.state == 1 && [1,3].includes(this.user.tipo.level)">
         <tr>
           <td colspan="2" v-if="issueDesc && edit"><a href="#" @click="editIncidence()">Guardar</a></td>
         </tr>
       </table>
+      <!-- attendIncidence -->
+      <table v-else-if="incidence.state == 1 && [2,3].includes(user.tipo.level) && incidence.solverId === user.id">
+        <tr>
+            <td>
+                <a href="#" @click="modifyIncidence()">Guardar</a>
+            </td>
+        </tr>
+      </table>
+    <!-- modifyIncidence -->
+    <table v-else-if="incidence.state == 2 && [2,3].includes(this.user.tipo.level) && incidence.solverId === user.id">
+        <tr>
+          <td>Función</td>
+          <td>
+            <select v-model="selected">
+              <option value="insertparte">Actualizar parte</option>
+              <option value="cierraparte">Cerrar parte</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <a href="#" @click="modifyIncidence()">Guardar</a>
+          </td>
+        </tr>
+    </table><br />
     </div>
-      <div v-if="incidence.state != 1">
-      <div style=" background-color: white; margin-left: 30%; margin-right: 30%;">
-        <br>
-        <ejs-multiselect v-if="availablePieces.length >0"
-          :readonly="!edit"
-          v-model="selectedPiecesNames" 
-          :dataSource="getPieces()"
-          :ref="'piecesComp'"
-          placeholoder="Añade nuevas piezas"
-          hideSelectedItem="true"
-        />
-      </div><br />
-        <!--<pieces-module :edit="edit" :pieces="incidence.pieces" @add="pieceIdsSelected.push($event)"/>-->
-        <notes-module v-if="incidence.notes || edit" :edit="edit" :notes="incidence.notes" @add="note = $event"/>
-        <div v-else-if="incidence.state == 1 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
-          <!-- attendIncidence -->
-          <table v-if="edit">
-            <tr>
-              <th>Funciones</th>
-            </tr>
-          </table>
-          <table v-if="edit">
-            <tr>
-                <td>
-                    <a href="#" @click="modifyIncidence()">Guardar</a>
-                </td>
-            </tr>
-          </table>
-        </div>
-        <div v-else-if="incidence.state == 2 && (this.user.tipo.level === 2 || this.user.tipo.level === 3)">
-          <!-- modifyIncidence -->
-          <table v-if="edit">
-            <tr>
-              <th>Funciones</th>
-            </tr>
-          </table>
-          <table v-if="edit">
-              <tr>
-                <td>Función</td>
-                <td>
-                  <select v-model="selected">
-                    <option value="insertparte">Actualizar parte</option>
-                    <option value="cierraparte">Cerrar parte</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <a href="#" @click="modifyIncidence()">Guardar</a>
-                </td>
-              </tr>
-          </table><br />
-        </div>
-      </div>
     <br /><b-link @click="back()" class="link" center>Atrás</b-link>
     <b-modal id="warning" hide-header hide-footer>
       <div class="d-block text-center">
@@ -270,8 +261,7 @@ export default Vue.extend({
       this.menu = 'main';
     },
     editIncidence: function() {
-      if(this.selectedPiecesNames.length >0 && this.incidence.issueDesc != this.issueDesc) {
-        this.fillPieceIds(this.selectedPiecesNames);
+      if(this.incidence.issueDesc != this.issueDesc) {
         axios({
           method: 'post',
           url: 'http://localhost:8082/newMenu.php',
@@ -286,10 +276,12 @@ export default Vue.extend({
         .then(() => this.$emit('reload'));
       } else this.$emit('reloadoff');
     },
-      modifyIncidence: function() {
-        if (this.selected == 'cierraparte') {
-          this.close = true;
-        }
+    modifyIncidence: function() {
+      if (this.selected == 'cierraparte') {
+        this.close = true;
+      }
+      if(this.selectedPiecesNames.length >0) {
+        this.fillPieceIds(this.selectedPiecesNames);
         axios({
           method: 'post',
           url: 'http://localhost:8082/newMenu.php',
@@ -303,7 +295,8 @@ export default Vue.extend({
           },
           headers: [],
         }).then(() => this.$emit('reload'));
-      },
+      };
+    },
   },
   mounted() {
     this.load();

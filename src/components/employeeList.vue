@@ -94,6 +94,7 @@
 
 <script lang="ts">
 
+import { Employee, EmployeeType } from '../Config/types';
 import axios from 'axios';
 import UserPanel from './userPanel.vue';
 import Vue from 'vue';
@@ -296,19 +297,6 @@ export default Vue.extend({
   }
 })
 
-  interface Employee {
-    id: number;
-    name: string;
-    surname1: string;
-    surname2: string;
-    tipo: EmployeeType;
-    dni: string;
-  }
-  interface EmployeeType {
-    id: number;
-    level: number;
-    name: string;
-  }
 </script>
 <style>
   .nuevoemp

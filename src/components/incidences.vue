@@ -91,6 +91,7 @@
 
 <script lang="ts">
 
+import { Incidence, Piece } from '../Config/types';
 import incidenceView from './incidenceView.vue';
 import axios from 'axios';
 import Vue from 'vue';
@@ -277,50 +278,6 @@ export default Vue.extend({
     this.handle();
   }
 })
-  interface Incidence {
-    initDateTime: string;
-    finishDate: string;
-    finishTime: string;
-    issueDesc: string;
-    owner: Employee;
-    solver: Employee;
-    state: number;
-    pieces: Array<Piece>;
-    id: number;
-    notes: Array<Note>;
-  }
-  interface Note {
-    date: string;
-    noteStr: string;
-    noteType: string;
-    incidence: number;
-    employee: number;
-  }
-  interface Piece {
-    type: PieceType;
-    name: string;
-    price: string;
-    quantity: number;
-    description: number;
-    id: number;
-  }
-  interface PieceType {
-    name: string;
-    description: number;
-  }
-  interface Employee {
-    id: number;
-    name: string;
-    surname1: string;
-    surname2: string;
-    tipo: EmployeeType;
-    dni: string;
-  }
-  interface EmployeeType {
-    id: number;
-    level: number;
-    name: string;
-  }
 </script>
 <style>
 @import url(https://cdn.syncfusion.com/ej2/material.css);

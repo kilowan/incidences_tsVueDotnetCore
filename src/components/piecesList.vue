@@ -74,6 +74,7 @@
 
 <script lang="ts">
 
+import { Piece, PieceType } from '../Config/types';
 import axios from 'axios';
 import Vue from 'vue';
 
@@ -236,19 +237,6 @@ export default Vue.extend({
   }
 })
 
-  interface Piece {
-    type: PieceType;
-    name: string;
-    price: string;
-    quantity: number;
-    description: string;
-    id: number;
-  }
-  interface PieceType {
-    name: string;
-    description: string;
-    id: number,
-  }
 </script>
 <style>
   .nuevoemp

@@ -34,6 +34,7 @@
 
 <script lang="ts">
 
+import { Note } from '../Config/types';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -86,9 +87,5 @@ export default Vue.extend({
     }
   }
 })
-interface Note {
-  date: string,
-  noteStr: string
-}
 </script>
 <style></style>

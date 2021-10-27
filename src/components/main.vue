@@ -62,6 +62,7 @@
 
 <script lang="ts">
 
+import { EmployeeType } from '../Config/types';
 import axios from 'axios';
 import Vue from 'vue'
 
@@ -260,23 +261,6 @@ export default Vue.extend({
       );
   }
 })
-  interface EmployeeType {
-    id: number;
-    level: number;
-    name: string;
-  }
-  interface Piece {
-    type: PieceType;
-    name: string;
-    price: string;
-    quantity: number;
-    description: number;
-    id: number;
-  }
-  interface PieceType {
-    name: string;
-    description: number;
-  }
 </script>
 <style>
   #nav {

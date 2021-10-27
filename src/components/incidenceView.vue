@@ -79,12 +79,16 @@
         </tr>
         <tr v-else-if="incidence.state == 3 && incidence.ownerId === user.id">
           <td colspan="2">
-              <a href="#" @click="hide()">Ocultar</a>
+              <b-link @click="hide()">
+                <img src="./hide.png" alt="Ocultar incidencia" style="width:2%; height: 2%;"/>
+              </b-link>
           </td>
         </tr>
         <tr v-else-if="incidence.state == 4 && [1,3].includes(this.user.tipo.level)">
           <td colspan="2">
-              <a href="#" @click="show()">Mostrar</a>
+            <b-link @click="show()">
+              <img src="./show.png" alt="Mostrar incidencia" style="width:2%; height: 2%;"/>
+            </b-link>
           </td>
         </tr>
     </table><br />

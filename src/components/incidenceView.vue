@@ -18,7 +18,7 @@
           <td v-if="incidence.state == 1 && [1,3].includes(this.user.tipo.level) && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
           <td v-else>{{ incidence.issueDesc }}</td>
         </tr>
-        <tr v-if="incidence.solver != ''">
+        <tr v-if="incidence.solverId">
           <td >Tecnico a cargo</td>
           <td>{{ incidence.solver }}</td>
         </tr>
@@ -52,7 +52,7 @@
             />
           </td>
         </tr>
-        <tr v-if="incidence.state == 1 && [1,3].includes(this.user.tipo.level)">
+        <tr v-if="incidence.state == 1 && [1,3].includes(user.tipo.level)">
           <td v-if="!edit" style="width:10%; height: 2%;">
             <a @click="deleteIncidence()" href="#">
               <img class="cierra" src="./delete.png" alt="Borrar incidencia" style="width:4%; height: 4%;"/>
@@ -64,12 +64,12 @@
             </a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 1 && [2,3].includes(this.user.tipo.level)">
+        <tr v-else-if="incidence.state == 1 && [2,3].includes(user.tipo.level)">
           <td colspan="2" v-if="!edit">
               <a href="#" @click="edit=true">Atender</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 2 && [2,3].includes(this.user.tipo.level) && incidence.solverId === user.id">
+        <tr v-else-if="incidence.state === 2 && [2,3].includes(user.tipo.level) && incidence.solverId === user.id">
           <td colspan="2" v-if="!edit">
               <b-link @click="edit=true">Modificar</b-link>
           </td>
@@ -225,7 +225,7 @@ export default Vue.extend({
     load: function() {
       axios({
         method: 'get',
-        url: 'http://localhost:8082/newMenu.php?funcion=getIncidenceById&id_part=' + this.incidence.id,
+        url: 'http://localhost:8082/Services/incidence.php?funcion=getIncidenceById&id_part=' + this.incidence.id,
       }).then((data: any) => {
         this.issueDesc = data.data.issueDesc;
       });
@@ -233,7 +233,7 @@ export default Vue.extend({
     hide: function() {
       axios({
         method: 'get',
-        url: 'http://localhost:8082/newMenu.php?funcion=hideIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+        url: 'http://localhost:8082/Services/incidence.php?funcion=hideIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
       }).then(data => {
         this.$emit('reload', data);
       });
@@ -241,7 +241,7 @@ export default Vue.extend({
     show: function() {
       axios({
         method: 'get',
-        url: 'http://localhost:8082/newMenu.php?funcion=showIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+        url: 'http://localhost:8082/Services/incidence.php?funcion=showIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
       }).then((data: any) => {
         this.$emit('reload', data);
       });
@@ -252,7 +252,7 @@ export default Vue.extend({
     confirmDelete: function() {
       axios({
           method: 'get',
-          url: 'http://localhost:8082/newMenu.php?funcion=deleteIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+          url: 'http://localhost:8082/Services/incidence.php?funcion=deleteIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
         }).then(() =>
           this.$emit('reload')
         );
@@ -268,7 +268,7 @@ export default Vue.extend({
       if(this.incidence.issueDesc != this.issueDesc) {
         axios({
           method: 'post',
-          url: 'http://localhost:8082/newMenu.php',
+          url: 'http://localhost:8082/Services/incidence.php',
           data: {
             funcion: 'updateNotes',
             incidenceId: this.incidence.id,
@@ -288,7 +288,7 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPiecesNames);
         axios({
           method: 'post',
-          url: 'http://localhost:8082/newMenu.php',
+          url: 'http://localhost:8082/Services/incidence.php',
           data: {
             funcion: 'updateIncidence',
             incidenceId: this.incidence.id,
@@ -304,7 +304,7 @@ export default Vue.extend({
   },
   mounted() {
     this.load();
-    axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
+    axios.get("http://localhost:8082/Services/incidence.php?funcion=getPiecesList")
     .then((data: any) => {
       this.availablePieces = data.data;
       this.incidence.pieces.forEach((piece: Piece) => {

@@ -125,7 +125,7 @@ export default Vue.extend({
       this.selectedPieces = []
     },
     logedIn: function(data: any) {
-      axios.get("http://localhost:8082/employee.php?funcion=getEmployeeByUsername&username="+ data)
+      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ data)
       .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
@@ -133,14 +133,14 @@ export default Vue.extend({
       });
     },
     reloadUser: function(data: any) {
-      axios.get("http://localhost:8082/employee.php?funcion=getEmployeeByUsername&username="+ data)
+      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ data)
       .then((datas: any) => {
         this.user = datas.data;
       });
     },
 
     showIncidences: function() {
-      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
+      axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
         if(this.user.tipo.level === 1 || this.incidencesCount >0){
@@ -203,7 +203,7 @@ export default Vue.extend({
       if (this.fields.length >0) {
         axios({
           method: 'post',
-          url: 'http://localhost:8082/newMenu.php',
+          url: 'http://localhost:8082/Services/employee.php',
           data: {
             funcion: 'updateWorker',
             dni: this.user.dni? this.user.dni: this.userData.dni,
@@ -230,7 +230,7 @@ export default Vue.extend({
       this.values = [];
     },
     reloadUserData: function() {
-      axios.get("http://localhost:8082/newMenu.php?funcion=getEmployeeByUsername&username="+ this.username)
+      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -252,7 +252,7 @@ export default Vue.extend({
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
       axios({
       method: 'get',
-      url: 'http://localhost:8082/newMenu.php?funcion=getEmployeeTypeList',
+      url: 'http://localhost:8082/Services/employee.php?funcion=getEmployeeTypeList',
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

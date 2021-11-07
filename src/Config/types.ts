@@ -3,8 +3,10 @@ export interface Incidence {
     finishDate: string;
     finishTime: string;
     issueDesc: string;
-    owner: Employee;
-    solver: Employee;
+    owner: string;
+    ownerId: number;
+    solver: string;
+    solverId: number;
     state: number;
     pieces: Array<Piece>;
     id: number;
@@ -22,8 +24,9 @@ export interface Incidence {
     name: string;
     price?: string;
     quantity?: number;
-    description: string;
+    description?: string;
     id: number;
+    deleted?: number
   }
   export interface PieceType {
     name: string;

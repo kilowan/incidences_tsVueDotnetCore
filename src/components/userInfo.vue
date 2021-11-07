@@ -107,7 +107,7 @@ export default Vue.extend({
       if (this.fields.length >0) {
         axios({
           method: 'post',
-          url: 'http://localhost:8082/newMenu.php',
+          url: 'http://localhost:8082/Services/employee.php',
           data: {
             funcion: 'updateWorker',
             dni: this.user.dni? this.user.dni: this.userData.dni,
@@ -134,7 +134,7 @@ export default Vue.extend({
       this.values = [];
     },
     reloadUser: function() {
-      axios.get("http://localhost:8082/newMenu.php?funcion=getEmployeeByUsername&username="+ this.username)
+      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -142,7 +142,7 @@ export default Vue.extend({
   },
   mounted(){
     if (!this.userData) {
-      axios.get("http://localhost:8082/newMenu.php?funcion=getEmployeeByUsername&username="+ this.username)
+      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });

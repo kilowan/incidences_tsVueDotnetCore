@@ -159,7 +159,7 @@ export default Vue.extend({
       if (fields.length >0) {
         axios({
           method: 'post',
-          url: 'http://localhost:8082/newMenu.php',
+          url: 'http://localhost:8082/Services/employee.php',
           data: {
             funcion: 'updateWorker',
             dni: this.employeSelected.dni,
@@ -214,7 +214,7 @@ export default Vue.extend({
     save() {
       axios({
         method: 'post',
-        url: 'http://localhost:8082/newMenu.php',
+        url: 'http://localhost:8082/Services/employee.php',
         data: {
           funcion: 'addEmployee',
           username: this.username,
@@ -265,7 +265,7 @@ export default Vue.extend({
     confirmDelete: function() {
       axios({
       method: 'get',
-      url: 'http://localhost:8082/employee.php?funcion=removeEmployee&id=' + this.selectedToDelete,
+      url: 'http://localhost:8082/Services/employee.php?funcion=removeEmployee&id=' + this.selectedToDelete,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -275,14 +275,14 @@ export default Vue.extend({
     load: function() {
       axios({
       method: 'get',
-      url: 'http://localhost:8082/employee.php?funcion=getEmpolyeeList',
+      url: 'http://localhost:8082/Services/employee.php?funcion=getEmployeeList',
       })
       .then((data: any) =>
         this.employees = data.data
       );
       axios({
       method: 'get',
-      url: 'http://localhost:8082/newMenu.php?funcion=getEmployeeTypeList',
+      url: 'http://localhost:8082/Services/employee.php?funcion=getEmployeeTypeList',
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

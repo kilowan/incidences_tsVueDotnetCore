@@ -10,17 +10,17 @@
       <table>
           <tr>
               <th>Nombre</th>
-              <th>Descripción</th>
+              <!--<th>Descripción</th>-->
               <th>--</th>
           </tr>
           <tr v-for="(piece, index) in piecesFiltered()" v-bind:key="index">
               <td>{{ piece.name }}</td>
-              <td>{{ piece.description }}</td>
+              <!--<td>{{ piece.description }}</td>-->
               <td style="width:10%; height: 2%;">
-                <b-link @click="deletePiece(piece.id)">
+                <b-link v-if="piece.deleted !== '2'" @click="deletePiece(piece.id)">
                   <img src="./delete.png" alt="Borrar pieza" style="width:12%; height: 12%;"/>
                 </b-link>
-                <b-link @click="edit(piece)">
+                <b-link v-if="piece.deleted !== '2'" @click="edit(piece)">
                   <img src="./edit.png" alt="Editar pieza" style="width:12%; height: 12%;"/>
                 </b-link>
               </td>
@@ -46,7 +46,7 @@
       <div class="d-block text-center">
         <h1>Hoja de la nueva pieza:</h1><br />
         <input placeholder="Nombre" v-model="pieceName"/><br />
-        <b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />
+        <!--<b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />-->
         <b-form-select v-model="pieceTypeId" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select><br />
       </div>
       <div class="modal-footer">
@@ -60,7 +60,7 @@
         <h1>Editar pieza</h1><br />
         <label>Nombre:</label>
         <input v-model="pieceName"/><br />
-        <b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />
+        <!--<b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />-->
         <label>Tipo:</label>
         <b-form-select v-model="pieceTypeId" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select>
       </div>
@@ -91,7 +91,7 @@ export default Vue.extend({
     return {
       pieceName: '',
       pieceId: 0,
-      pieceDescription: '',
+      //pieceDescription: '',
       pieceTypeId: 0,
       pieceTypeName: '',
       piecesList: new Array<Piece>(),
@@ -104,7 +104,7 @@ export default Vue.extend({
     clear: function(){
       this.pieceName = '';
       this.pieceId = 0;
-      this.pieceDescription = '';
+      //this.pieceDescription = '';
       this.pieceTypeId = 0;
       this.pieceTypeName = '';
     },
@@ -123,7 +123,7 @@ export default Vue.extend({
     update: function() {
       axios({
         method: 'post',
-        url: 'http://localhost:8082/newMenu.php',
+        url: 'http://localhost:8082/Services/incidence.php',
         data: {
           funcion: 'updatePiece',
           id: this.pieceId,
@@ -140,11 +140,11 @@ export default Vue.extend({
     save() {
       axios({
         method: 'post',
-        url: 'http://localhost:8082/newMenu.php',
+        url: 'http://localhost:8082/Services/incidence.php',
         data: {
-          funcion: 'addPiece',
+          funcion: 'addnewPiece',
           name: this.pieceName,
-          description: this.pieceDescription,
+          //description: this.pieceDescription,
           type: this.pieceTypeId,
         },
         headers: []
@@ -157,7 +157,7 @@ export default Vue.extend({
     edit: function(piece: Piece) {
       this.pieceName = piece.name;
       this.pieceId = piece.id;
-      this.pieceDescription = piece.description;
+      //this.pieceDescription = piece.description;
       this.pieceTypeId = piece.type.id;
       this.pieceTypeName = piece.type.name;
       this.$nextTick(() => {
@@ -172,7 +172,7 @@ export default Vue.extend({
     confirmDelete: function() {
       axios({
       method: 'get',
-      url: 'http://localhost:8082/newMenu.php?funcion=deletePiece&id=' + this.pieceId,
+      url: 'http://localhost:8082/Services/incidence.php?funcion=deletePiece&id=' + this.pieceId,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -182,14 +182,14 @@ export default Vue.extend({
     load: function() {
       axios({
       method: 'get',
-      url: 'http://localhost:8082/newMenu.php?funcion=getPiecesList',
+      url: 'http://localhost:8082/Services/incidence.php?funcion=getPiecesList',
       })
-      .then((data: any) =>
-        this.piecesList = data.data
-      );
+      .then((data: any) => {
+        this.piecesList = data.data;
+      });
       axios({
       method: 'get',
-      url: 'http://localhost:8082/newMenu.php?funcion=getPieceTypeList',
+      url: 'http://localhost:8082/Services/incidence.php?funcion=getPieceTypeList',
       })
       .then((data: any) => {
         data.data.map((pieceType: PieceType) => {

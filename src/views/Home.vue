@@ -49,14 +49,23 @@ export default Vue.extend({
   },
   methods: {
     onSubmit: function() {
-      axios.get("http://localhost:8082/newMenu.php?funcion=checkCredentials&username="+ this.form.username+"&pass="+this.form.pass)
-      .then( (data: any) => {
+      axios({
+        method: 'post',
+        url: 'http://localhost:8082/Services/employee.php',
+        data: {
+          funcion: 'checkCredentials',
+          username: this.form.username,
+          pass: this.form.pass,
+        },
+      headers: []
+      })
+      .then((data: any) => {
         this.$router.push({
           name: 'main', params: {
             username: data.data.username
           }
-				}
-			);});
+				});
+      });
     },
   },
   //mounted(){}

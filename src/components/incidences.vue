@@ -171,7 +171,7 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPieces);
         axios({
           method: 'post',
-          url: 'http://localhost:8082/newMenu.php',
+          url: 'http://localhost:8082/Services/incidence.php',
           data: {
             funcion: 'addIncidence',
             ownerId: this.user.id,
@@ -195,7 +195,7 @@ export default Vue.extend({
       this.$bvModal.hide('make-incidence');
    },
    insertIncidence: function() {
-    axios.get("http://localhost:8082/newMenu.php?funcion=getPiecesList")
+    axios.get("http://localhost:8082/Services/incidence.php?funcion=getPiecesList")
       .then((data: any) => {
         this.pieces = data.data;
         this.$bvModal.show('make-incidence');
@@ -203,21 +203,21 @@ export default Vue.extend({
    },
     handle: function() {
       //set initial type
-      axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
+      axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
     getIncidences: function(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=' + type)
+        axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Technician')
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
           this.state = state;
         });
       } else {
-        axios.get("http://localhost:8082/newMenu.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=' + type)
+        axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Employee')
         .then((datas: any)  => {
           this.incidences = datas.data.own;
           this.state = state;

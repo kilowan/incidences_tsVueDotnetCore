@@ -106,7 +106,7 @@ export default Vue.extend({
       this.fillData([this.name, this.surname1, this.surname2]);
       if (this.fields.length >0) {
         axios({
-          method: 'post',
+          method: 'put',
           url: 'http://localhost:8082/Services/employee.php',
           data: {
             funcion: 'updateWorker',
@@ -134,7 +134,7 @@ export default Vue.extend({
       this.values = [];
     },
     reloadUser: function() {
-      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ this.username)
+      axios.get("http://localhost:8082/Services/employee.php?username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -142,7 +142,7 @@ export default Vue.extend({
   },
   mounted(){
     if (!this.userData) {
-      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ this.username)
+      axios.get("http://localhost:8082/Services/employee.php?username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });

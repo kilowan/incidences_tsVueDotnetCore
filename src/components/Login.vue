@@ -55,7 +55,6 @@ export default Vue.extend({
         method: 'post',
         url: 'http://localhost:8082/Services/credentials.php',
         data: {
-          funcion: 'checkCredentials',
           username: this.form.username,
           pass: this.form.pass,
         },

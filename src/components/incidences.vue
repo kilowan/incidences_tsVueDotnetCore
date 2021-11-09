@@ -195,7 +195,7 @@ export default Vue.extend({
       this.$bvModal.hide('make-incidence');
    },
    insertIncidence: function() {
-    axios.get("http://localhost:8082/Services/piece.php?funcion=getPiecesList")
+    axios.get("http://localhost:8082/Services/piece.php")
       .then((data: any) => {
         this.pieces = data.data;
         this.$bvModal.show('make-incidence');

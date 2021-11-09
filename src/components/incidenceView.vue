@@ -270,7 +270,6 @@ export default Vue.extend({
           method: 'post',
           url: 'http://localhost:8082/Services/incidence.php',
           data: {
-            funcion: 'updateNotes',
             incidenceId: this.incidence.id,
             incidenceDesc: this.issueDesc,
             employeeId: this.user.id,
@@ -304,7 +303,7 @@ export default Vue.extend({
   },
   mounted() {
     this.load();
-    axios.get("http://localhost:8082/Services/piece.php?funcion=getPiecesList")
+    axios.get("http://localhost:8082/Services/piece.php")
     .then((data: any) => {
       this.availablePieces = data.data;
       this.incidence.pieces.forEach((piece: Piece) => {

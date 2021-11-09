@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- globalstatistics -->
-    <br /><div v-if="globalStatistics &&this.user.tipo.level === 3" id="globalStatistics">
+    <br /><div v-if="report.globalStatistics &&this.user.tipo.level === 3" id="globalStatistics">
       <table>
           <tr>
               <th colspan="2">Estadisticas globales</th>
@@ -12,14 +12,14 @@
             <th>Tiempo medio</th>
             <th>Nombre de empleado</th>
         </tr>
-        <tr v-for="(global, index) in globalStatistics" v-bind:key="index">
+        <tr v-for="(global, index) in report.globalStatistics" v-bind:key="index">
             <td v-text="global.average"></td>
             <td v-text="global.employeeName"></td>
         </tr>
       </table><br />
     </div>
   <!-- reportedPieces -->
-  <div v-if="pieces" id="reportedPieces">
+  <div v-if="report.reportedPieces" id="reportedPieces">
     <table>
       <tr>
           <th colspan="2">Piezas reportadas</th>
@@ -28,14 +28,14 @@
           <th>Nombre</th>
           <th>Nº de reportes</th>
       </tr>
-      <tr v-for="(piece, index) in pieces" v-bind:key="index">
+      <tr v-for="(piece, index) in report.reportedPieces" v-bind:key="index">
           <td v-text="piece.pieceName"></td>
           <td v-text="piece.pieceNumber" ></td>
       </tr>
     </table><br />
     </div>
     <!-- statistics -->
-    <div v-if="statistics && checkStatistics()" id="statistics">
+    <div v-if="report.statistics && checkStatistics()" id="statistics">
       <table>
         <tr>
             <th colspan="2">Estadisticas</th>
@@ -47,8 +47,8 @@
               <th>Partes resueltos</th>
           </tr>
           <tr>
-              <td>{{ statistics.average }}</td>
-              <td>{{ statistics.solvedIncidences }}</td>
+              <td>{{ report.statistics.average }}</td>
+              <td>{{ report.statistics.solvedIncidences }}</td>
           </tr>
       </table><br />
     </div>
@@ -74,6 +74,13 @@ export default Vue.extend({
     return {
       pieces: new Array<Piece>(),
       globalStatistics: undefined,
+      report: {
+        statistics: {
+          average: null,
+        },
+        reportedPieces: {},
+        globalStatistics: {}
+      },
       statistics: {
         average: '',
         solvedIncidences: undefined,
@@ -82,33 +89,17 @@ export default Vue.extend({
   },
   methods: {
     checkStatistics: function() {
-      return this.statistics.average? true: false;
+      return this.report.statistics.average? true: false;
     },
   },
   mounted() {
-    if((this.user.tipo.level === 2 || this.user.tipo.level === 3)) {
-      axios({
-        method: 'get',
-        url: 'http://localhost:8082/Services/report.php?funcion=getStatistics&id='+ this.user.id,
-      })
-      .then((data: any) =>
-        this.statistics = data.data
-      );
-      axios({
-        method: 'get',
-        url: 'http://localhost:8082/Services/report.php?funcion=getReportedPieces',
-      })
-      .then((data: any) =>
-        this.pieces = data.data
-      );
-      axios({
-        method: 'get',
-        url: 'http://localhost:8082/Services/report.php?funcion=getGlobalStatistics',
-      })
-      .then((data: any) =>
-        this.globalStatistics = data.data
-      );
-    }
+    axios({
+      method: 'get',
+      url: 'http://localhost:8082/Services/report.php?id=' + this.user.id,
+    })
+    .then((data: any) =>
+      this.report = data.data
+    );
   }
 })
 </script>

@@ -53,7 +53,7 @@ export default Vue.extend({
   },
   mounted: function() {
     this.piecesData = this.pieces;
-    axios.get("http://localhost:8082/Services/incidence.php?funcion=getPiecesList")
+    axios.get("http://localhost:8082/Services/piece.php?funcion=getPiecesList")
     .then((data: any) => {
       this.piecesList = data.data;
     });

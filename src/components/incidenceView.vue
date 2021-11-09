@@ -304,7 +304,7 @@ export default Vue.extend({
   },
   mounted() {
     this.load();
-    axios.get("http://localhost:8082/Services/incidence.php?funcion=getPiecesList")
+    axios.get("http://localhost:8082/Services/piece.php?funcion=getPiecesList")
     .then((data: any) => {
       this.availablePieces = data.data;
       this.incidence.pieces.forEach((piece: Piece) => {

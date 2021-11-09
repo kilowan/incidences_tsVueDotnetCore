@@ -125,7 +125,7 @@ export default Vue.extend({
       this.selectedPieces = []
     },
     logedIn: function(data: any) {
-      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ data)
+      axios.get("http://localhost:8082/Services/employee.php?&username="+ data)
       .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
@@ -133,7 +133,7 @@ export default Vue.extend({
       });
     },
     reloadUser: function(data: any) {
-      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ data)
+      axios.get("http://localhost:8082/Services/employee.php?username="+ data)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -202,7 +202,7 @@ export default Vue.extend({
       this.fillData([this.name, this.surname1, this.surname2]);
       if (this.fields.length >0) {
         axios({
-          method: 'post',
+          method: 'put',
           url: 'http://localhost:8082/Services/employee.php',
           data: {
             funcion: 'updateWorker',
@@ -230,7 +230,7 @@ export default Vue.extend({
       this.values = [];
     },
     reloadUserData: function() {
-      axios.get("http://localhost:8082/Services/employee.php?funcion=getEmployeeByUsername&username="+ this.username)
+      axios.get("http://localhost:8082/Services/employee.php?username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -252,7 +252,7 @@ export default Vue.extend({
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
       axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/employee.php?funcion=getEmployeeTypeList',
+      url: 'http://localhost:8082/Services/employeeType.php',
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

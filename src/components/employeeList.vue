@@ -162,7 +162,7 @@ export default Vue.extend({
       this.fillData([this.name, this.surname1, this.surname2, this.tipo]);
       if (fields.length >0) {
         axios({
-          method: 'post',
+          method: 'put',
           url: 'http://localhost:8082/Services/employee.php',
           data: {
             funcion: 'updateWorker',
@@ -268,8 +268,8 @@ export default Vue.extend({
     },
     confirmDelete: function() {
       axios({
-      method: 'get',
-      url: 'http://localhost:8082/Services/employee.php?funcion=removeEmployee&id=' + this.selectedToDelete,
+      method: 'delete',
+      url: 'http://localhost:8082/Services/employee.php?id=' + this.selectedToDelete,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -279,14 +279,14 @@ export default Vue.extend({
     load: function() {
       axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/employee.php?funcion=getEmployeeList',
+      url: 'http://localhost:8082/Services/employee.php?username=null',
       })
       .then((data: any) =>
         this.employees = data.data
       );
       axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/employee.php?funcion=getEmployeeTypeList',
+      url: 'http://localhost:8082/Services/employeeType.php',
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

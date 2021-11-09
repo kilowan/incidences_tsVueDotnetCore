@@ -89,21 +89,21 @@ export default Vue.extend({
     if((this.user.tipo.level === 2 || this.user.tipo.level === 3)) {
       axios({
         method: 'get',
-        url: 'http://localhost:8082/Services/employee.php?funcion=getStatistics&id='+ this.user.id,
+        url: 'http://localhost:8082/Services/report.php?funcion=getStatistics&id='+ this.user.id,
       })
       .then((data: any) =>
         this.statistics = data.data
       );
       axios({
         method: 'get',
-        url: 'http://localhost:8082/Services/incidence.php?funcion=getReportedPieces',
+        url: 'http://localhost:8082/Services/report.php?funcion=getReportedPieces',
       })
       .then((data: any) =>
         this.pieces = data.data
       );
       axios({
         method: 'get',
-        url: 'http://localhost:8082/Services/employee.php?funcion=getGlobalStatistics',
+        url: 'http://localhost:8082/Services/report.php?funcion=getGlobalStatistics',
       })
       .then((data: any) =>
         this.globalStatistics = data.data

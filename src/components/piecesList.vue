@@ -182,14 +182,14 @@ export default Vue.extend({
     load: function() {
       axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/incidence.php?funcion=getPiecesList',
+      url: 'http://localhost:8082/Services/piece.php?funcion=getPiecesList',
       })
       .then((data: any) => {
         this.piecesList = data.data;
       });
       axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/incidence.php?funcion=getPieceTypeList',
+      url: 'http://localhost:8082/Services/pieceType.php?funcion=getPieceTypeList',
       })
       .then((data: any) => {
         data.data.map((pieceType: PieceType) => {

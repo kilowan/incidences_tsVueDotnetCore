@@ -126,7 +126,11 @@ export default Vue.extend({
         name: new String(),
         surname1: new String(),
         surname2: new String(),
-        tipo: new String(),
+        tipo: {
+          id: new Number(),
+          level: new Number(),
+          name: new String()
+        },
         dni: new String(),
       },
       mod: 'employeeList',
@@ -195,7 +199,7 @@ export default Vue.extend({
       this.pushField(data[0], this.employeSelected.name, 'nombre');
       this.pushField(data[1], this.employeSelected.surname1, "apellido1");
       this.pushField(data[2], this.employeSelected.surname2, "apellido2");
-      this.pushField(data[3], this.employeSelected.tipo, "tipo");
+      this.pushField(data[3], this.employeSelected.tipo.id, "tipo");
     },
     cancel: function(name: string) {
       if(name === 'new'){

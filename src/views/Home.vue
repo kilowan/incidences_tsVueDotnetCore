@@ -51,7 +51,7 @@ export default Vue.extend({
     onSubmit: function() {
       axios({
         method: 'post',
-        url: 'http://localhost:8082/Services/employee.php',
+        url: 'http://localhost:8082/Services/credentials.php',
         data: {
           funcion: 'checkCredentials',
           username: this.form.username,

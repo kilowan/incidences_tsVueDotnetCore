@@ -102,22 +102,20 @@ export default Vue.extend({
       this.pushField(data[1], this.user.surname1, "apellido1");
       this.pushField(data[2], this.user.surname2, "apellido2");
     },
-    saveData: function() {
+    async saveData() {
       this.fillData([this.name, this.surname1, this.surname2]);
       if (this.fields.length >0) {
-        axios({
+        await axios({
           method: 'put',
-          url: 'http://localhost:8082/Services/employee.php',
+          url:'http://localhost:8080/Services/employee.php',
           data: {
-            funcion: 'updateWorker',
             dni: this.user.dni? this.user.dni: this.userData.dni,
             fields: this.fields,
             values: this.values,
-          },
-          headers: [],
-        }).then(() =>
-          this.$emit('reload')
-        );        
+          }
+        }).then((result) => {
+          this.$emit('reload');
+        });
       }
       this.$emit('reloadUser', this.user.dni);
       this.reset();
@@ -133,16 +131,16 @@ export default Vue.extend({
       this.fields = [];
       this.values = [];
     },
-    reloadUser: function() {
-      axios.get("http://localhost:8082/Services/employee.php?username="+ this.username)
+    async reloadUser() {
+      await axios.get("http://localhost:8080/Services/employee.php?username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
     },
   },
-  mounted(){
+  async mounted(){
     if (!this.userData) {
-      axios.get("http://localhost:8082/Services/employee.php?username="+ this.username)
+      await axios.get("http://localhost:8080/Services/employee.php?username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });

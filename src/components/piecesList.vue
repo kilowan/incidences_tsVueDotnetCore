@@ -120,34 +120,30 @@ export default Vue.extend({
         return data.name !== 'no sé';
       }) : undefined;
     },
-    update: function() {
-      axios({
+    async update() {
+      await axios({
         method: 'post',
-        url: 'http://localhost:8082/Services/incidence.php',
+        url: 'http://localhost:8080/Services/incidence.php',
         data: {
           funcion: 'updatePiece',
           id: this.pieceId,
           name: this.pieceName,
-          description: this.pieceDescription,
           type: this.pieceTypeId
         },
-        headers: []
       }).then(() =>{
         this.$bvModal.hide('editpiece');
         this.load();
       });
     },
-    save() {
-      axios({
+    async save() {
+      await axios({
         method: 'post',
-        url: 'http://localhost:8082/Services/incidence.php',
+        url: 'http://localhost:8080/Services/incidence.php',
         data: {
           funcion: 'addnewPiece',
           name: this.pieceName,
-          //description: this.pieceDescription,
           type: this.pieceTypeId,
         },
-        headers: []
       }).then(() =>{
           this.$bvModal.hide('new');
           this.load();
@@ -169,27 +165,27 @@ export default Vue.extend({
         this.$bvModal.show('new');
       });
     },
-    confirmDelete: function() {
-      axios({
+    async confirmDelete() {
+      await axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/incidence.php?funcion=deletePiece&id=' + this.pieceId,
+      url: 'http://localhost:8080/Services/incidence.php?funcion=deletePiece&id=' + this.pieceId,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
         this.load();
       });
     },
-    load: function() {
-      axios({
+    async load() {
+      await axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/piece.php',
+      url: 'http://localhost:8080/Services/piece.php',
       })
       .then((data: any) => {
         this.piecesList = data.data;
       });
-      axios({
+      await axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/pieceType.php',
+      url: 'http://localhost:8080/Services/pieceType.php',
       })
       .then((data: any) => {
         data.data.map((pieceType: PieceType) => {

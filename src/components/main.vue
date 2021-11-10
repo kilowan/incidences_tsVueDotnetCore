@@ -124,23 +124,23 @@ export default Vue.extend({
     reset: function() {
       this.selectedPieces = []
     },
-    logedIn: function(data: any) {
-      axios.get("http://localhost:8082/Services/employee.php?&username="+ data)
+    async logedIn(data: any) {
+      await axios.get("http://localhost:8080/Services/employee.php?&username="+ data)
       .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
         this.showIncidences();
       });
     },
-    reloadUser: function(data: any) {
-      axios.get("http://localhost:8082/Services/employee.php?username="+ data)
+    async reloadUser(data: any) {
+      await axios.get("http://localhost:8080/Services/employee.php?username="+ data)
       .then((datas: any) => {
         this.user = datas.data;
       });
     },
 
-    showIncidences: function() {
-      axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
+    async showIncidences() {
+      await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
         if(this.user.tipo.level === 1 || this.incidencesCount >0){
@@ -198,19 +198,17 @@ export default Vue.extend({
       this.pushField(data[1], this.user.surname1, "apellido1");
       this.pushField(data[2], this.user.surname2, "apellido2");
     },
-    saveData: function() {
+    async saveData() {
       this.fillData([this.name, this.surname1, this.surname2]);
       if (this.fields.length >0) {
-        axios({
+        await axios({
           method: 'put',
-          url: 'http://localhost:8082/Services/employee.php',
+          url: 'http://localhost:8080/Services/employee.php',
           data: {
-            funcion: 'updateWorker',
             dni: this.user.dni? this.user.dni: this.userData.dni,
             fields: this.fields,
             values: this.values,
           },
-          headers: [],
         }).then(() => 
             this.cancel()
         );      
@@ -229,8 +227,8 @@ export default Vue.extend({
       this.fields = [];
       this.values = [];
     },
-    reloadUserData: function() {
-      axios.get("http://localhost:8082/Services/employee.php?username="+ this.username)
+    async reloadUserData() {
+      await axios.get("http://localhost:8080/Services/employee.php?username="+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -248,11 +246,11 @@ export default Vue.extend({
       this.values = [];
     },
   },
-  mounted() {
+  async mounted() {
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
-      axios({
+      await axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/employeeType.php',
+      url: 'http://localhost:8080/Services/employeeType.php',
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

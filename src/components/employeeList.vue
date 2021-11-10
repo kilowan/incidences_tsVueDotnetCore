@@ -157,20 +157,18 @@ export default Vue.extend({
         return data.tipo.name !== 'Admin';
       }) : undefined;
     },
-    update: function() {
+    async update() {
       let fields: any = this.fields;
       this.fillData([this.name, this.surname1, this.surname2, this.tipo]);
       if (fields.length >0) {
-        axios({
-          method: 'put',
-          url: 'http://localhost:8082/Services/employee.php',
+        await axios({
+          method: 'PUT',
+          url: 'http://localhost:8080/Services/employee.php',
           data: {
-            funcion: 'updateWorker',
-            dni: this.employeSelected.dni,
-            fields: this.fields,
-            values: this.values,
-          },
-          headers: []
+              dni: this.employeSelected.dni,
+              fields: this.fields,
+              values: this.values,
+            },
         }).then(() =>{
           this.cancel('editemp');
           this.load();
@@ -215,12 +213,11 @@ export default Vue.extend({
       this.values = [];
       this.$bvModal.hide(name);
     },
-    save() {
-      axios({
+    async save() {
+      await axios({
         method: 'post',
-        url: 'http://localhost:8082/Services/employee.php',
+        url: 'http://localhost:8080/Services/employee.php',
         data: {
-          funcion: 'addEmployee',
           username: this.username,
           password: this.password,
           dni: this.dni,
@@ -229,7 +226,6 @@ export default Vue.extend({
           surname2: this.surname2,
           type: this.tipo,
         },
-        headers: []
       }).then(() =>{
           this.cancel('new')
           this.load();
@@ -266,10 +262,10 @@ export default Vue.extend({
           this.$bvModal.show('warning');
         });
     },
-    confirmDelete: function() {
-      axios({
-      method: 'delete',
-      url: 'http://localhost:8082/Services/employee.php?id=' + this.selectedToDelete,
+    async confirmDelete() {
+      await axios({
+        method: 'delete',
+        url: 'http://localhost:8080/Services/employee.php?id=' + this.selectedToDelete,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -278,15 +274,15 @@ export default Vue.extend({
     },
     load: function() {
       axios({
-      method: 'get',
-      url: 'http://localhost:8082/Services/employee.php?username=null',
+        method: 'get',
+        url: 'http://localhost:8080/Services/employee.php?username=null',
       })
       .then((data: any) =>
         this.employees = data.data
       );
       axios({
-      method: 'get',
-      url: 'http://localhost:8082/Services/employeeType.php',
+        method: 'get',
+        url: 'http://localhost:8080/Services/employeeType.php',
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

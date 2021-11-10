@@ -92,10 +92,10 @@ export default Vue.extend({
       return this.report.statistics.average? true: false;
     },
   },
-  mounted() {
-    axios({
+  async mounted() {
+    await axios({
       method: 'get',
-      url: 'http://localhost:8082/Services/report.php?id=' + this.user.id,
+      url: 'http://localhost:8080/Services/report.php?id=' + this.user.id,
     })
     .then((data: any) =>
       this.report = data.data

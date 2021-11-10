@@ -225,23 +225,34 @@ export default Vue.extend({
     async load() {
       await axios({
         method: 'get',
-        url: 'http://localhost:8080/Services/incidence.php?funcion=getIncidenceById&id_part=' + this.incidence.id,
+        url: 'http://localhost:8080/Services/incidence.php?id_part=' + this.incidence.id,
       }).then((data: any) => {
         this.issueDesc = data.data.issueDesc;
       });
     },
     async hide() {
       await axios({
-        method: 'get',
-        url: 'http://localhost:8080/Services/incidence.php?funcion=hideIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
-      }).then(data => {
+        method: 'post',
+        url: 'http://localhost:8080/Services/incidence.php',
+        data: {
+          state: 4,
+          incidenceId: this.incidence.id,
+          userId: this.user.id
+        },
+      }).then((data: any) => {
         this.$emit('reload', data);
       });
     },
+
     async show() {
       await axios({
-        method: 'get',
-        url: 'http://localhost:8080/Services/incidence.php?funcion=showIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+        method: 'post',
+        url: 'http://localhost:8080/Services/incidence.php',
+        data: {
+          state: 3,
+          incidenceId: this.incidence.id,
+          userId: this.user.id
+        },
       }).then((data: any) => {
         this.$emit('reload', data);
       });
@@ -251,8 +262,8 @@ export default Vue.extend({
     },
     async confirmDelete() {
       await axios({
-          method: 'get',
-          url: 'http://localhost:8080/Services/incidence.php?funcion=deleteIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+          method: 'delete',
+          url: 'http://localhost:8080/Services/incidence.php?incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
         }).then(() =>
           this.$emit('reload')
         );
@@ -288,7 +299,6 @@ export default Vue.extend({
           method: 'post',
           url: 'http://localhost:8080/Services/incidence.php',
           data: {
-            funcion: 'updateIncidence',
             incidenceId: this.incidence.id,
             userId: this.user.id,
             note: this.note,

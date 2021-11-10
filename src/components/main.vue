@@ -140,7 +140,7 @@ export default Vue.extend({
     },
 
     async showIncidences() {
-      await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
+      await axios.get("http://localhost:8080/Services/counters.php?type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
         if(this.user.tipo.level === 1 || this.incidencesCount >0){

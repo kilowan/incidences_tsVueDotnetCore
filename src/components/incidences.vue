@@ -170,10 +170,9 @@ export default Vue.extend({
       if(this.selectedPieces.length >0) {
         this.fillPieceIds(this.selectedPieces);
         await axios({
-          method: 'post',
+          method: 'put',
           url: 'http://localhost:8080/Services/incidence.php',
           data: {
-            funcion: 'addIncidence',
             ownerId: this.user.id,
             issueDesc: this.description,
             pieces: this.PieceIdsSelected,
@@ -202,21 +201,21 @@ export default Vue.extend({
    },
     async handle() {
       //set initial type
-      await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
+      await axios.get("http://localhost:8080/Services/counters.php?id_part=null&type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
     async getIncidences(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Technician')
+        await axios.get("http://localhost:8080/Services/incidence.php?id_part=null&state=" + state + '&userId=' + this.user.id + '&type=Technician')
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
           this.state = state;
         });
       } else {
-        await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Employee')
+        await axios.get("http://localhost:8080/Services/incidence.php?state=" + state + '&userId=' + this.user.id + '&type=Employee')
         .then((datas: any)  => {
           this.incidences = datas.data.own;
           this.state = state;

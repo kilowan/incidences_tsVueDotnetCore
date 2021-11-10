@@ -222,26 +222,26 @@ export default Vue.extend({
       this.load();
       this.back();
     },
-    load: function() {
-      axios({
+    async load() {
+      await axios({
         method: 'get',
-        url: 'http://localhost:8082/Services/incidence.php?funcion=getIncidenceById&id_part=' + this.incidence.id,
+        url: 'http://localhost:8080/Services/incidence.php?funcion=getIncidenceById&id_part=' + this.incidence.id,
       }).then((data: any) => {
         this.issueDesc = data.data.issueDesc;
       });
     },
-    hide: function() {
-      axios({
+    async hide() {
+      await axios({
         method: 'get',
-        url: 'http://localhost:8082/Services/incidence.php?funcion=hideIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+        url: 'http://localhost:8080/Services/incidence.php?funcion=hideIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
       }).then(data => {
         this.$emit('reload', data);
       });
     },
-    show: function() {
-      axios({
+    async show() {
+      await axios({
         method: 'get',
-        url: 'http://localhost:8082/Services/incidence.php?funcion=showIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+        url: 'http://localhost:8080/Services/incidence.php?funcion=showIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
       }).then((data: any) => {
         this.$emit('reload', data);
       });
@@ -249,10 +249,10 @@ export default Vue.extend({
     deleteIncidence: function() {
       this.$bvModal.show('warning');
     },
-    confirmDelete: function() {
-      axios({
+    async confirmDelete() {
+      await axios({
           method: 'get',
-          url: 'http://localhost:8082/Services/incidence.php?funcion=deleteIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+          url: 'http://localhost:8080/Services/incidence.php?funcion=deleteIncidence&incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
         }).then(() =>
           this.$emit('reload')
         );
@@ -264,30 +264,29 @@ export default Vue.extend({
     reloadoff:function() {
       this.menu = 'main';
     },
-    editIncidence: function() {
+    async editIncidence() {
       if(this.incidence.issueDesc != this.issueDesc) {
-        axios({
+        await axios({
           method: 'post',
-          url: 'http://localhost:8082/Services/incidence.php',
+          url: 'http://localhost:8080/Services/incidence.php',
           data: {
             incidenceId: this.incidence.id,
             incidenceDesc: this.issueDesc,
             employeeId: this.user.id,
           },
-          headers: []
         })
         .then(() => this.$emit('reload'));
       } else this.$emit('reloadoff');
     },
-    modifyIncidence: function() {
+    async modifyIncidence() {
       if (this.selected == 'cierraparte') {
         this.close = true;
       }
       if(this.selectedPiecesNames.length >0) {
         this.fillPieceIds(this.selectedPiecesNames);
-        axios({
+        await axios({
           method: 'post',
-          url: 'http://localhost:8082/Services/incidence.php',
+          url: 'http://localhost:8080/Services/incidence.php',
           data: {
             funcion: 'updateIncidence',
             incidenceId: this.incidence.id,
@@ -296,14 +295,13 @@ export default Vue.extend({
             pieces: this.pieceIdsSelected,
             close: this.close,
           },
-          headers: [],
         }).then(() => this.$emit('reload'));
       };
     },
   },
-  mounted() {
+  async mounted() {
     this.load();
-    axios.get("http://localhost:8082/Services/piece.php")
+    await axios.get("http://localhost:8080/Services/piece.php")
     .then((data: any) => {
       this.availablePieces = data.data;
       this.incidence.pieces.forEach((piece: Piece) => {

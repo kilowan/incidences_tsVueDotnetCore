@@ -166,19 +166,18 @@ export default Vue.extend({
         this.PieceIdsSelected.push(piece.id);
       });
     },
-    addIncidence: function() {
+    async addIncidence() {
       if(this.selectedPieces.length >0) {
         this.fillPieceIds(this.selectedPieces);
-        axios({
+        await axios({
           method: 'post',
-          url: 'http://localhost:8082/Services/incidence.php',
+          url: 'http://localhost:8080/Services/incidence.php',
           data: {
             funcion: 'addIncidence',
             ownerId: this.user.id,
             issueDesc: this.description,
             pieces: this.PieceIdsSelected,
           },
-        headers: []
         })
         .then(() => {
             this.cancel();
@@ -194,30 +193,30 @@ export default Vue.extend({
       this.PieceIdsSelected = new Array<number>();
       this.$bvModal.hide('make-incidence');
    },
-   insertIncidence: function() {
-    axios.get("http://localhost:8082/Services/piece.php")
+   async insertIncidence() {
+    await axios.get("http://localhost:8080/Services/piece.php")
       .then((data: any) => {
         this.pieces = data.data;
         this.$bvModal.show('make-incidence');
     });
    },
-    handle: function() {
+    async handle() {
       //set initial type
-      axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
+      await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesCounters&type=" + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
-    getIncidences: function(state: number, type: string ) {
+    async getIncidences(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Technician')
+        await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Technician')
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
           this.state = state;
         });
       } else {
-        axios.get("http://localhost:8082/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Employee')
+        await axios.get("http://localhost:8080/Services/incidence.php?funcion=getIncidencesByStateType&state=" + state + '&userId=' + this.user.id + '&type=Employee')
         .then((datas: any)  => {
           this.incidences = datas.data.own;
           this.state = state;

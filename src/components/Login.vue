@@ -50,15 +50,14 @@ export default Vue.extend({
     }
   },
   methods: {
-    onSubmit: function() {
-      axios({
+    async onSubmit() {
+      await axios({
         method: 'post',
-        url: 'http://localhost:8082/Services/credentials.php',
+        url: 'http://localhost:8080/Services/credentials.php',
         data: {
           username: this.form.username,
           pass: this.form.pass,
         },
-      headers: []
       })
       .then((data: any) => {
         this.response = data.data;

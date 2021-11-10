@@ -51,9 +51,9 @@ export default Vue.extend({
       addNote: false,
     }
   },
-  mounted: function() {
+  async mounted() {
     this.piecesData = this.pieces;
-    axios.get("http://localhost:8082/Services/piece.php")
+    await axios.get("http://localhost:8080/Services/piece.php")
     .then((data: any) => {
       this.piecesList = data.data;
     });

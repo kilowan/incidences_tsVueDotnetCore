@@ -123,11 +123,11 @@ export default Vue.extend({
     async update() {
       await axios({
         method: 'put',
-        url: 'http://localhost:8080/Services/incidence.php',
+        url: 'http://localhost:8080/Services/piece.php',
         data: {
           name: this.pieceName,
           type: this.pieceTypeId,
-          pieces: [this.pieceId],
+          id: this.pieceId,
         },
       }).then(() =>{
         this.$bvModal.hide('editpiece');
@@ -137,9 +137,8 @@ export default Vue.extend({
     async save() {
       await axios({
         method: 'post',
-        url: 'http://localhost:8080/Services/incidence.php',
+        url: 'http://localhost:8080/Services/piece.php',
         data: {
-          funcion: 'addnewPiece',
           name: this.pieceName,
           type: this.pieceTypeId,
         },

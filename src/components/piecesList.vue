@@ -10,12 +10,10 @@
       <table>
           <tr>
               <th>Nombre</th>
-              <!--<th>Descripción</th>-->
               <th>--</th>
           </tr>
           <tr v-for="(piece, index) in piecesFiltered()" v-bind:key="index">
               <td>{{ piece.name }}</td>
-              <!--<td>{{ piece.description }}</td>-->
               <td style="width:10%; height: 2%;">
                 <b-link v-if="piece.deleted !== '2'" @click="deletePiece(piece.id)">
                   <img src="./delete.png" alt="Borrar pieza" style="width:12%; height: 12%;"/>
@@ -46,7 +44,6 @@
       <div class="d-block text-center">
         <h1>Hoja de la nueva pieza:</h1><br />
         <input placeholder="Nombre" v-model="pieceName"/><br />
-        <!--<b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />-->
         <b-form-select v-model="pieceTypeId" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select><br />
       </div>
       <div class="modal-footer">
@@ -60,7 +57,6 @@
         <h1>Editar pieza</h1><br />
         <label>Nombre:</label>
         <input v-model="pieceName"/><br />
-        <!--<b-form-textarea placeholder="Descripción" v-model="pieceDescription"/><br />-->
         <label>Tipo:</label>
         <b-form-select v-model="pieceTypeId" :options="pieceTypeOptions" size="sm" class="mt-3"></b-form-select>
       </div>
@@ -74,7 +70,7 @@
 
 <script lang="ts">
 
-import { Piece, PieceType } from '../Config/types';
+import { PieceClass, PieceType } from '../Config/types';
 import { piece, pieceType } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
@@ -90,24 +86,44 @@ export default Vue.extend({
   components: {},
   data: function() {
     return {
+      pieceSelected: {
+        type: {
+          name: '',
+          description: '',
+          id: 0,
+        },
+        name: '',
+        id: 0,
+      },
       pieceName: '',
       pieceId: 0,
-      //pieceDescription: '',
       pieceTypeId: 0,
       pieceTypeName: '',
-      piecesList: new Array<Piece>(),
+      piecesList: new Array<PieceClass>(),
       pieceTypeOptions: [
         { value: 0, text: 'Tipo', disabled: true },
       ],
     }
   },
   methods: {
+    change(field1: any, field2: any) {
+      if (field1 !== field2) return field2;
+      else return null;
+    },
     clear: function(){
       this.pieceName = '';
       this.pieceId = 0;
-      //this.pieceDescription = '';
       this.pieceTypeId = 0;
       this.pieceTypeName = '';
+      this.pieceSelected = {
+        type: {
+          name: '',
+          description: '',
+          id: 0,
+        },
+        name: '',
+        id: 0,
+      };
     },
     deletePiece: function(pieceId: number) {
       this.pieceId = pieceId;
@@ -117,7 +133,7 @@ export default Vue.extend({
     },
     piecesFiltered: function(){
       let array: any = this.piecesList;
-      return this.piecesList? array.filter((data: Piece) => {
+      return this.piecesList? array.filter((data: PieceClass) => {
         return data.name !== 'no sé';
       }) : undefined;
     },
@@ -126,9 +142,9 @@ export default Vue.extend({
         method: 'put',
         url: piece,
         data: {
-          name: this.pieceName,
-          type: this.pieceTypeId,
-          id: this.pieceId,
+          name: this.change(this.pieceSelected.name, this.pieceName),
+          type: this.change(this.pieceSelected.type.id, this.pieceTypeId),
+          id: this.change(this.pieceSelected.id, this.pieceId),
         },
       }).then(() =>{
         this.$bvModal.hide('editpiece');
@@ -149,10 +165,10 @@ export default Vue.extend({
         }
       );
     },
-    edit: function(piece: Piece) {
+    edit: function(piece: PieceClass) {
+      this.pieceSelected = piece;
       this.pieceName = piece.name;
       this.pieceId = piece.id;
-      //this.pieceDescription = piece.description;
       this.pieceTypeId = piece.type.id;
       this.pieceTypeName = piece.type.name;
       this.$nextTick(() => {

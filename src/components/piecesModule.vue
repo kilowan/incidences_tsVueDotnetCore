@@ -25,7 +25,7 @@
 
 <script lang="ts">
 
-import { Piece } from '../Config/types';
+import { PieceClass } from '../Config/types';
 import { piece } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
@@ -47,8 +47,8 @@ export default Vue.extend({
   data:function() {
     return {
       selectedPiece: '',
-      piecesData: new Array<Piece>(),
-      piecesList: new Array<Piece>(),
+      piecesData: new Array<PieceClass>(),
+      piecesList: new Array<PieceClass>(),
       addNote: false,
     }
   },
@@ -67,12 +67,12 @@ export default Vue.extend({
       this.addNote = true;
     },
     addPiece: function() {
-      let piece: Piece = this.piecesList.filter((data: Piece) =>{
+      let piece: PieceClass = this.piecesList.filter((data: PieceClass) =>{
         return data.name == this.selectedPiece;
       })[0];
       
       let boolean = false;
-      this.piecesData.forEach((element: Piece) => {
+      this.piecesData.forEach((element: PieceClass) => {
         if (element.id == piece.id) {
           boolean = true;
         }

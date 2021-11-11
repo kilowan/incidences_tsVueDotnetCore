@@ -122,13 +122,15 @@ export default Vue.extend({
     },
     async update() {
       await axios({
-        method: 'post',
+        method: 'put',
         url: 'http://localhost:8080/Services/incidence.php',
         data: {
-          funcion: 'updatePiece',
-          id: this.pieceId,
+          state: null,
           name: this.pieceName,
-          type: this.pieceTypeId
+          type: this.pieceTypeId,
+          note: null,
+          pieces: [this.pieceId],
+          close: null
         },
       }).then(() =>{
         this.$bvModal.hide('editpiece');
@@ -167,8 +169,8 @@ export default Vue.extend({
     },
     async confirmDelete() {
       await axios({
-      method: 'get',
-      url: 'http://localhost:8080/Services/incidence.php?funcion=deletePiece&id=' + this.pieceId,
+      method: 'delete',
+      url: 'http://localhost:8080/Services/piece.php&id=' + this.pieceId,
       })
       .then(()=> {
         this.$bvModal.hide('warning');

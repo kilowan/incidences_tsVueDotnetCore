@@ -58,6 +58,7 @@
 <script lang="ts">
 
 import { Piece } from '../Config/types';
+import { report } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
 
@@ -95,7 +96,7 @@ export default Vue.extend({
   async mounted() {
     await axios({
       method: 'get',
-      url: 'http://localhost:8080/Services/report.php?id=' + this.user.id,
+      url: report + '?id=' + this.user.id,
     })
     .then((data: any) =>
       this.report = data.data

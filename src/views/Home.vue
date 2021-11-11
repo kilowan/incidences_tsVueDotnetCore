@@ -34,6 +34,8 @@ import axios from 'axios';
   },
 })*/
 
+import { credentials } from '../Config/services';
+
 export default Vue.extend({
   name: 'Home',
   components: {/*home*/},
@@ -51,7 +53,7 @@ export default Vue.extend({
     async onSubmit() {
       await axios({
         method: 'post',
-        url: 'http://localhost:8080/Services/credentials.php',
+        url: credentials,
         data: {
           username: this.form.username,
           pass: this.form.pass,

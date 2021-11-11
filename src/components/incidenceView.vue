@@ -147,6 +147,7 @@
 
 <script lang="ts">
 import { Piece } from '../Config/types';
+import { incidence, piece, counters } from '../Config/services';
 import axios from 'axios';
 import notesModule from './notesModule.vue';
 import Vue from 'vue';
@@ -225,7 +226,7 @@ export default Vue.extend({
     async load() {
       await axios({
         method: 'get',
-        url: 'http://localhost:8080/Services/incidence.php?id_part=' + this.incidence.id,
+        url: incidence + '?id_part=' + this.incidence.id,
       }).then((data: any) => {
         this.issueDesc = data.data.issueDesc;
       });
@@ -233,7 +234,7 @@ export default Vue.extend({
     async hide() {
       await axios({
         method: 'put',
-        url: 'http://localhost:8080/Services/incidence.php',
+        url: incidence,
         data: {
           state: 4,
           incidenceId: this.incidence.id,
@@ -247,7 +248,7 @@ export default Vue.extend({
     async show() {
       await axios({
         method: 'put',
-        url: 'http://localhost:8080/Services/incidence.php',
+        url: incidence,
         data: {
           state: 3,
           incidenceId: this.incidence.id,
@@ -263,7 +264,7 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
           method: 'delete',
-          url: 'http://localhost:8080/Services/incidence.php?incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+          url: incidence + '?incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
         }).then(() =>
           this.$emit('reload')
         );
@@ -279,7 +280,7 @@ export default Vue.extend({
       if(this.incidence.issueDesc != this.issueDesc) {
         await axios({
           method: 'put',
-          url: 'http://localhost:8080/Services/incidence.php',
+          url: incidence,
           data: {
             incidenceId: this.incidence.id,
             incidenceDesc: this.issueDesc,
@@ -297,7 +298,7 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPiecesNames);
         await axios({
           method: 'put',
-          url: 'http://localhost:8080/Services/incidence.php',
+          url: incidence,
           data: {
             incidenceId: this.incidence.id,
             userId: this.user.id,
@@ -311,7 +312,7 @@ export default Vue.extend({
   },
   async mounted() {
     this.load();
-    await axios.get("http://localhost:8080/Services/piece.php")
+    await axios.get(piece)
     .then((data: any) => {
       this.availablePieces = data.data;
       this.incidence.pieces.forEach((piece: Piece) => {

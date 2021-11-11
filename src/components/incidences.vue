@@ -92,6 +92,7 @@
 <script lang="ts">
 
 import { Incidence, Piece } from '../Config/types';
+import { incidence, piece, counters } from '../Config/services';
 import incidenceView from './incidenceView.vue';
 import axios from 'axios';
 import Vue from 'vue';
@@ -171,7 +172,7 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPieces);
         await axios({
           method: 'post',
-          url: 'http://localhost:8080/Services/incidence.php',
+          url: incidence ,
           data: {
             ownerId: this.user.id,
             issueDesc: this.description,
@@ -193,7 +194,7 @@ export default Vue.extend({
       this.$bvModal.hide('make-incidence');
    },
    async insertIncidence() {
-    await axios.get("http://localhost:8080/Services/piece.php")
+    await axios.get(piece)
       .then((data: any) => {
         this.pieces = data.data;
         this.$bvModal.show('make-incidence');
@@ -201,21 +202,21 @@ export default Vue.extend({
    },
     async handle() {
       //set initial type
-      await axios.get("http://localhost:8080/Services/counters.php?id_part=null&type=" + this.user.tipo.name + "&userId=" + this.user.id)
+      await axios.get(counters + '?id_part=null&type=' + this.user.tipo.name + '&userId=' + this.user.id)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
     async getIncidences(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        await axios.get("http://localhost:8080/Services/incidence.php?id_part=null&state=" + state + '&userId=' + this.user.id + '&type=Technician')
+        await axios.get(incidence + '?id_part=null&state=' + state + '&userId=' + this.user.id + '&type=Technician')
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
           this.state = state;
         });
       } else {
-        await axios.get("http://localhost:8080/Services/incidence.php?state=" + state + '&userId=' + this.user.id + '&type=Employee')
+        await axios.get(incidence + '?state=' + state + '&userId=' + this.user.id + '&type=Employee')
         .then((datas: any)  => {
           this.incidences = datas.data.own;
           this.state = state;

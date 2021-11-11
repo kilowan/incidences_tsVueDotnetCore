@@ -26,6 +26,7 @@
 <script lang="ts">
 
 import { Piece } from '../Config/types';
+import { piece } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
 
@@ -53,7 +54,7 @@ export default Vue.extend({
   },
   async mounted() {
     this.piecesData = this.pieces;
-    await axios.get("http://localhost:8080/Services/piece.php")
+    await axios.get(piece)
     .then((data: any) => {
       this.piecesList = data.data;
     });

@@ -45,6 +45,7 @@
 <script lang="ts">
 
 import axios from 'axios';
+import { employee } from '../Config/services';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -107,7 +108,7 @@ export default Vue.extend({
       if (this.fields.length >0) {
         await axios({
           method: 'put',
-          url:'http://localhost:8080/Services/employee.php',
+          url: employee,
           data: {
             dni: this.user.dni? this.user.dni: this.userData.dni,
             fields: this.fields,
@@ -132,7 +133,7 @@ export default Vue.extend({
       this.values = [];
     },
     async reloadUser() {
-      await axios.get("http://localhost:8080/Services/employee.php?username="+ this.username)
+      await axios.get(employee + '?username='+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -140,7 +141,7 @@ export default Vue.extend({
   },
   async mounted(){
     if (!this.userData) {
-      await axios.get("http://localhost:8080/Services/employee.php?username="+ this.username)
+      await axios.get(employee + '?username='+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });

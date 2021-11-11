@@ -75,6 +75,7 @@
 <script lang="ts">
 
 import { Piece, PieceType } from '../Config/types';
+import { piece, pieceType } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
 
@@ -123,7 +124,7 @@ export default Vue.extend({
     async update() {
       await axios({
         method: 'put',
-        url: 'http://localhost:8080/Services/piece.php',
+        url: piece,
         data: {
           name: this.pieceName,
           type: this.pieceTypeId,
@@ -137,7 +138,7 @@ export default Vue.extend({
     async save() {
       await axios({
         method: 'post',
-        url: 'http://localhost:8080/Services/piece.php',
+        url: piece,
         data: {
           name: this.pieceName,
           type: this.pieceTypeId,
@@ -166,7 +167,7 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
       method: 'delete',
-      url: 'http://localhost:8080/Services/piece.php&id=' + this.pieceId,
+      url: piece + '&id=' + this.pieceId,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -176,14 +177,14 @@ export default Vue.extend({
     async load() {
       await axios({
       method: 'get',
-      url: 'http://localhost:8080/Services/piece.php',
+      url: piece,
       })
       .then((data: any) => {
         this.piecesList = data.data;
       });
       await axios({
       method: 'get',
-      url: 'http://localhost:8080/Services/pieceType.php',
+      url: pieceType,
       })
       .then((data: any) => {
         data.data.map((pieceType: PieceType) => {

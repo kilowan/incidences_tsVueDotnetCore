@@ -63,6 +63,7 @@
 <script lang="ts">
 
 import { EmployeeType } from '../Config/types';
+import { employee, counters, employeeType } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue'
 
@@ -125,7 +126,7 @@ export default Vue.extend({
       this.selectedPieces = []
     },
     async logedIn(data: any) {
-      await axios.get("http://localhost:8080/Services/employee.php?&username="+ data)
+      await axios.get(employee + '?&username='+ data)
       .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
@@ -133,14 +134,14 @@ export default Vue.extend({
       });
     },
     async reloadUser(data: any) {
-      await axios.get("http://localhost:8080/Services/employee.php?username="+ data)
+      await axios.get(employee + '?username='+ data)
       .then((datas: any) => {
         this.user = datas.data;
       });
     },
 
     async showIncidences() {
-      await axios.get("http://localhost:8080/Services/counters.php?type=" + this.user.tipo.name + "&userId=" + this.user.id)
+      await axios.get(counters + '?type=' + this.user.tipo.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
         if(this.user.tipo.level === 1 || this.incidencesCount >0){
@@ -203,7 +204,7 @@ export default Vue.extend({
       if (this.fields.length >0) {
         await axios({
           method: 'put',
-          url: 'http://localhost:8080/Services/employee.php',
+          url: employee,
           data: {
             dni: this.user.dni? this.user.dni: this.userData.dni,
             fields: this.fields,
@@ -228,7 +229,7 @@ export default Vue.extend({
       this.values = [];
     },
     async reloadUserData() {
-      await axios.get("http://localhost:8080/Services/employee.php?username="+ this.username)
+      await axios.get(employee + '?username='+ this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -250,7 +251,7 @@ export default Vue.extend({
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
       await axios({
       method: 'get',
-      url: 'http://localhost:8080/Services/employeeType.php',
+      url: employeeType,
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

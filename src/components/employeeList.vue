@@ -95,6 +95,7 @@
 <script lang="ts">
 
 import { Employee, EmployeeType } from '../Config/types';
+import { employee, employeeType } from '../Config/services';
 import axios from 'axios';
 import UserPanel from './userPanel.vue';
 import Vue from 'vue';
@@ -163,7 +164,7 @@ export default Vue.extend({
       if (fields.length >0) {
         await axios({
           method: 'PUT',
-          url: 'http://localhost:8080/Services/employee.php',
+          url: employee,
           data: {
               dni: this.employeSelected.dni,
               fields: this.fields,
@@ -216,7 +217,7 @@ export default Vue.extend({
     async save() {
       await axios({
         method: 'post',
-        url: 'http://localhost:8080/Services/employee.php',
+        url: employee,
         data: {
           username: this.username,
           password: this.password,
@@ -265,7 +266,7 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
         method: 'delete',
-        url: 'http://localhost:8080/Services/employee.php?id=' + this.selectedToDelete,
+        url: employee + '?id=' + this.selectedToDelete,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -275,14 +276,14 @@ export default Vue.extend({
     load: function() {
       axios({
         method: 'get',
-        url: 'http://localhost:8080/Services/employee.php?username=null',
+        url: employee + '?username=null',
       })
       .then((data: any) =>
         this.employees = data.data
       );
       axios({
         method: 'get',
-        url: 'http://localhost:8080/Services/employeeType.php',
+        url: employeeType,
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

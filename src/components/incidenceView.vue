@@ -232,12 +232,16 @@ export default Vue.extend({
     },
     async hide() {
       await axios({
-        method: 'post',
+        method: 'put',
         url: 'http://localhost:8080/Services/incidence.php',
         data: {
           state: 4,
           incidenceId: this.incidence.id,
-          userId: this.user.id
+          incidenceDesc: null,
+          userId: this.user.id,
+          note: null,
+          pieces: null,
+          close: null
         },
       }).then((data: any) => {
         this.$emit('reload', data);
@@ -246,12 +250,16 @@ export default Vue.extend({
 
     async show() {
       await axios({
-        method: 'post',
+        method: 'put',
         url: 'http://localhost:8080/Services/incidence.php',
         data: {
           state: 3,
           incidenceId: this.incidence.id,
-          userId: this.user.id
+          incidenceDesc: null,
+          userId: this.user.id,
+          note: null,
+          pieces: null,
+          close: null
         },
       }).then((data: any) => {
         this.$emit('reload', data);
@@ -278,12 +286,16 @@ export default Vue.extend({
     async editIncidence() {
       if(this.incidence.issueDesc != this.issueDesc) {
         await axios({
-          method: 'post',
+          method: 'put',
           url: 'http://localhost:8080/Services/incidence.php',
           data: {
+            state: null,
             incidenceId: this.incidence.id,
             incidenceDesc: this.issueDesc,
-            employeeId: this.user.id,
+            userId: this.user.id,
+            note: null,
+            pieces: null,
+            close: null
           },
         })
         .then(() => this.$emit('reload'));
@@ -296,10 +308,12 @@ export default Vue.extend({
       if(this.selectedPiecesNames.length >0) {
         this.fillPieceIds(this.selectedPiecesNames);
         await axios({
-          method: 'post',
+          method: 'put',
           url: 'http://localhost:8080/Services/incidence.php',
           data: {
+            state: null,
             incidenceId: this.incidence.id,
+            incidenceDesc: null,
             userId: this.user.id,
             note: this.note,
             pieces: this.pieceIdsSelected,

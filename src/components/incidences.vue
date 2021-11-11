@@ -170,7 +170,7 @@ export default Vue.extend({
       if(this.selectedPieces.length >0) {
         this.fillPieceIds(this.selectedPieces);
         await axios({
-          method: 'put',
+          method: 'post',
           url: 'http://localhost:8080/Services/incidence.php',
           data: {
             ownerId: this.user.id,

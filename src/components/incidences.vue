@@ -91,7 +91,7 @@
 
 <script lang="ts">
 
-import { Incidence, Piece } from '../Config/types';
+import { Incidence, PieceClass } from '../Config/types';
 import { incidence, piece, counters } from '../Config/services';
 import incidenceView from './incidenceView.vue';
 import axios from 'axios';
@@ -119,7 +119,7 @@ export default Vue.extend({
   data:function() {
     return {
       selectedPiece: 'other',
-      pieces: new Array<Piece>(),
+      pieces: new Array<PieceClass>(),
       PieceIdsSelected: new Array<number>(),
       selectedPieces: new Array<string>(),
       description: '',
@@ -150,13 +150,13 @@ export default Vue.extend({
   },
   methods: {
     getPieces: function() {
-      return this.pieces.map((piece: Piece) => {
+      return this.pieces.map((piece: PieceClass) => {
         return { value: piece.id, text: piece.name }
       });
     },
     fillPieceIds: function(names: Array<string>) {
       names.forEach((element: string) => {
-        let pieces: Array<Piece> = this.pieces.filter((data: Piece) =>{
+        let pieces: Array<PieceClass> = this.pieces.filter((data: PieceClass) =>{
           return data.name === element;
         });
         let piece = {
@@ -202,14 +202,14 @@ export default Vue.extend({
    },
     async handle() {
       //set initial type
-      await axios.get(counters + '?id_part=null&type=' + this.user.tipo.name + '&userId=' + this.user.id)
+      await axios.get(counters + '?type=' + this.user.tipo.name + '&userId=' + this.user.id)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
     async getIncidences(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        await axios.get(incidence + '?id_part=null&state=' + state + '&userId=' + this.user.id + '&type=Technician')
+        await axios.get(incidence + '?state=' + state + '&userId=' + this.user.id + '&type=Technician')
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;

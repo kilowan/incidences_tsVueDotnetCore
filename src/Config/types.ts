@@ -1,4 +1,7 @@
-export interface Incidence {
+export interface base {
+  id: number;
+}
+export interface Incidence extends base {
     initDateTime: string;
     finishDate: string;
     finishTime: string;
@@ -9,7 +12,6 @@ export interface Incidence {
     solverId: number;
     state: number;
     pieces: Array<Piece>;
-    id: number;
     notes: Array<Note>;
   }
   export interface Note {
@@ -19,30 +21,28 @@ export interface Incidence {
     incidence?: number;
     employee?: number;
   }
-  export interface Piece {
+  export interface PieceClass extends base {
     type: PieceType;
     name: string;
+  }
+  export interface Piece extends PieceClass {
     price?: string;
     quantity?: number;
     description?: string;
-    id: number;
     deleted?: number
   }
-  export interface PieceType {
+  export interface PieceType extends base {
     name: string;
     description: string;
-    id: number;
   }
-  export interface Employee {
-    id: number;
+  export interface Employee extends base {
     name: string;
     surname1: string;
     surname2: string;
     tipo: EmployeeType;
     dni: string;
   }
-  export interface EmployeeType {
-    id: number;
+  export interface EmployeeType extends base {
     level: number;
     name: string;
   }

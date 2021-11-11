@@ -57,7 +57,7 @@
 
 <script lang="ts">
 
-import { Piece } from '../Config/types';
+import { PieceClass } from '../Config/types';
 import { report } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
@@ -73,7 +73,7 @@ export default Vue.extend({
   components: {},
   data: function() {
     return {
-      pieces: new Array<Piece>(),
+      pieces: new Array<PieceClass>(),
       globalStatistics: undefined,
       report: {
         statistics: {

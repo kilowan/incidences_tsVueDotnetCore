@@ -146,8 +146,8 @@
 </template>
 
 <script lang="ts">
-import { Piece } from '../Config/types';
-import { incidence, piece, counters } from '../Config/services';
+import { PieceClass } from '../Config/types';
+import { incidence, piece } from '../Config/services';
 import axios from 'axios';
 import notesModule from './notesModule.vue';
 import Vue from 'vue';
@@ -174,20 +174,20 @@ export default Vue.extend({
       note: undefined,
       edit: false,
       pieceIdsSelected: new Array<number>(),
-      availablePieces: new Array<Piece>(),
+      availablePieces: new Array<PieceClass>(),
       selectedPiecesNames: new Array<string>(),
       preselected: new Array<string>(),
       close: false,
     }
   },
   methods: {
-    getSelectedPieces: function(pieces: Array<Piece>) {
-      return pieces.map((piece: Piece) => {
+    getSelectedPieces: function(pieces: Array<PieceClass>) {
+      return pieces.map((piece: PieceClass) => {
         return piece.name
       });
     },
     getPieces: function() {
-      return this.availablePieces.map((piece: Piece) => {
+      return this.availablePieces.map((piece: PieceClass) => {
         return { value: piece.id, text: piece.name }
       });
     },
@@ -197,7 +197,7 @@ export default Vue.extend({
       });
       if(newNames.length >0) {
         newNames.forEach((element: string) => {
-          let pieces: Array<Piece> = this.availablePieces.filter((data: Piece) =>{
+          let pieces: Array<PieceClass> = this.availablePieces.filter((data: PieceClass) =>{
             return data.name === element;
           });
           let piece = {
@@ -315,7 +315,7 @@ export default Vue.extend({
     await axios.get(piece)
     .then((data: any) => {
       this.availablePieces = data.data;
-      this.incidence.pieces.forEach((piece: Piece) => {
+      this.incidence.pieces.forEach((piece: PieceClass) => {
         this.selectedPiecesNames.push(piece.name);
         this.preselected.push(piece.name);
       });

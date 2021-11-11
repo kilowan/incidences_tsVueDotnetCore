@@ -125,12 +125,9 @@ export default Vue.extend({
         method: 'put',
         url: 'http://localhost:8080/Services/incidence.php',
         data: {
-          state: null,
           name: this.pieceName,
           type: this.pieceTypeId,
-          note: null,
           pieces: [this.pieceId],
-          close: null
         },
       }).then(() =>{
         this.$bvModal.hide('editpiece');

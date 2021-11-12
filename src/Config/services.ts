@@ -5,5 +5,6 @@ export const report = urlBase + 'report.php';
 export const employee = urlBase + 'employee.php';
 export const employeeType = urlBase + 'employeeType.php';
 export const incidence = urlBase + 'incidence.php';
+export const incidences = urlBase + 'incidences.php';
 export const counters = urlBase + 'counters.php';
 export const credentials = urlBase + 'credentials.php';

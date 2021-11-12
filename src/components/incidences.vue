@@ -92,7 +92,7 @@
 <script lang="ts">
 
 import { Incidence, PieceClass } from '../Config/types';
-import { incidence, piece, counters } from '../Config/services';
+import { incidence, incidences, piece, counters } from '../Config/services';
 import incidenceView from './incidenceView.vue';
 import axios from 'axios';
 import Vue from 'vue';
@@ -209,14 +209,14 @@ export default Vue.extend({
     },
     async getIncidences(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        await axios.get(incidence + '?state=' + state + '&userId=' + this.user.id + '&type=Technician')
+        await axios.get(incidences + '?state=' + state + '&userId=' + this.user.id + '&type=Technician')
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
           this.state = state;
         });
       } else {
-        await axios.get(incidence + '?state=' + state + '&userId=' + this.user.id + '&type=Employee')
+        await axios.get(incidences + '?state=' + state + '&userId=' + this.user.id + '&type=Employee')
         .then((datas: any)  => {
           this.incidences = datas.data.own;
           this.state = state;

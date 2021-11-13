@@ -82,6 +82,10 @@ export default Vue.extend({
           id: new Number(),
           level: new Number(),
           name: '',
+          range: {
+            id: 0,
+            name: '',
+          }
         },
         dni: '',
       },
@@ -94,6 +98,10 @@ export default Vue.extend({
           id: new Number(),
           level: new Number(),
           name: '',
+          range: {
+            id: 0,
+            name: '',
+          }
         },
         dni: '',
       },
@@ -141,7 +149,7 @@ export default Vue.extend({
     },
 
     async showIncidences() {
-      await axios.get(counters + '?type=' + this.user.tipo.name + "&userId=" + this.user.id)
+      await axios.get(counters + '?type=' + this.user.tipo.range.name + "&userId=" + this.user.id)
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
         if(this.user.tipo.level === 1 || this.incidencesCount >0){
@@ -174,6 +182,10 @@ export default Vue.extend({
           id: new Number(),
           level: new Number(),
           name: '',
+          range: {
+            id: 0,
+            name: '',
+          }
         },
         dni: '',
       };

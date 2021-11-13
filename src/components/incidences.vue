@@ -2,13 +2,13 @@
   <div v-if="type !== ''">
     <br />
     <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-      <b-link v-if="counter.new >0"  @click="getIncidences(1, user.tipo.name)">Nuevos</b-link>{{ ' ' }}
-      <b-link v-if="counter.old >0"  @click="getIncidences(2, user.tipo.name)">Atendidos</b-link>{{ ' ' }}
-      <b-link v-if="counter.closed >0" @click="getIncidences(3, user.tipo.name)">Cerrados</b-link>{{ ' ' }}
-      <b-link v-if="counter.hidden >0" @click="getIncidences(4, user.tipo.name)">Ocultos</b-link>
+      <b-link v-if="counter.new >0"  @click="getIncidences(1, user.tipo.range.name)">Nuevos</b-link>{{ ' ' }}
+      <b-link v-if="counter.old >0"  @click="getIncidences(2, user.tipo.range.name)">Atendidos</b-link>{{ ' ' }}
+      <b-link v-if="counter.closed >0" @click="getIncidences(3, user.tipo.range.name)">Cerrados</b-link>{{ ' ' }}
+      <b-link v-if="counter.hidden >0" @click="getIncidences(4, user.tipo.range.name)">Ocultos</b-link>
     </nav><br />
     <!-- incidenceView -->
-    <div v-if="!incidenceSelected && (user.tipo.level === 1 || user.tipo.level === 3) && incidences.length > 0">
+    <div v-if="!incidenceSelected && [1, 3].includes(user.tipo.level) && incidences.length > 0">
       <table>
         <tr v-if="user.tipo.level === 3">
             <th colspan="10">{{ getTitle(state, 'Employee') }}</th>
@@ -31,7 +31,7 @@
         </tr>
       </table><br />
     </div>
-    <div v-if="!incidenceSelected && (user.tipo.level === 3) && technicianIncidences.length > 0">
+    <div v-if="!incidenceSelected && [2, 3].includes(user.tipo.level) && technicianIncidences.length > 0">
       <table>
           <tr v-if="user.tipo.level === 3">
               <th colspan="10">{{ getTitle(state, 'Technician') }}</th>
@@ -181,7 +181,7 @@ export default Vue.extend({
         })
         .then(() => {
             this.cancel();
-            this.getIncidences(this.state, this.user.tipo.name);
+            this.getIncidences(this.state, this.user.tipo.range.name);
           }
         );
       }
@@ -202,7 +202,7 @@ export default Vue.extend({
    },
     async handle() {
       //set initial type
-      await axios.get(counters + '?type=' + this.user.tipo.name + '&userId=' + this.user.id)
+      await axios.get(counters + '?type=' + this.user.tipo.range.name + '&userId=' + this.user.id)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
@@ -240,7 +240,7 @@ export default Vue.extend({
           //set initial state
           this.state = this.counter.new >0? 1: this.counter.old > 0? 2: this.counter.closed > 0? 3 : 4;
           //get initial incidences
-          this.getIncidences(this.state, this.user.tipo.name);
+          this.getIncidences(this.state, this.user.tipo.range.name);
     },
     getCounters: function() {
       this.counter.new > 0? this.manageIncidences(1) :  this.state = 0;

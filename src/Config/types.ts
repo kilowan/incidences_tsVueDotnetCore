@@ -45,4 +45,8 @@ export interface Incidence extends base {
   export interface EmployeeType extends base {
     level: number;
     name: string;
+    range: EmployeeRange;
+  }
+  export interface EmployeeRange extends base {
+    name: string;
   }

@@ -171,9 +171,13 @@ export default Vue.extend({
       menu: 'main',
       issueDesc: undefined,
       selected: undefined,
-      note: undefined,
+      note: {
+        noteStr: '',
+        date: ''
+      },
       edit: false,
-      pieceIdsSelected: new Array<number>(),
+      piecesAdded: new Array<number>(),
+      piecesDeleted: new Array<number>(),
       availablePieces: new Array<PieceClass>(),
       selectedPiecesNames: new Array<string>(),
       preselected: new Array<string>(),
@@ -192,9 +196,21 @@ export default Vue.extend({
       });
     },
     fillPieceIds: function(names: Array<string>) {
-      let newNames = names.filter((name: string) => {
+      //added
+      let added = names.filter((name: string) => {
         return !this.preselected.includes(name);
       });
+      this.piecesAdded = this.getListPieces(added);
+      debugger;
+      //deleted
+      let deleted = this.preselected.filter((name: string) => {
+        debugger;
+        return !names.includes(name);
+      });
+      this.piecesDeleted = this.getListPieces(deleted);
+    },
+    getListPieces(newNames: Array<string>) {
+      let resultPieces : Array<number> = [];
       if(newNames.length >0) {
         newNames.forEach((element: string) => {
           let pieces: Array<PieceClass> = this.availablePieces.filter((data: PieceClass) =>{
@@ -204,9 +220,10 @@ export default Vue.extend({
             id: 0,
           };
           if(pieces.length >0) piece = pieces[0];
-          if(piece) this.pieceIdsSelected.push(piece.id);
+          if(piece) resultPieces.push(piece.id);
         });
       }
+      return resultPieces;
     },
     dateFormat: function(startTimeISOString: string, format: number) {
       return format == 1? new Date(startTimeISOString).toLocaleDateString(): new Date(startTimeISOString).toLocaleTimeString();
@@ -302,8 +319,9 @@ export default Vue.extend({
           data: {
             incidenceId: this.incidence.id,
             userId: this.user.id,
-            note: this.note,
-            pieces: this.pieceIdsSelected,
+            note: this.note.noteStr,
+            piecesAdded: this.piecesAdded,
+            piecesDeleted: this.piecesDeleted,
             close: this.close,
           },
         }).then(() => this.$emit('reload'));

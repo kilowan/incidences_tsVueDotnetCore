@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- globalstatistics -->
-    <br /><div v-if="report.globalStatistics &&this.user.tipo.level === 3" id="globalStatistics">
+    <br /><div v-if="report.globalStatistics &&this.user.type.id === 3" id="globalStatistics">
       <table>
           <tr>
               <th colspan="2">Estadisticas globales</th>
@@ -58,7 +58,7 @@
 <script lang="ts">
 
 import { PieceClass } from '../Config/types';
-import { report } from '../Config/services';
+import { reportDotNet } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
 
@@ -96,7 +96,7 @@ export default Vue.extend({
   async mounted() {
     await axios({
       method: 'get',
-      url: report + '?id=' + this.user.id,
+      url: reportDotNet + this.user.id,
     })
     .then((data: any) =>
       this.report = data.data

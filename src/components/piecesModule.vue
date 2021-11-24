@@ -26,7 +26,7 @@
 <script lang="ts">
 
 import { PieceClass } from '../Config/types';
-import { piece } from '../Config/services';
+import { pieceDotNet } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
 
@@ -54,7 +54,7 @@ export default Vue.extend({
   },
   async mounted() {
     this.piecesData = this.pieces;
-    await axios.get(piece)
+    await axios.get(pieceDotNet)
     .then((data: any) => {
       this.piecesList = data.data;
     });

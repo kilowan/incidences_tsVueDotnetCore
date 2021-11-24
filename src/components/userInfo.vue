@@ -32,7 +32,7 @@
         </td>
       </tr>
       <tr>
-        <td>Tipo: {{ user.tipo.name }}</td>
+        <td>Tipo: {{ user.type.name }}</td>
       </tr>
       <tr v-if="editSurname2 || editSurname1 || editName">
         <td colspan="2"><a href="#" @click="saveData()">Guardar</a> <a href="#" @click="reset()">Reiniciar</a>
@@ -45,7 +45,7 @@
 <script lang="ts">
 
 import axios from 'axios';
-import { employee } from '../Config/services';
+import { employeeDotNet } from '../Config/services';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -75,18 +75,13 @@ export default Vue.extend({
       name: '',
       surname1: '',
       surname2: '',
-      fields: new Array<string>(),
-      values: new Array<string>(),
     }
   },
   methods: {
-    pushField(data: string, parity: string, name: string)
-    {
-      if(this.checkField(data, parity))
-      {
-        this.values.push(data);
-        this.fields.push(name);
-      }
+    pushField(data: string, parity: string) {
+      if(!this.checkField(data, parity)) {
+        return null;
+      } else return data;
     },
     editData: function() {
       this.edit = true;
@@ -97,27 +92,18 @@ export default Vue.extend({
     checkField(field: string, field2: string) {
       return field && field != field2? true: false
     },
-    fillData(data: Array<string>)
-    {
-      this.pushField(data[0], this.user.name, "nombre");
-      this.pushField(data[1], this.user.surname1, "apellido1");
-      this.pushField(data[2], this.user.surname2, "apellido2");
-    },
     async saveData() {
-      this.fillData([this.name, this.surname1, this.surname2]);
-      if (this.fields.length >0) {
         await axios({
           method: 'put',
-          url: employee,
+          url: employeeDotNet,
           data: {
-            dni: this.user.dni? this.user.dni: this.userData.dni,
-            fields: this.fields,
-            values: this.values,
+            name: this.pushField(this.name, this.user.name),
+            surname1: this.pushField(this.surname1, this.user.surname1),
+            surname2: this.pushField(this.surname2, this.user.surname2)
           }
         }).then((result) => {
           this.$emit('reload');
         });
-      }
       this.$emit('reloadUser', this.user.dni);
       this.reset();
       if (!this.userData) {
@@ -129,11 +115,9 @@ export default Vue.extend({
       this.name = '';
       this.surname1 = '';
       this.surname2 = '';
-      this.fields = [];
-      this.values = [];
     },
     async reloadUser() {
-      await axios.get(employee + '?username='+ this.username)
+      await axios.get(employeeDotNet + this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -141,7 +125,7 @@ export default Vue.extend({
   },
   async mounted(){
     if (!this.userData) {
-      await axios.get(employee + '?username='+ this.username)
+      await axios.get(employeeDotNet + this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });

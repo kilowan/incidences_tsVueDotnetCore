@@ -3,13 +3,12 @@ export interface base {
 }
 export interface Incidence extends base {
     initDateTime: string;
-    finishDate: string;
-    finishTime: string;
+    finishDateTime?: string;
     issueDesc: string;
     owner: string;
     ownerId: number;
-    solver: string;
-    solverId: number;
+    solver?: string;
+    solverId?: number;
     state: number;
     pieces: Array<Piece>;
     notes: Array<Note>;
@@ -29,7 +28,7 @@ export interface Incidence extends base {
     price?: string;
     quantity?: number;
     description?: string;
-    deleted?: number
+    deleted?: boolean
   }
   export interface PieceType extends base {
     name: string;
@@ -39,14 +38,11 @@ export interface Incidence extends base {
     name: string;
     surname1: string;
     surname2: string;
-    tipo: EmployeeType;
+    fullName: string;
+    type: EmployeeType;
     dni: string;
+    state: number;
   }
   export interface EmployeeType extends base {
-    level: number;
-    name: string;
-    range: EmployeeRange;
-  }
-  export interface EmployeeRange extends base {
     name: string;
   }

@@ -27,7 +27,7 @@
 <script lang="ts">
 
 import axios from 'axios';
-import { credentials } from '../Config/services';
+import { credentialsDotNet } from '../Config/services';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -53,18 +53,25 @@ export default Vue.extend({
   methods: {
     async onSubmit() {
       await axios({
-        method: 'post',
-        url: credentials,
-        data: {
-          username: this.form.username,
-          pass: this.form.pass,
-        },
+        method: 'get',
+        url: credentialsDotNet + this.form.username + '/' + this.form.pass,
+      })
+      .then((data: any) => {
+        if (data) {
+          this.getLoginData();
+        }
+      });
+    },
+    async getLoginData(){
+      await axios({
+        method: 'get',
+        url: credentialsDotNet + this.form.username,
       })
       .then((data: any) => {
         this.response = data.data;
         this.$emit('logedIn', data.data)
       });
-    },
+    }
   },
   //mounted(){}
 })

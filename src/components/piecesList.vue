@@ -71,7 +71,7 @@
 <script lang="ts">
 
 import { PieceClass, PieceType } from '../Config/types';
-import { piece, pieceType } from '../Config/services';
+import { pieceDotNet, pieceTypeDotNet } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue';
 
@@ -140,11 +140,10 @@ export default Vue.extend({
     async update() {
       await axios({
         method: 'put',
-        url: piece,
+        url: pieceDotNet + this.pieceId,
         data: {
           name: this.change(this.pieceSelected.name, this.pieceName),
-          type: this.change(this.pieceSelected.type.id, this.pieceTypeId),
-          id: this.change(this.pieceSelected.id, this.pieceId),
+          typeId: this.change(this.pieceSelected.type.id, this.pieceTypeId),
         },
       }).then(() =>{
         this.$bvModal.hide('editpiece');
@@ -154,10 +153,10 @@ export default Vue.extend({
     async save() {
       await axios({
         method: 'post',
-        url: piece,
+        url: pieceDotNet,
         data: {
           name: this.pieceName,
-          type: this.pieceTypeId,
+          typeId: this.pieceTypeId,
         },
       }).then(() =>{
           this.$bvModal.hide('new');
@@ -182,8 +181,8 @@ export default Vue.extend({
     },
     async confirmDelete() {
       await axios({
-      method: 'delete',
-      url: piece + '&id=' + this.pieceId,
+        method: 'delete',
+        url: pieceDotNet + this.pieceId,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -192,15 +191,15 @@ export default Vue.extend({
     },
     async load() {
       await axios({
-      method: 'get',
-      url: piece,
+        method: 'get',
+        url: pieceDotNet,
       })
       .then((data: any) => {
         this.piecesList = data.data;
       });
       await axios({
-      method: 'get',
-      url: pieceType,
+        method: 'get',
+        url: pieceTypeDotNet,
       })
       .then((data: any) => {
         data.data.map((pieceType: PieceType) => {

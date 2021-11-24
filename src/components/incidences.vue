@@ -2,15 +2,15 @@
   <div v-if="type !== ''">
     <br />
     <nav v-if="countTypes > 1" :style="style" class="d-flex justify-content-around">
-      <b-link v-if="counter.new >0"  @click="getIncidences(1, user.tipo.range.name)">Nuevos</b-link>{{ ' ' }}
-      <b-link v-if="counter.old >0"  @click="getIncidences(2, user.tipo.range.name)">Atendidos</b-link>{{ ' ' }}
-      <b-link v-if="counter.closed >0" @click="getIncidences(3, user.tipo.range.name)">Cerrados</b-link>{{ ' ' }}
-      <b-link v-if="counter.hidden >0" @click="getIncidences(4, user.tipo.range.name)">Ocultos</b-link>
+      <b-link v-if="counter.new >0"  @click="getIncidences(1, user.type.name)">Nuevos</b-link>{{ ' ' }}
+      <b-link v-if="counter.old >0"  @click="getIncidences(2, user.type.name)">Atendidos</b-link>{{ ' ' }}
+      <b-link v-if="counter.closed >0" @click="getIncidences(3, user.type.name)">Cerrados</b-link>{{ ' ' }}
+      <b-link v-if="counter.hidden >0" @click="getIncidences(4, user.type.name)">Ocultos</b-link>
     </nav><br />
     <!-- incidenceView -->
-    <div v-if="!incidenceSelected && [1, 3].includes(user.tipo.level) && incidences.length > 0">
+    <div v-if="!incidenceSelected && [1, 3].includes(user.type.id) && incidences.length > 0">
       <table>
-        <tr v-if="user.tipo.level === 3">
+        <tr v-if="user.type.id === 3">
             <th colspan="10">{{ getTitle(state, 'Employee') }}</th>
         </tr>
       </table>
@@ -31,9 +31,9 @@
         </tr>
       </table><br />
     </div>
-    <div v-if="!incidenceSelected && [2, 3].includes(user.tipo.level) && technicianIncidences.length > 0">
+    <div v-if="!incidenceSelected && [2, 3].includes(user.type.id) && technicianIncidences.length > 0">
       <table>
-          <tr v-if="user.tipo.level === 3">
+          <tr v-if="user.type.id === 3">
               <th colspan="10">{{ getTitle(state, 'Technician') }}</th>
           </tr>
       </table>
@@ -55,7 +55,7 @@
       </table><br />
     </div>
     <div v-if="!incidenceSelected">
-      <b-link class="link" @click="insertIncidence()" v-if="this.user.tipo.level === 1 || this.user.tipo.level === 3">Nuevo parte</b-link>
+      <b-link class="link" @click="insertIncidence()" v-if="this.user.type.id === 1 || this.user.type.id === 3">Nuevo parte</b-link>
     </div>
     <b-modal id="make-incidence" hide-header hide-footer>
       <div class="d-block text-center">
@@ -92,7 +92,7 @@
 <script lang="ts">
 
 import { Incidence, PieceClass } from '../Config/types';
-import { incidence, incidences, piece, counters } from '../Config/services';
+import { incidenceDotNet, pieceDotNet } from '../Config/services';
 import incidenceView from './incidenceView.vue';
 import axios from 'axios';
 import Vue from 'vue';
@@ -172,16 +172,16 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPieces);
         await axios({
           method: 'post',
-          url: incidence ,
+          url: incidenceDotNet,
           data: {
             ownerId: this.user.id,
-            issueDesc: this.description,
-            pieces: this.PieceIdsSelected,
+            note: this.description,
+            piecesAdded: this.PieceIdsSelected,
           },
         })
         .then(() => {
             this.cancel();
-            this.getIncidences(this.state, this.user.tipo.range.name);
+            this.getIncidences(this.state, this.user.type.name);
           }
         );
       }
@@ -194,7 +194,7 @@ export default Vue.extend({
       this.$bvModal.hide('make-incidence');
    },
    async insertIncidence() {
-    await axios.get(piece)
+    await axios.get(pieceDotNet)
       .then((data: any) => {
         this.pieces = data.data;
         this.$bvModal.show('make-incidence');
@@ -202,21 +202,21 @@ export default Vue.extend({
    },
     async handle() {
       //set initial type
-      await axios.get(counters + '?type=' + this.user.tipo.range.name + '&userId=' + this.user.id)
+      await axios.get(incidenceDotNet + this.user.id + '/' + this.user.type.name)
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
     async getIncidences(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        await axios.get(incidences + '?state=' + state + '&userId=' + this.user.id + '&type=Technician')
+        await axios.get(incidenceDotNet + state + '/' + this.user.id + '/Technician')
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
           this.state = state;
         });
       } else {
-        await axios.get(incidences + '?state=' + state + '&userId=' + this.user.id + '&type=Employee')
+        await axios.get(incidenceDotNet + state + '/' + this.user.id + '/Employee')
         .then((datas: any)  => {
           this.incidences = datas.data.own;
           this.state = state;
@@ -240,7 +240,7 @@ export default Vue.extend({
           //set initial state
           this.state = this.counter.new >0? 1: this.counter.old > 0? 2: this.counter.closed > 0? 3 : 4;
           //get initial incidences
-          this.getIncidences(this.state, this.user.tipo.range.name);
+          this.getIncidences(this.state, this.user.type.name);
     },
     getCounters: function() {
       this.counter.new > 0? this.manageIncidences(1) :  this.state = 0;
@@ -257,6 +257,7 @@ export default Vue.extend({
       return new Date(startTimeISOString).toLocaleDateString();
     },
     detail: function(incidence: Incidence) {
+      debugger;
       this.incidenceData = incidence;
       this.$nextTick(() => {
         this.incidenceSelected = true;

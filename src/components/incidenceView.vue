@@ -15,7 +15,7 @@
         <tr>
 
           <td>Información</td>
-          <td v-if="incidence.state == 1 && [1,3].includes(this.user.tipo.level) && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
+          <td v-if="incidence.state == 1 && [1,3].includes(user.type.id) && edit"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
           <td v-else>{{ incidence.issueDesc }}</td>
         </tr>
         <tr v-if="incidence.solverId">
@@ -30,13 +30,13 @@
           <td>Hora de creación</td>
           <td>{{ dateFormat(incidence.initDateTime, 2) }}</td>
         </tr>
-        <tr v-if="incidence.finishDate !== null">
+        <tr v-if="incidence.finishDateTime !== null">
           <td>Fecha de resolución</td>
-          <td>{{ dateFormat(incidence.finishDate, 1) }}</td>
+          <td>{{ dateFormat(incidence.finishDateTime, 1) }}</td>
         </tr>
-        <tr v-if="incidence.finishTime !== null">
+        <tr v-if="incidence.finishDateTime !== null">
           <td>Hora de resolución</td>
-          <td>{{ dateFormat(getDateTime(incidence.finishDate, incidence.finishTime), 2) }}</td>
+          <td>{{ dateFormat(incidence.finishDateTime, 2) }}</td>
         </tr>
         <tr v-if="incidence.state != 1">
           <td>Piezas afectadas</td>
@@ -52,7 +52,7 @@
             />
           </td>
         </tr>
-        <tr v-if="incidence.state == 1 && [1,3].includes(user.tipo.level)">
+        <tr v-if="incidence.state == 1 && [1,3].includes(user.type.id) && incidence.ownerId == user.id">
           <td v-if="!edit" style="width:10%; height: 2%;">
             <a @click="deleteIncidence()" href="#">
               <img class="cierra" src="./delete.png" alt="Borrar incidencia" style="width:4%; height: 4%;"/>
@@ -64,12 +64,12 @@
             </a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 1 && [2,3].includes(user.tipo.level)">
+        <tr v-else-if="incidence.state == 1 && [2,3].includes(user.type.id)">
           <td colspan="2" v-if="!edit">
               <a href="#" @click="edit=true">Atender</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state === 2 && [2,3].includes(user.tipo.level) && incidence.solverId === user.id">
+        <tr v-else-if="incidence.state === 2 && [2,3].includes(user.type.id) && incidence.solverId === user.id">
           <td colspan="2" v-if="!edit">
               <b-link @click="edit=true">Modificar</b-link>
           </td>
@@ -84,7 +84,7 @@
               </b-link>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 4 && [1,3].includes(this.user.tipo.level)">
+        <tr v-else-if="incidence.state == 4 && [1,3].includes(user.type.id)">
           <td colspan="2">
             <b-link @click="show()">
               <img src="./show.png" alt="Mostrar incidencia" style="width:2%; height: 2%;"/>
@@ -93,21 +93,21 @@
         </tr>
     </table><br />
     <div v-if="incidence.state != 1">
-      <notes-module v-if="incidence.notes || edit" :edit="edit" :notes="incidence.notes" @add="note = $event"/>
+      <notes-module v-if="incidence.notes.length > 0 || edit" :edit="edit" :notes="incidence.notes" @add="note = $event"/>
     </div>
     <div v-if="edit">
-      <table v-if="edit && ((incidence.state == 1 && [1,3].includes(this.user.tipo.level) || (incidence.state == 2 && [2,3].includes(this.user.tipo.level) && incidence.solverId === user.id)))">
+      <table v-if="edit && ((incidence.state == 1 && [1,3].includes(user.type.id) || (incidence.state == 2 && [2,3].includes(this.user.type.id) && incidence.solverId === user.id)))">
         <tr>
           <th>Funciones</th>
         </tr>
       </table>
-      <table v-if="incidence.state == 1 && [1,3].includes(this.user.tipo.level)">
+      <table v-if="incidence.state == 1 && [1,3].includes(user.type.id)">
         <tr>
           <td colspan="2" v-if="issueDesc && edit"><a href="#" @click="editIncidence()">Guardar</a></td>
         </tr>
       </table>
       <!-- attendIncidence -->
-      <table v-else-if="incidence.state == 1 && [2,3].includes(user.tipo.level) && incidence.solverId === user.id">
+      <table v-else-if="incidence.state == 1 && [2,3].includes(user.type.id) && incidence.solverId === user.id">
         <tr>
             <td>
                 <a href="#" @click="modifyIncidence()">Guardar</a>
@@ -115,7 +115,7 @@
         </tr>
       </table>
     <!-- modifyIncidence -->
-    <table v-else-if="incidence.state == 2 && [2,3].includes(this.user.tipo.level) && incidence.solverId === user.id">
+    <table v-else-if="incidence.state == 2 && [2,3].includes(this.user.type.id) && incidence.solverId === user.id">
         <tr>
           <td>Función</td>
           <td>
@@ -147,7 +147,7 @@
 
 <script lang="ts">
 import { PieceClass } from '../Config/types';
-import { incidence, piece } from '../Config/services';
+import { incidenceDotNet, pieceDotNet } from '../Config/services';
 import axios from 'axios';
 import notesModule from './notesModule.vue';
 import Vue from 'vue';
@@ -243,7 +243,7 @@ export default Vue.extend({
     async load() {
       await axios({
         method: 'get',
-        url: incidence + '?id_part=' + this.incidence.id,
+        url: incidenceDotNet + this.incidence.id,
       }).then((data: any) => {
         this.issueDesc = data.data.issueDesc;
       });
@@ -251,11 +251,9 @@ export default Vue.extend({
     async hide() {
       await axios({
         method: 'put',
-        url: incidence,
+        url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
         data: {
           state: 4,
-          incidenceId: this.incidence.id,
-          userId: this.user.id,
         },
       }).then((data: any) => {
         this.$emit('reload', data);
@@ -265,11 +263,9 @@ export default Vue.extend({
     async show() {
       await axios({
         method: 'put',
-        url: incidence,
+        url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
         data: {
           state: 3,
-          incidenceId: this.incidence.id,
-          userId: this.user.id,
         },
       }).then((data: any) => {
         this.$emit('reload', data);
@@ -281,7 +277,7 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
           method: 'delete',
-          url: incidence + '?incidenceId=' + this.incidence.id + '&userId=' + this.user.id,
+          url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
         }).then(() =>
           this.$emit('reload')
         );
@@ -297,11 +293,9 @@ export default Vue.extend({
       if(this.incidence.issueDesc != this.issueDesc) {
         await axios({
           method: 'put',
-          url: incidence,
+          url: incidenceDotNet + this.incidence.id + '/' + this.user.id + '/' + false,
           data: {
-            incidenceId: this.incidence.id,
-            incidenceDesc: this.issueDesc,
-            userId: this.user.id,
+            note: this.issueDesc,
           },
         })
         .then(() => this.$emit('reload'));
@@ -315,22 +309,20 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPiecesNames);
         await axios({
           method: 'put',
-          url: incidence,
+          url: incidenceDotNet + this.incidence.id + '/' + this.user.id + '/' + this.close,
           data: {
-            incidenceId: this.incidence.id,
-            userId: this.user.id,
             note: this.note.noteStr,
             piecesAdded: this.piecesAdded,
             piecesDeleted: this.piecesDeleted,
-            close: this.close,
           },
         }).then(() => this.$emit('reload'));
       };
     },
   },
   async mounted() {
+    debugger;
     this.load();
-    await axios.get(piece)
+    await axios.get(pieceDotNet)
     .then((data: any) => {
       this.availablePieces = data.data;
       this.incidence.pieces.forEach((piece: PieceClass) => {

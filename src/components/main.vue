@@ -8,10 +8,10 @@
         </router-link>
       </div>
       <nav class="opciones">
-        <router-link v-if="user.tipo.level !== 1 && incidencesCount >0" class="link" to="/main/incidences" >Partes</router-link>
-        <router-link class="link" to="/main/statistics" v-if="user.tipo.level === 2 || this.user.tipo.level === 3" >Estadísticas</router-link>
-        <router-link class="link" to="/main/pieces" v-if="user.tipo.level === 3">Piezas disponibles</router-link>
-        <router-link class="link" to="/main/employeeList" v-if="user.tipo.level === 3">Lista empleados</router-link>
+        <router-link v-if="user.type.id !== 1 && incidencesCount >0" class="link" to="/main/incidences" >Partes</router-link>
+        <router-link class="link" to="/main/statistics" v-if="user.type.id === 2 || this.user.type.id === 3" >Estadísticas</router-link>
+        <router-link class="link" to="/main/pieces" v-if="user.type.id === 3">Piezas disponibles</router-link>
+        <router-link class="link" to="/main/employeeList" v-if="user.type.id === 3">Lista empleados</router-link>
       </nav>
     </div>
     <div class="cuerpo">
@@ -44,7 +44,7 @@
           <b-row>
             <b-col><label>Tipo: </label></b-col>
             <b-col>
-              <b-form-select :disabled="true" v-model="user.tipo.id" :options="options" size="sm" class="mt-3"></b-form-select>
+              <b-form-select :disabled="true" v-model="user.type.id" :options="options" size="sm" class="mt-3"></b-form-select>
             </b-col>
           </b-row>
           <b-row colspan="2">
@@ -63,7 +63,7 @@
 <script lang="ts">
 
 import { EmployeeType } from '../Config/types';
-import { employee, counters, employeeType } from '../Config/services';
+import { employeeDotNet, incidenceDotNet, employeeTypeDotNet } from '../Config/services';
 import axios from 'axios';
 import Vue from 'vue'
 
@@ -75,17 +75,13 @@ export default Vue.extend({
     return {
       user: {
         id: new Number(),
+        fullName: '',
         name: '',
         surname1: '',
         surname2: '',
-        tipo: {
+        type: {
           id: new Number(),
-          level: new Number(),
           name: '',
-          range: {
-            id: 0,
-            name: '',
-          }
         },
         dni: '',
       },
@@ -94,14 +90,9 @@ export default Vue.extend({
         name: '',
         surname1: '',
         surname2: '',
-        tipo: {
+        type: {
           id: new Number(),
-          level: new Number(),
           name: '',
-          range: {
-            id: 0,
-            name: '',
-          }
         },
         dni: '',
       },
@@ -118,8 +109,6 @@ export default Vue.extend({
       name: '',
       surname1: '',
       surname2: '',
-      fields: new Array<string>(),
-      values:new Array<string>(),
       options: [
         { value: 0, text: 'Tipo', disabled: true },
       ]
@@ -134,7 +123,7 @@ export default Vue.extend({
       this.selectedPieces = []
     },
     async logedIn(data: any) {
-      await axios.get(employee + '?&username='+ data)
+      await axios.get(employeeDotNet + data)
       .then((datas: any)  => {
         this.user = datas.data;
         this.username = data;
@@ -142,24 +131,24 @@ export default Vue.extend({
       });
     },
     async reloadUser(data: any) {
-      await axios.get(employee + '?username='+ data)
+      await axios.get(employeeDotNet + data)
       .then((datas: any) => {
         this.user = datas.data;
       });
     },
 
     async showIncidences() {
-      await axios.get(counters + '?type=' + this.user.tipo.range.name + "&userId=" + this.user.id)
+      await axios.get(incidenceDotNet + this.user.id + '/' + this.user.type.name)
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
-        if(this.user.tipo.level === 1 || this.incidencesCount >0){
+        if(this.user.type.id === 1 || this.incidencesCount >0){
           this.$router.push({
             name: 'incidences', params: {
               //user: this.user
             }
           });
         }
-        if(this.user.tipo.level !== 1 && this.incidencesCount === 0) {
+        if(this.user.type.id !== 1 && this.incidencesCount === 0) {
           this.$router.push({
             name: 'statistics', params: {
               //user: this.user
@@ -176,26 +165,21 @@ export default Vue.extend({
       this.user = {
         id: new Number(),
         name: '',
+        fullName: '',
         surname1: '',
         surname2: '',
-        tipo: {
+        type: {
           id: new Number(),
-          level: new Number(),
-          name: '',
-          range: {
-            id: 0,
-            name: '',
-          }
+          name: ''
         },
         dni: '',
       };
       this.incidencesCount = 0;
     },
-    pushField(data: any, parity: any, name: any) {
-      if(this.checkField(data, parity)) {
-        this.values.push(data);
-        this.fields.push(name);
-      }
+    pushField(data: any, parity: any) {
+      if(!this.checkField(data, parity)) {
+        return null;
+      } else return data;
     },
     editData: function() {
       this.edit = true;
@@ -206,26 +190,18 @@ export default Vue.extend({
     checkField(field: any, field2: any) {
       return field && field != field2? true: false
     },
-    fillData(data: any) {
-      this.pushField(data[0], this.user.name, "nombre");
-      this.pushField(data[1], this.user.surname1, "apellido1");
-      this.pushField(data[2], this.user.surname2, "apellido2");
-    },
     async saveData() {
-      this.fillData([this.name, this.surname1, this.surname2]);
-      if (this.fields.length >0) {
         await axios({
           method: 'put',
-          url: employee,
+          url: employeeDotNet + this.userData.id,
           data: {
-            dni: this.user.dni? this.user.dni: this.userData.dni,
-            fields: this.fields,
-            values: this.values,
+            name: this.pushField(this.name, this.user.name),
+            surname1: this.pushField(this.surname1, this.user.surname1),
+            surname2: this.pushField(this.surname2, this.user.surname2),
           },
         }).then(() => 
             this.cancel()
         );      
-      }
       this.$emit('reloadUser', this.user.dni);
       this.reset();
       if (!this.userData) {
@@ -237,11 +213,9 @@ export default Vue.extend({
       this.name = '';
       this.surname1 = '';
       this.surname2 = '';
-      this.fields = [];
-      this.values = [];
     },
     async reloadUserData() {
-      await axios.get(employee + '?username='+ this.username)
+      await axios.get(employeeDotNet + this.username)
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -255,15 +229,13 @@ export default Vue.extend({
       this.name = '';
       this.surname1 = '';
       this.surname2 = '';
-      this.fields = [];
-      this.values = [];
     },
   },
   async mounted() {
     if(this.$route.params.username) this.logedIn(this.$route.params.username);
       await axios({
-      method: 'get',
-      url: employeeType,
+        method: 'get',
+        url: employeeTypeDotNet,
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {

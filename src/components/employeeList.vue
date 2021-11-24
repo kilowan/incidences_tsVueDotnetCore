@@ -21,7 +21,7 @@
               <td>{{ employee.name }}</td>
               <td>{{ employee.surname1 }}</td>
               <td>{{ employee.surname2 }}</td>
-              <td>{{ employee.tipo.name }}</td>
+              <td>{{ employee.type.name }}</td>
               <td style="width:10%; height: 2%;">
                 <b-link @click="deleteEmployee(employee.id)">
                   <img class="cierra" src="./delete.png" alt="Borrar empleado" style="width:12%; height: 12%;"/>
@@ -76,17 +76,17 @@
         <label>DNI:</label>
         <input disabled v-model="dni"/><br />
         <label>Nombre:</label>
-        <input :disabled="tipo === 'Admin'" v-model="name"/><br />
+        <input :disabled="type === 'Admin'" v-model="name"/><br />
         <label>Primer Apellido:</label>
-        <input :disabled="tipo === 'Admin'" v-model="surname1"/><br />
+        <input :disabled="type === 'Admin'" v-model="surname1"/><br />
         <label>Segundo Apellido:</label>
-        <input :disabled="tipo === 'Admin'" v-model="surname2"/><br />
+        <input :disabled="type === 'Admin'" v-model="surname2"/><br />
         <label>Tipo:</label>
-        <b-form-select :disabled="tipo === 'Admin'" v-model="tipo" :options="options" size="sm" class="mt-3"></b-form-select>
+        <b-form-select :disabled="type === 'Admin'" v-model="type" :options="options" size="sm" class="mt-3"></b-form-select>
       </div>
       <div class="modal-footer">
         <b-button block @click="cancel('editemp')">Cancel</b-button>
-        <b-button :disabled="tipo === 'Admin'" block @click="update()">Actualizar</b-button>
+        <b-button :disabled="type === 'Admin'" block @click="update()">Actualizar</b-button>
       </div>
     </b-modal>
   </div>
@@ -95,7 +95,7 @@
 <script lang="ts">
 
 import { Employee, EmployeeType } from '../Config/types';
-import { employee, employeeType } from '../Config/services';
+import { employeeDotNet, employeeTypeDotNet } from '../Config/services';
 import axios from 'axios';
 import UserPanel from './userPanel.vue';
 import Vue from 'vue';
@@ -119,7 +119,7 @@ export default Vue.extend({
         name: new String(),
         surname1: new String(),
         surname2: new String(),
-        tipo: new String(),
+        type: new String(),
         dni: new String(),
       },
       employeSelected: {
@@ -127,9 +127,8 @@ export default Vue.extend({
         name: new String(),
         surname1: new String(),
         surname2: new String(),
-        tipo: {
+        type: {
           id: new Number(),
-          level: new Number(),
           name: new String()
         },
         dni: new String(),
@@ -142,9 +141,7 @@ export default Vue.extend({
       surname2: new String(),
       username: new String(),
       password: new String(),
-      tipo: new String(),
-      fields: new Array<string>(),
-      values: new Array<string>(),
+      type: new String(),
       selected: 0,
       options: [
         { value: 0, text: 'Tipo', disabled: true},
@@ -155,69 +152,55 @@ export default Vue.extend({
     employeesFiltered(){
       let array: any = this.employees;
       return this.employees? array.filter((data: Employee) => {
-        return data.tipo.name !== 'Admin';
+        return data.type.name !== 'Admin';
       }) : undefined;
     },
     async update() {
-      let fields: any = this.fields;
-      this.fillData([this.name, this.surname1, this.surname2, this.tipo]);
-      if (fields.length >0) {
         await axios({
           method: 'PUT',
-          url: employee,
+          url: employeeDotNet + this.employeSelected.id,
           data: {
-              dni: this.employeSelected.dni,
-              fields: this.fields,
-              values: this.values,
-            },
+            name: this.pushField(this.name, this.employeSelected.name),
+            surname1: this.pushField(this.surname1, this.employeSelected.surname1),
+            surname2: this.pushField(this.surname2, this.employeSelected.surname2),
+            type: this.pushField(this.type, this.employeSelected.type.id),
+          },
         }).then(() =>{
           this.cancel('editemp');
           this.load();
         });
-      }
     },
     reset: function() {
       this.name = '';
       this.surname1 = '';
       this.surname2 = '';
-      this.tipo = '';
+      this.type = '';
       this.dni = '';
-      this.fields = new Array<string>();
-      this.values = new Array<string>();
     },
     checkField(field: string, field2: string) {
       return field && field != field2? true: false
     },
-    pushField(data: any, parity: any, name: any) {
-      if(this.checkField(data, parity)) {
-        this.values.push(data);
-        this.fields.push(name);
-      }
-    },
-    fillData(data: Array<any>) {
-      this.pushField(data[0], this.employeSelected.name, 'nombre');
-      this.pushField(data[1], this.employeSelected.surname1, "apellido1");
-      this.pushField(data[2], this.employeSelected.surname2, "apellido2");
-      this.pushField(data[3], this.employeSelected.tipo.id, "tipo");
+    pushField(data: any, parity: any) {
+      if(!this.checkField(data, parity)) {
+        return null;
+      } else return data;
     },
     cancel: function(name: string) {
       if(name === 'new'){
         this.username = '';
         this.password = '';
       }
-      this.tipo = ''
+      this.type = ''
       this.dni = '';
       this.name = '';
       this.surname1 = '';
       this.surname2 = '';
-      this.fields = [];
-      this.values = [];
       this.$bvModal.hide(name);
     },
     async save() {
       await axios({
         method: 'post',
-        url: employee,
+        url: employeeDotNet,
         data: {
           username: this.username,
           password: this.password,
@@ -225,7 +208,7 @@ export default Vue.extend({
           name: this.name,
           surname1: this.surname1,
           surname2: this.surname2,
-          type: this.tipo,
+          type: this.type,
         },
       }).then(() =>{
           this.cancel('new')
@@ -242,7 +225,7 @@ export default Vue.extend({
       this.name = employee.name;
       this.surname1 = employee.surname1;
       this.surname2 = employee.surname2;
-      this.tipo = employee.tipo.id;
+      this.type = employee.type.id;
       this.dni = employee.dni;
       this.$nextTick(() => {
         this.$bvModal.show('editemp');
@@ -266,7 +249,7 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
         method: 'delete',
-        url: employee + '?id=' + this.selectedToDelete,
+        url: employeeDotNet + this.selectedToDelete,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -276,14 +259,14 @@ export default Vue.extend({
     load: function() {
       axios({
         method: 'get',
-        url: employee + '?username=null',
+        url: employeeDotNet,
       })
       .then((data: any) =>
         this.employees = data.data
       );
       axios({
         method: 'get',
-        url: employeeType,
+        url: employeeTypeDotNet,
       })
       .then((data: any) =>
         data.data.map((employeeType: EmployeeType) => {
@@ -294,7 +277,6 @@ export default Vue.extend({
   },
   mounted() {
     this.load();
-    this.values = [];
   }
 })
 

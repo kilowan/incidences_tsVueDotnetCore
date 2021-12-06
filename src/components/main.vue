@@ -9,7 +9,7 @@
       </div>
       <nav class="opciones">
         <router-link v-if="user.type.id !== 1 && incidencesCount >0" class="link" to="/main/incidences" >Partes</router-link>
-        <router-link class="link" to="/main/statistics" v-if="user.type.id === 2 || this.user.type.id === 3" >Estadísticas</router-link>
+        <router-link class="link" to="/main/statistics" v-if="[2,3].includes(user.type.id)" >Estadísticas</router-link>
         <router-link class="link" to="/main/pieces" v-if="user.type.id === 3">Piezas disponibles</router-link>
         <router-link class="link" to="/main/employeeList" v-if="user.type.id === 3">Lista empleados</router-link>
       </nav>

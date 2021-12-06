@@ -20,11 +20,11 @@
           <th>Información</th>
         </tr>
         <tr v-for="(incidence, index) in incidences" v-bind:key="index">
-          <td @click="!admin? detail(incidence): null">
+          <td @click="!admin? detail(incidence, 'owner'): null">
             <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
             <div v-else>--</div>
           </td>
-          <td @click="!admin? detail(incidence): null">
+          <td @click="!admin? detail(incidence, 'owner'): null">
             <div v-if="incidence.issueDesc">{{incidence.issueDesc}}</div>
             <div v-else>--</div>
           </td>
@@ -43,11 +43,11 @@
           <th>Información</th>
         </tr>
         <tr v-for="(incidence, index) in technicianIncidences" v-bind:key="index">
-          <td @click="!admin? detail(incidence): null">
+          <td @click="!admin? detail(incidence, 'solver'): null">
             <div v-if="incidence.initDateTime">{{ dateFormat(incidence.initDateTime) }}</div>
             <div v-else>--</div>
           </td>
-          <td @click="!admin? detail(incidence): null">
+          <td @click="!admin? detail(incidence, 'solver'): null">
             <div v-if="incidence.issueDesc">{{incidence.issueDesc}}</div>
             <div v-else>--</div>
           </td>
@@ -78,8 +78,16 @@
         <b-button :disabled="selectedPieces.length < 1 || !description" block @click="addIncidence()">Enviar</b-button>
       </div>
     </b-modal>
-    <div v-if="incidenceSelected">
-      <incidence-view 
+    <div v-if="incidenceSelected && owner">
+      <owner-incidence-view 
+        :user="user" 
+        :incidence="incidenceData"
+        @reload="reloading()"
+        @stepBack="back()"
+      />
+    </div>
+    <div v-if="incidenceSelected && solver">
+      <solver-incidence-view 
         :user="user" 
         :incidence="incidenceData"
         @reload="reloading()"
@@ -93,9 +101,10 @@
 
 import { Incidence, PieceClass } from '../Config/types';
 import { incidenceDotNet, pieceDotNet } from '../Config/services';
-import incidenceView from './incidenceView.vue';
 import axios from 'axios';
 import Vue from 'vue';
+import OwnerIncidenceView from './ownerIncidenceView.vue';
+import SolverIncidenceView from './solverIncidenceView.vue';
 
 export default Vue.extend({
   name: 'incidences',
@@ -114,10 +123,13 @@ export default Vue.extend({
     },
   },
   components: {
-    incidenceView,
+    OwnerIncidenceView,
+    SolverIncidenceView,
   },
   data:function() {
     return {
+      owner: false,
+      solver: false,
       selectedPiece: 'other',
       pieces: new Array<PieceClass>(),
       PieceIdsSelected: new Array<number>(),
@@ -256,8 +268,8 @@ export default Vue.extend({
     dateFormat: function(startTimeISOString: string) {
       return new Date(startTimeISOString).toLocaleDateString();
     },
-    detail: function(incidence: Incidence) {
-      debugger;
+    detail: function(incidence: Incidence, type: string) {
+      type === 'owner'? this.owner = true: this.solver = true;
       this.incidenceData = incidence;
       this.$nextTick(() => {
         this.incidenceSelected = true;
@@ -267,6 +279,8 @@ export default Vue.extend({
       this.incidenceData = {};
       this.$nextTick(() => {
         this.incidenceSelected = false;
+        this.owner = false;
+        this.solver = false;
       });
     },
     reloading: function() {

@@ -13,10 +13,8 @@
           <td >{{ incidence.owner }}</td>
         </tr>
         <tr>
-
           <td>Información</td>
-          <td v-if="incidence.state == 1 && [1,3].includes(user.type.id) && edit && incidence.ownerId == user.id"><input type="text" name="issueDesc" v-model="issueDesc" required /></td>
-          <td v-else>{{ incidence.issueDesc }}</td>
+          <td>{{ incidence.issueDesc }}</td>
         </tr>
         <tr v-if="incidence.solverId">
           <td >Tecnico a cargo</td>
@@ -38,7 +36,7 @@
           <td>Hora de resolución</td>
           <td>{{ dateFormat(incidence.finishDateTime, 2) }}</td>
         </tr>
-        <tr v-if="incidence.state != 1">
+        <tr>
           <td>Piezas afectadas</td>
           <td style="width: 400px">
             <ejs-multiselect v-if="availablePieces.length >0"
@@ -52,24 +50,12 @@
             />
           </td>
         </tr>
-        <tr v-if="incidence.state == 1 && [1,3].includes(user.type.id) && incidence.ownerId == user.id">
-          <td v-if="!edit" style="width:10%; height: 2%;">
-            <a @click="deleteIncidence()" href="#">
-              <img class="cierra" src="./delete.png" alt="Borrar incidencia" style="width:4%; height: 4%;"/>
-            </a>
-          </td>
-          <td v-if="!edit" style="width:10%; height: 2%;">
-            <a  @click="edit=true" href="#">
-              <img class="cierra" src="./edit.png" alt="Editar incidencia" style="width:4%; height: 4%;"/>
-            </a>
-          </td>
-        </tr>
-        <tr v-else-if="incidence.state == 1 && [2,3].includes(user.type.id)">
+        <tr v-if="incidence.state == 1">
           <td colspan="2" v-if="!edit">
-              <a href="#" @click="edit=true">Atender</a>
+              <a href="#" @click="attend">Atender</a>
           </td>
         </tr>
-        <tr v-else-if="incidence.state === 2 && [2,3].includes(user.type.id) && incidence.solverId === user.id">
+        <tr v-else-if="incidence.state === 2 && incidence.solverId === user.id">
           <td colspan="2" v-if="!edit">
               <b-link @click="edit=true">Modificar</b-link>
           </td>
@@ -77,37 +63,18 @@
               <b-link @click="edit=false">Cancelar</b-link>
           </td>
         </tr>
-        <tr v-else-if="incidence.state == 3 && incidence.ownerId === user.id">
-          <td colspan="2">
-              <b-link @click="hide()">
-                <img src="./hide.png" alt="Ocultar incidencia" style="width:2%; height: 2%;"/>
-              </b-link>
-          </td>
-        </tr>
-        <tr v-else-if="incidence.state == 4 && [1,3].includes(user.type.id)">
-          <td colspan="2">
-            <b-link @click="show()">
-              <img src="./show.png" alt="Mostrar incidencia" style="width:2%; height: 2%;"/>
-            </b-link>
-          </td>
-        </tr>
     </table><br />
     <div v-if="incidence.state != 1">
       <notes-module v-if="incidence.notes.length > 0 || edit" :edit="edit" :notes="incidence.notes" @add="note = $event"/>
     </div>
     <div v-if="edit">
-      <table v-if="edit && ((incidence.state == 1 && [1,3].includes(user.type.id) || (incidence.state == 2 && [2,3].includes(this.user.type.id) && incidence.solverId === user.id)))">
+      <table v-if="edit && [1,2].includes(incidence.state) && incidence.solverId === user.id">
         <tr>
           <th>Funciones</th>
         </tr>
       </table>
-      <table v-if="incidence.state == 1 && [1,3].includes(user.type.id)">
-        <tr>
-          <td colspan="2" v-if="issueDesc && edit"><a href="#" @click="editIncidence()">Guardar</a></td>
-        </tr>
-      </table>
       <!-- attendIncidence -->
-      <table v-else-if="incidence.state == 1 && [2,3].includes(user.type.id) && incidence.solverId === user.id">
+      <table v-else-if="incidence.state == 1 && incidence.solverId === user.id">
         <tr>
             <td>
                 <a href="#" @click="modifyIncidence()">Guardar</a>
@@ -115,7 +82,7 @@
         </tr>
       </table>
     <!-- modifyIncidence -->
-    <table v-else-if="incidence.state == 2 && [2,3].includes(this.user.type.id) && incidence.solverId === user.id">
+    <table v-else-if="incidence.state == 2 && incidence.solverId === user.id">
         <tr>
           <td>Función</td>
           <td>
@@ -152,7 +119,7 @@ import axios from 'axios';
 import notesModule from './notesModule.vue';
 import Vue from 'vue';
 export default Vue.extend({
-  name: 'incidencesView',
+  name: 'solverIncidencesView',
   props: {
     user: {
       type: Object,
@@ -185,6 +152,17 @@ export default Vue.extend({
     }
   },
   methods: {
+    async attend(){
+      await axios({
+        method: 'put',
+        url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
+        data: {
+          state: 2,
+        },
+      }).then(() => {
+        this.edit = true;
+      });
+    },
     getSelectedPieces: function(pieces: Array<PieceClass>) {
       return pieces.map((piece: PieceClass) => {
         return piece.name

@@ -202,13 +202,15 @@ export default Vue.extend({
         method: 'post',
         url: employeeDotNet,
         data: {
-          username: this.username,
-          password: this.password,
+          credentials:{
+            username: this.username,
+            password: this.password,
+          },
           dni: this.dni,
           name: this.name,
           surname1: this.surname1,
           surname2: this.surname2,
-          type: this.type,
+          typeId: this.selected,
         },
       }).then(() =>{
           this.cancel('new')

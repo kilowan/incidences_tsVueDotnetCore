@@ -4,7 +4,7 @@
       <p class="mensaje">Bienvenido  <b-link class="link" @click="$bvModal.show('user-info')" >{{ user.name }} {{ user.surname1 }} {{ user.surname2 }}</b-link></p>
       <div class="Logo">
         <router-link @click="logOut()" to="/">
-          <img class="cierra" src="../shutdown.png" alt="Cerrar sesión" />
+          <b-icon class="h1" icon="power" aria-hidden="true"></b-icon>
         </router-link>
       </div>
       <nav class="opciones">

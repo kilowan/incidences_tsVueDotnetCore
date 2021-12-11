@@ -16,16 +16,18 @@
               <td>{{ piece.name }}</td>
               <td style="width:10%; height: 2%;">
                 <b-link v-if="piece.deleted !== '2'" @click="deletePiece(piece.id)">
-                  <img src="./delete.png" alt="Borrar pieza" style="width:12%; height: 12%;"/>
+                  <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
                 </b-link>
                 <b-link v-if="piece.deleted !== '2'" @click="edit(piece)">
-                  <img src="./edit.png" alt="Editar pieza" style="width:12%; height: 12%;"/>
+                  <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
                 </b-link>
               </td>
           </tr>
           <tr>
             <td colspan="8">
-                <b-link @click="$bvModal.show('new')">Agregar nueva</b-link>
+                <b-link @click="$bvModal.show('new')">
+                  <b-icon icon="plus-square-fill" aria-hidden="true"></b-icon>
+                </b-link>
             </td>
           </tr>
       </table>

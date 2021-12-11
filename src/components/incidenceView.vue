@@ -55,12 +55,12 @@
         <tr v-if="incidence.state == 1 && [1,3].includes(user.type.id) && incidence.ownerId == user.id">
           <td v-if="!edit" style="width:10%; height: 2%;">
             <a @click="deleteIncidence()" href="#">
-              <img class="cierra" src="./delete.png" alt="Borrar incidencia" style="width:4%; height: 4%;"/>
+              <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
             </a>
           </td>
           <td v-if="!edit" style="width:10%; height: 2%;">
             <a  @click="edit=true" href="#">
-              <img class="cierra" src="./edit.png" alt="Editar incidencia" style="width:4%; height: 4%;"/>
+              <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
             </a>
           </td>
         </tr>
@@ -80,14 +80,14 @@
         <tr v-else-if="incidence.state == 3 && incidence.ownerId === user.id">
           <td colspan="2">
               <b-link @click="hide()">
-                <img src="./hide.png" alt="Ocultar incidencia" style="width:2%; height: 2%;"/>
+                <b-icon icon="eye-slash" aria-hidden="true"></b-icon>
               </b-link>
           </td>
         </tr>
         <tr v-else-if="incidence.state == 4 && [1,3].includes(user.type.id)">
           <td colspan="2">
             <b-link @click="show()">
-              <img src="./show.png" alt="Mostrar incidencia" style="width:2%; height: 2%;"/>
+              <b-icon icon="eye" aria-hidden="true"></b-icon>
             </b-link>
           </td>
         </tr>

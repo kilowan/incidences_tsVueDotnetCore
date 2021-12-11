@@ -24,19 +24,21 @@
               <td>{{ employee.type.name }}</td>
               <td style="width:10%; height: 2%;">
                 <b-link @click="deleteEmployee(employee.id)">
-                  <img class="cierra" src="./delete.png" alt="Borrar empleado" style="width:12%; height: 12%;"/>
+                  <b-icon icon="person-x-fill" aria-hidden="true"></b-icon>
                 </b-link>
                 <b-link @click="edit(employee)">
-                  <img class="cierra" src="./edit.png" alt="Editar empleado" style="width:12%; height: 12%;"/>
+                  <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
                 </b-link>
                 <b-link @click="panel(employee)">
-                  <img class="cierra" src="./see.png" alt="Ver empleado" style="width:12%; height: 12%;"/>
+                  <b-icon icon="search" aria-hidden="true"></b-icon>
                 </b-link>
               </td>
           </tr>
           <tr>
             <td colspan="8">
-                <b-link @click="$bvModal.show('new')">Agregar nuevo</b-link>
+                <b-link @click="$bvModal.show('new')">
+                  <b-icon icon="person-plus-fill" aria-hidden="true"></b-icon>
+                </b-link>
             </td>
           </tr>
       </table>

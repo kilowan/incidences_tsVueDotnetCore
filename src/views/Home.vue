@@ -56,7 +56,7 @@ export default Vue.extend({
         url: credentialsDotNet + this.form.username + '/' + this.form.pass,
       })
       .then((data: any) => {
-        if (data && data.employeeId) {
+        if (data.data) {
           this.getLoginData();
         }
       });

@@ -47,29 +47,33 @@ export default Vue.extend({
       },
       user: undefined,
       incidences: undefined,
+      token: undefined,
     }
   },
   methods: {
     async onSubmit() {
       await axios({
         method: 'get',
-        url: credentialsDotNet + this.form.username + '/' + this.form.pass,
+        url: `${credentialsDotNet}${this.form.username}/${this.form.pass}`
       })
       .then((data: any) => {
         if (data.data) {
-          this.getLoginData();
+          this.token = data.data;
+          this.getLoginData(data.data);
         }
       });
     },
-    async getLoginData(){
+    async getLoginData(token: string){
       await axios({
         method: 'get',
-        url: credentialsDotNet + this.form.username,
+        headers: { Authorization: `Bearer ${token}` },
+        url: `${credentialsDotNet}${this.form.username}`
       })
       .then((data: any) => {
         this.$router.push({
           name: 'main', params: {
-            username: data.data.username
+            username: data.data.username,
+            token: token,
           }
 				});
       });

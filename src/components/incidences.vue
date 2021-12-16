@@ -82,6 +82,7 @@
       <owner-incidence-view 
         :user="user" 
         :incidence="incidenceData"
+        :token="token"
         @reload="reloading()"
         @stepBack="back()"
       />
@@ -90,6 +91,7 @@
       <solver-incidence-view 
         :user="user" 
         :incidence="incidenceData"
+        :token="token"
         @reload="reloading()"
         @stepBack="back()"
       />
@@ -121,6 +123,10 @@ export default Vue.extend({
       type: Boolean,
       required: true
     },
+    tokenProp: {
+      type: String,
+      required: true
+    },
   },
   components: {
     OwnerIncidenceView,
@@ -128,6 +134,7 @@ export default Vue.extend({
   },
   data:function() {
     return {
+      token: '',
       owner: false,
       solver: false,
       selectedPiece: 'other',
@@ -184,6 +191,7 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPieces);
         await axios({
           method: 'post',
+          headers: { Authorization: `Bearer ${this.token}` },
           url: incidenceDotNet,
           data: {
             ownerId: this.user.id,
@@ -206,29 +214,48 @@ export default Vue.extend({
       this.$bvModal.hide('make-incidence');
    },
    async insertIncidence() {
-    await axios.get(pieceDotNet)
-      .then((data: any) => {
+    await axios({
+      method: 'get',
+      headers: { Authorization: `Bearer ${this.token}` },
+      url: pieceDotNet
+    })
+    .then((data: any) => {
         this.pieces = data.data;
         this.$bvModal.show('make-incidence');
     });
    },
     async handle() {
+      debugger;
+      if(this.$route.params.token) this.token = this.$route.params.token;
+      else this.token = this.tokenProp;
       //set initial type
-      await axios.get(incidenceDotNet + this.user.id + '/' + this.user.type.name)
+      await axios({
+        method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${incidenceDotNet}${this.user.id}/${this.user.type.name}`,
+      })
       .then((datas: any)  => {
         this.manageData(datas.data);
       });
     },
     async getIncidences(state: number, type: string ) {
       if(['Technician', 'Admin'].includes(type)) {
-        await axios.get(incidenceDotNet + state + '/' + this.user.id + '/Technician')
+        await axios({
+          method: 'get',
+          headers: { Authorization: `Bearer ${this.token}` },
+          url: `${incidenceDotNet}${state}/${this.user.id}/Technician`,
+        })
         .then((datas: any)  => {
           this.technicianIncidences = datas.data.other;
           this.incidences = datas.data.own;
           this.state = state;
         });
       } else {
-        await axios.get(incidenceDotNet + state + '/' + this.user.id + '/Employee')
+        await axios({
+          method: 'get',
+          headers: { Authorization: `Bearer ${this.token}` },
+          url: `${incidenceDotNet}${state}/${this.user.id}/Employee`,
+          })
         .then((datas: any)  => {
           this.incidences = datas.data.own;
           this.state = state;

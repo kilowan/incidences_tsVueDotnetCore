@@ -88,6 +88,7 @@ export default Vue.extend({
   components: {},
   data: function() {
     return {
+      token: '',
       pieceSelected: {
         type: {
           name: '',
@@ -142,6 +143,7 @@ export default Vue.extend({
     async update() {
       await axios({
         method: 'put',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: pieceDotNet + this.pieceId,
         data: {
           name: this.change(this.pieceSelected.name, this.pieceName),
@@ -155,6 +157,7 @@ export default Vue.extend({
     async save() {
       await axios({
         method: 'post',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: pieceDotNet,
         data: {
           name: this.pieceName,
@@ -184,6 +187,7 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
         method: 'delete',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: pieceDotNet + this.pieceId,
       })
       .then(()=> {
@@ -192,8 +196,10 @@ export default Vue.extend({
       });
     },
     async load() {
+      if (this.$route.params.token) this.token = this.$route.params.token;
       await axios({
         method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: pieceDotNet,
       })
       .then((data: any) => {
@@ -201,6 +207,7 @@ export default Vue.extend({
       });
       await axios({
         method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: pieceTypeDotNet,
       })
       .then((data: any) => {

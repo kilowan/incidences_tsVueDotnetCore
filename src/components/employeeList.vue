@@ -115,6 +115,7 @@ export default Vue.extend({
   },
   data: function() {
     return {
+      token: '',
       employees: new Array<Employee>(),
       employee: {
         id: new Number,
@@ -160,7 +161,8 @@ export default Vue.extend({
     async update() {
         await axios({
           method: 'PUT',
-          url: employeeDotNet + this.employeSelected.id,
+          headers: { Authorization: `Bearer ${this.token}` },
+          url: `${employeeDotNet}${this.employeSelected.id}`,
           data: {
             name: this.pushField(this.name, this.employeSelected.name),
             surname1: this.pushField(this.surname1, this.employeSelected.surname1),
@@ -202,6 +204,7 @@ export default Vue.extend({
     async save() {
       await axios({
         method: 'post',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: employeeDotNet,
         data: {
           credentials:{
@@ -253,7 +256,8 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
         method: 'delete',
-        url: employeeDotNet + this.selectedToDelete,
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${employeeDotNet}${this.selectedToDelete}`,
       })
       .then(()=> {
         this.$bvModal.hide('warning');
@@ -263,6 +267,7 @@ export default Vue.extend({
     load: function() {
       axios({
         method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: employeeDotNet,
       })
       .then((data: any) =>
@@ -270,6 +275,7 @@ export default Vue.extend({
       );
       axios({
         method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: employeeTypeDotNet,
       })
       .then((data: any) =>
@@ -280,6 +286,8 @@ export default Vue.extend({
     },
   },
   mounted() {
+    debugger;
+    if (this.$route.params.token) this.token = this.$route.params.token;
     this.load();
   }
 })

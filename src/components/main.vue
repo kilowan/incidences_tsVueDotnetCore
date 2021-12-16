@@ -8,10 +8,10 @@
         </router-link>
       </div>
       <nav class="opciones">
-        <router-link v-if="user.type.id !== 1 && incidencesCount >0" class="link" to="/main/incidences" >Partes</router-link>
-        <router-link class="link" to="/main/statistics" v-if="[2,3].includes(user.type.id)" >Estadísticas</router-link>
-        <router-link class="link" to="/main/pieces" v-if="user.type.id === 3">Piezas disponibles</router-link>
-        <router-link class="link" to="/main/employeeList" v-if="user.type.id === 3">Lista empleados</router-link>
+        <router-link v-if="user.type.id !== 1 && incidencesCount >0" class="link" :to="{ name: 'incidences', params: { token: token } }" >Partes</router-link>
+        <router-link class="link" :to="{ name: 'statistics', params: { token: token } }" v-if="[2,3].includes(user.type.id)" >Estadísticas</router-link>
+        <router-link class="link" :to="{ name: 'pieces', params: { token: token } }" v-if="user.type.id === 3">Piezas disponibles</router-link>
+        <router-link class="link" :to="{ name: 'employeeList', params: { token: token } }" v-if="user.type.id === 3">Lista empleados</router-link>
       </nav>
     </div>
     <div class="cuerpo">
@@ -73,6 +73,7 @@ export default Vue.extend({
   components: {},
   data: function() {
     return {
+      token: '',
       user: {
         id: new Number(),
         fullName: '',
@@ -102,7 +103,7 @@ export default Vue.extend({
       },
       incidencesCount: 0,
       reload: false,
-      username: undefined,
+      username: '',
       pieces: [],
       selectedPieces: new Array<string>(),
       edit: false,
@@ -122,36 +123,51 @@ export default Vue.extend({
     reset: function() {
       this.selectedPieces = []
     },
-    async logedIn(data: any) {
-      await axios.get(employeeDotNet + data)
+    async logedIn(username: string) {
+      debugger;
+      await axios({
+        method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${employeeDotNet}${username}`
+      })
       .then((datas: any)  => {
         this.user = datas.data;
-        this.username = data;
+        this.username = username;
         this.showIncidences();
       });
     },
     async reloadUser(data: any) {
-      await axios.get(employeeDotNet + data)
+      await axios({
+        method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${employeeDotNet}${data}`,
+      })
       .then((datas: any) => {
         this.user = datas.data;
       });
     },
 
     async showIncidences() {
-      await axios.get(incidenceDotNet + this.user.id + '/' + this.user.type.name)
+      debugger;
+      await axios({
+        method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${incidenceDotNet}${this.user.id}/${this.user.type.name}`
+      })
       .then((datas: any)  => {
         this.incidencesCount = datas.data.total;
         if(this.user.type.id === 1 || this.incidencesCount >0){
           this.$router.push({
-            name: 'incidences', params: {
-              //user: this.user
+            name: 'incidences', 
+            params: {
+              token: this.token
             }
           });
         }
         if(this.user.type.id !== 1 && this.incidencesCount === 0) {
           this.$router.push({
             name: 'statistics', params: {
-              //user: this.user
+              token: this.token
             }
           });
         }
@@ -193,6 +209,7 @@ export default Vue.extend({
     async saveData() {
         await axios({
           method: 'put',
+          headers: { Authorization: `Bearer ${this.token}` },
           url: employeeDotNet + this.userData.id,
           data: {
             name: this.pushField(this.name, this.user.name),
@@ -215,7 +232,11 @@ export default Vue.extend({
       this.surname2 = '';
     },
     async reloadUserData() {
-      await axios.get(employeeDotNet + this.username)
+      await axios({
+        method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${employeeDotNet}${this.username}`,
+      })
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -232,9 +253,14 @@ export default Vue.extend({
     },
   },
   async mounted() {
-    if(this.$route.params.username) this.logedIn(this.$route.params.username);
+    if(this.$route.params.username) {
+        debugger;
+        this.token = this.$route.params.token;
+        this.logedIn(this.$route.params.username);
+      }
       await axios({
         method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: employeeTypeDotNet,
       })
       .then((data: any) =>

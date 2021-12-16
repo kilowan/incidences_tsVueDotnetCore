@@ -59,6 +59,10 @@ export default Vue.extend({
       type: Object,
       required: true
     },
+    token: {
+      type: String,
+      required: true
+    },
   },
   components: {
   },
@@ -95,6 +99,7 @@ export default Vue.extend({
     async saveData() {
         await axios({
           method: 'put',
+          headers: { Authorization: `Bearer ${this.token}` },
           url: employeeDotNet,
           data: {
             name: this.pushField(this.name, this.user.name),
@@ -117,7 +122,11 @@ export default Vue.extend({
       this.surname2 = '';
     },
     async reloadUser() {
-      await axios.get(employeeDotNet + this.username)
+      await axios({
+        method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${employeeDotNet}${this.username}`
+      })
       .then((datas: any) => {
         this.user = datas.data;
       });
@@ -125,7 +134,11 @@ export default Vue.extend({
   },
   async mounted(){
     if (!this.userData) {
-      await axios.get(employeeDotNet + this.username)
+      await axios({
+        method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
+        url: `${employeeDotNet}${this.username}`,
+      })
       .then((datas: any) => {
         this.user = datas.data;
       });

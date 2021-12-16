@@ -69,10 +69,15 @@ export default Vue.extend({
       type: Object,
       required: true
     },
+    tokenProp: {
+      type: String,
+      required: true
+    },
   },
   components: {},
   data: function() {
     return {
+      token: '',
       pieces: new Array<PieceClass>(),
       globalStatistics: undefined,
       report: {
@@ -94,8 +99,11 @@ export default Vue.extend({
     },
   },
   async mounted() {
+    if (this.$route.params.token) this.token = this.$route.params.token;
+    else this.token = this.tokenProp;
     await axios({
       method: 'get',
+      headers: { Authorization: `Bearer ${this.token}` },
       url: reportDotNet + this.user.id,
     })
     .then((data: any) =>

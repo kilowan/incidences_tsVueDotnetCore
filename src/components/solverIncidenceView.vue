@@ -129,6 +129,10 @@ export default Vue.extend({
       type: Object,
       required: true
     },
+    token: {
+      type: String,
+      required: true
+    },
   },
   components: {
     notesModule,
@@ -155,6 +159,7 @@ export default Vue.extend({
     async attend(){
       await axios({
         method: 'put',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
         data: {
           state: 2,
@@ -221,6 +226,7 @@ export default Vue.extend({
     async load() {
       await axios({
         method: 'get',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: incidenceDotNet + this.incidence.id,
       }).then((data: any) => {
         this.issueDesc = data.data.issueDesc;
@@ -229,6 +235,7 @@ export default Vue.extend({
     async hide() {
       await axios({
         method: 'put',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
         data: {
           state: 4,
@@ -241,6 +248,7 @@ export default Vue.extend({
     async show() {
       await axios({
         method: 'put',
+        headers: { Authorization: `Bearer ${this.token}` },
         url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
         data: {
           state: 3,
@@ -255,6 +263,7 @@ export default Vue.extend({
     async confirmDelete() {
       await axios({
           method: 'delete',
+          headers: { Authorization: `Bearer ${this.token}` },
           url: incidenceDotNet + this.incidence.id + '/' + this.user.id,
         }).then(() =>
           this.$emit('reload')
@@ -271,6 +280,7 @@ export default Vue.extend({
       if(this.incidence.issueDesc != this.issueDesc) {
         await axios({
           method: 'put',
+          headers: { Authorization: `Bearer ${this.token}` },
           url: incidenceDotNet + this.incidence.id + '/' + this.user.id + '/' + false,
           data: {
             note: this.issueDesc,
@@ -287,6 +297,7 @@ export default Vue.extend({
         this.fillPieceIds(this.selectedPiecesNames);
         await axios({
           method: 'put',
+          headers: { Authorization: `Bearer ${this.token}` },
           url: incidenceDotNet + this.incidence.id + '/' + this.user.id + '/' + this.close,
           data: {
             note: this.note.noteStr,
@@ -300,7 +311,11 @@ export default Vue.extend({
   async mounted() {
     debugger;
     this.load();
-    await axios.get(pieceDotNet)
+    await axios({
+      method: 'get',
+      headers: { Authorization: `Bearer ${this.token}` },
+      url: pieceDotNet
+    })
     .then((data: any) => {
       this.availablePieces = data.data;
       this.incidence.pieces.forEach((piece: PieceClass) => {

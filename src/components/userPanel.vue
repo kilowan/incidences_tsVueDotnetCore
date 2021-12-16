@@ -1,11 +1,11 @@
 <template>
   <div>
     <!-- userInfo -->
-    <user-info :userData="user"/>
+    <user-info :userData="user" :token="token"/>
     <!-- incidences -->
-    <incidences :user="user" :admin="true"/>
+    <incidences :user="user" :admin="true" :tokenProp="token"/>
     <!-- userInfo -->
-    <statistics :user="user"/>
+    <statistics :user="user" :tokenProp="token"/>
   </div>
 </template>
 
@@ -22,6 +22,10 @@ export default Vue.extend({
     user: {
       type: Object,
       required: true,
+    },
+    token: {
+      type: String,
+      required: true
     },
   },
   components: {

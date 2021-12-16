@@ -46,6 +46,7 @@ export default Vue.extend({
   },
   data:function() {
     return {
+      token: '',
       selectedPiece: '',
       piecesData: new Array<PieceClass>(),
       piecesList: new Array<PieceClass>(),
@@ -54,7 +55,11 @@ export default Vue.extend({
   },
   async mounted() {
     this.piecesData = this.pieces;
-    await axios.get(pieceDotNet)
+    await axios({
+      method: 'get',
+      headers: { Authorization: `Bearer ${this.token}` },
+      url: pieceDotNet
+    })
     .then((data: any) => {
       this.piecesList = data.data;
     });

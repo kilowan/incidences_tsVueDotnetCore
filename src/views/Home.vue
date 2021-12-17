@@ -8,14 +8,52 @@
         <div class="mensaje">
           <p class="welcome">Bienvenidos</p>
         </div>
-          <div class="login">
-            <input class="input" name="username" type="text" id="username" v-model="form.username" placeholder="username" required />
-            <input class="input" name="password" type="password" id="password" v-model="form.pass" placeholder="password" required/>
-            <button class="btn btn-primary" @click="onSubmit()" v-if="form.username && form.pass" type="submit" variant="primary">LOGIN</button>
-
-          </div>
       </div>
       <div class="cuerpo">
+        <div style="text-align: center; margin: 0 auto; width:380px;">
+          <div class="m-2" style="box-shadow: 0 2px 4px rgb(0 0 0 / 10%), 0 8px 16px rgb(0 0 0 / 10%); border-radius: 8px; background-color: #FFF">
+            <div class="m-2">
+              <div class="m-2">
+                <div style="width: 100%;">
+                  <input 
+                    style="width: 100%; margin-top: 10px;" 
+                    type="text" 
+                    v-model="username"
+                    placeholder="Nombre de usuario"
+                  >
+                </div>
+                <div style="width: 100%; margin-top: 2%;">
+                  <input 
+                    style="width: 80%" 
+                    class="m-2" 
+                    v-if="!show" 
+                    type="password" 
+                    v-model="pass"
+                    placeholder="Contraseña"
+                  />
+                  <input 
+                    style="width: 80%" 
+                    class="m-2" 
+                    v-else 
+                    type="text" 
+                    v-model="pass"
+                    placeholder="Contraseña"
+                  />
+                  <b-link style="width: 20%" @click="show = !show">
+                    <b-icon v-if="!show" icon="eye" aria-hidden="true"></b-icon>
+                    <b-icon v-if="show" icon="eye-slash" aria-hidden="true"></b-icon>
+                  </b-link>
+                </div>
+              </div>
+              <div  class="m-2">
+                <b-button variant="primary" @click="onSubmit" style="width: 100%;">Entrar</b-button>
+              </div>
+              <div class="m-2">
+                <b-link @click="$router.push('PasswordRecovery')">¿Has olvidado la contraseña?</b-link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="Pie">
         <p>Trabajo realizado por Jose Javier Valero Fuentes y Juan Francisco Navarro Ramiro para el curso de ASIR 2º X migrado a Vue.js</p>
@@ -35,19 +73,21 @@ import axios from 'axios';
 })*/
 
 import { credentialsDotNet } from '../Config/services';
+import { Incidence } from "@/Config/types";
 
 export default Vue.extend({
   name: 'Home',
   components: {/*home*/},
-  data: function() {
+  data() {
     return {
       form: {
-        username: undefined,
-        pass: undefined,
+        username: '',
+        pass: '',
       },
-      user: undefined,
-      incidences: undefined,
-      token: undefined,
+      user: {},
+      incidences: [],
+      token: '',
+      show: false,
     }
   },
   methods: {

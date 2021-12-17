@@ -12,7 +12,7 @@
 				<div class="login">
 					<input class="input" name="username" type="text" id="username" v-model="form.username" placeholder="username" required />
           <input class="input" name="password" type="password" id="password" v-model="form.pass" placeholder="password" required/>
-					<b-button class="btn btn-primary" @click="onSubmit()" v-if="form.username && form.pass" type="submit" variant="primary">LOGIN</b-button>
+					<b-button class="btn btn-primary" @click="onSubmit" v-if="form.username && form.pass" type="submit" variant="primary">LOGIN</b-button>
 				</div>
 		</div>
 		<div class="cuerpo">
@@ -39,16 +39,16 @@ export default Vue.extend({
     },
   },
   components: {},
-  data: function() {
+  data() {
     return {
       form: {
-        username: undefined,
-        pass: undefined,
+        username: String.prototype,
+        pass: String.prototype,
       },
-      user: undefined,
-      incidences: undefined,
-      response: undefined,
-      token: '',
+      user: String.prototype,
+      incidences: String.prototype,
+      response: String.prototype,
+      token: String.prototype,
     }
   },
   methods: {

@@ -6,6 +6,7 @@ import statistics from '../components/statistics.vue';
 import employeeList from '../components/employeeList.vue';
 import incidences from '../components/incidences.vue';
 import pieces from '../components/piecesList.vue';
+import PasswordRecovery from '../components/PasswordRecovery.vue';
 
 Vue.use(VueRouter);
 
@@ -14,6 +15,11 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: "/PasswordRecovery",
+    name: "PasswordRecovery",
+    component: PasswordRecovery,
   },
   {
     path: '/main',

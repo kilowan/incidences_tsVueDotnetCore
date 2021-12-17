@@ -42,7 +42,12 @@ export interface Incidence extends base {
     type: EmployeeType;
     dni: string;
     state: number;
+    email: Email;
   }
   export interface EmployeeType extends base {
     name: string;
+  }
+  export interface Email {
+    mailName: string;
+    domain: string;
   }

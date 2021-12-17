@@ -64,7 +64,9 @@
         <input placeholder="Primer Apellido" v-model="surname1"/><br />
         <input placeholder="Segundo Apellido" v-model="surname2"/><br />
         <input placeholder="Username" v-model="username"/><br />
-        <input placeholder="Contraseña" v-model="password"/><br />
+        <input placeholder="Contraseña" v-model="password"/><br /><br />
+        <label>Email</label><br />
+        <input v-model="email.mailName" placeholder="tucorreosinarroba"/> @ <input placeholder="gmail.com" v-model="email.domain" /><br />
         <b-form-select v-model="selected" :options="options" size="sm" class="mt-3"></b-form-select><br />
       </div>
       <div class="modal-footer">
@@ -83,6 +85,9 @@
         <input :disabled="type === 'Admin'" v-model="surname1"/><br />
         <label>Segundo Apellido:</label>
         <input :disabled="type === 'Admin'" v-model="surname2"/><br />
+        <label>Email</label><br />
+        <input v-model="email.mailName" placeholder="tucorreosinarroba"/> @ <input placeholder="gmail.com" v-model="email.domain" /><br />
+        
         <label>Tipo:</label>
         <b-form-select :disabled="type === 'Admin'" v-model="type" :options="options" size="sm" class="mt-3"></b-form-select>
       </div>
@@ -115,36 +120,40 @@ export default Vue.extend({
   },
   data: function() {
     return {
-      token: '',
+      token: String.prototype,
+      email:{
+        mailName: String.prototype,
+        domain: String.prototype
+      },
       employees: new Array<Employee>(),
       employee: {
-        id: new Number,
-        name: new String(),
-        surname1: new String(),
-        surname2: new String(),
-        type: new String(),
-        dni: new String(),
+        id: 0,
+        name: String.prototype,
+        surname1: String.prototype,
+        surname2: String.prototype,
+        type: String.prototype,
+        dni: String.prototype,
       },
       employeSelected: {
-        id: Number,
-        name: new String(),
-        surname1: new String(),
-        surname2: new String(),
+        id: Number.prototype,
+        name: String.prototype,
+        surname1: String.prototype,
+        surname2: String.prototype,
         type: {
-          id: new Number(),
-          name: new String()
+          id: Number.prototype,
+          name: String.prototype
         },
-        dni: new String(),
+        dni: String.prototype,
       },
       mod: 'employeeList',
       selectedToDelete: new Number(),
-      dni: new String(),
-      name: new String(),
-      surname1: new String(),
-      surname2: new String(),
-      username: new String(),
-      password: new String(),
-      type: new String(),
+      dni: String.prototype,
+      name: String.prototype,
+      surname1: String.prototype,
+      surname2: String.prototype,
+      username: String.prototype,
+      password: String.prototype,
+      type: String.prototype,
       selected: 0,
       options: [
         { value: 0, text: 'Tipo', disabled: true},
@@ -211,6 +220,10 @@ export default Vue.extend({
             username: this.username,
             password: this.password,
           },
+          email: {
+            domain: this.email.domain,
+            mailName: this.email.mailName,
+          },
           dni: this.dni,
           name: this.name,
           surname1: this.surname1,
@@ -227,13 +240,18 @@ export default Vue.extend({
       this.employee = employee;
       this.mod = 'panel';
     },
-    edit: function(employee: any) {
-      this.employeSelected = employee;
+    edit: function(employee: Employee) {
+      let employeeSelected : Employee = employee;
+      this.employeSelected = employeeSelected;
       this.name = employee.name;
       this.surname1 = employee.surname1;
       this.surname2 = employee.surname2;
-      this.type = employee.type.id;
+      this.type = employee.type.id.toString();
       this.dni = employee.dni;
+      this.email = {
+        domain: employee.email.domain,
+        mailName: employee.email.mailName
+      }
       this.$nextTick(() => {
         this.$bvModal.show('editemp');
       });
@@ -286,7 +304,6 @@ export default Vue.extend({
     },
   },
   mounted() {
-    debugger;
     if (this.$route.params.token) this.token = this.$route.params.token;
     this.load();
   }
